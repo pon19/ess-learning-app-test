@@ -1,0 +1,243 @@
+/* === 全体スタイル === */
+* {
+    box-sizing: border-box;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 20px 10px;
+    background-color: #f7fafc;
+    color: #2d3748;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 750px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 3px solid #e2e8f0;
+}
+
+/* ヘッダー */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px dashed #cbd5e0;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.title-badge {
+    display: inline-block;
+    background-color: #ff6b6b;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #2b6cb0;
+}
+
+.name-box {
+    border: 2px solid #a0aec0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    background: #fff8f0;
+    font-size: 14px;
+    min-width: 240px;
+}
+
+/* セクション見出し */
+.section-title {
+    background-color: #ebf8ff;
+    border-left: 6px solid #3182ce;
+    padding: 8px 12px;
+    border-radius: 0 8px 8px 0;
+    font-size: 17px;
+    font-weight: bold;
+    color: #2b6cb0;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+/* 1. 計算問題レイアウト */
+.calc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.calc-box {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 数字入力欄 */
+.input-num {
+    width: 60px;
+    height: 38px;
+    font-size: 18px;
+    text-align: center;
+    border: 2px solid #4299e1;
+    border-radius: 6px;
+    background: #fff;
+    color: #2d3748;
+    font-weight: bold;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.input-num:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
+}
+
+/* 2. 文章問題カード */
+.problem-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.problem-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.problem-num {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    background-color: #319795;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.problem-text {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.6;
+}
+
+.illustration-box {
+    background: #fffaf0;
+    border: 1px dashed #dd6b20;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 12px 0;
+    text-align: center;
+    font-size: 24px;
+}
+
+.formula-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    background: #f7fafc;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.formula-label {
+    width: 70px;
+    color: #4a5568;
+}
+
+/* ボタン・結果表示 */
+.btn-check {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #48bb78;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 25px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(72, 187, 120, 0.3);
+    transition: background 0.2s;
+}
+
+.btn-check:hover {
+    background: #38a169;
+}
+
+.score-display {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* リセット・更新ボタン */
+.btn-reset {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #edf2f7;
+    color: #4a5568;
+    border: 2px solid #cbd5e0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.btn-reset:hover {
+    background: #e2e8f0;
+    color: #2d3748;
+}
+
+/* 印刷時は更新ボタンも非表示 */
+@media print {
+    .btn-reset { display: none !important; }
+}
+
+/* 印刷時の設定 */
+@media print {
+    body { background: #fff; padding: 0; }
+    .container { border: none; box-shadow: none; padding: 0; }
+    .btn-check, .score-display { display: none !important; }
+}

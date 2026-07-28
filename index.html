@@ -1,0 +1,114 @@
+<!DOCTYPE1.0 html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>しょうがくせいのお勉強アプリ</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            background-color: #f7fafc;
+            margin: 0;
+            padding: 20px;
+            color: #2d3748;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            color: #3182ce;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+        }
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .subject-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .subject-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+        }
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+        .title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* 教科ごとの色テーマ */
+        .math { border-color: #4299e1; color: #2b6cb0; }
+        .japanese { border-color: #e53e3e; color: #c53030; }
+        .science { border-color: #38a169; color: #276749; }
+        .social { border-color: #dd6b20; color: #c05621; }
+        
+        /* 準備中ボタン用 */
+        .coming-soon {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .coming-soon:hover {
+            transform: none;
+        }
+        .badge {
+            font-size: 0.8rem;
+            background-color: #cbd5e0;
+            color: #4a5568;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎒 なにを お勉強する？</h1>
+        
+        <div class="subject-grid">
+            <!-- 算数（公開中） -->
+            <a href="math.html" class="subject-card math">
+                <div class="icon">🔢</div>
+                <div class="title">さんすう</div>
+            </a>
+
+            <!-- 国語（準備中） -->
+            <div class="subject-card japanese coming-soon">
+                <div class="icon">📖</div>
+                <div class="title">こくご</div>
+                <div class="badge">じゅんびちゅう</div>
+            </div>
+
+            <!-- 理科（準備中） -->
+            <div class="subject-card science coming-soon">
+                <div class="icon">🌱</div>
+                <div class="title">りか</div>
+                <div class="badge">じゅんびちゅう</div>
+            </div>
+
+            <!-- 社会（準備中） -->
+            <div class="subject-card social coming-soon">
+                <div class="icon">🗺️</div>
+                <div class="title">しゃかい</div>
+                <div class="badge">じゅんびちゅう</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

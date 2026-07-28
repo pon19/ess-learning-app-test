@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>しょうがく1ねんせい さんすうWebプリント - ぶんしょうもんだい</title>
+    <!-- CSSファイルの読み込み -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ここを追加 -->
+        <div style="text-align: left; margin-bottom: 15px;">
+            <a href="index.html" style="text-decoration: none; color: #4a5568; font-weight: bold;">🏠 トップへもどる</a>
+        </div>
+
+        <!-- 既存のタイトルや問題表示部分... -->
+    <!-- ヘッダー -->
+    <div class="header">
+        <div>
+            <span class="title-badge">しょうがく1ねんせい</span>
+            <h1>さんすうプリント（1にちめ）</h1>
+        </div>
+        <div class="name-box">
+            なまえ：____________________
+        </div>
+    </div>
+
+    <!-- 1. 計算問題 -->
+    <div class="section-title">1. けいさん もんだいを しましょう</div>
+    <div class="calc-grid" id="calcGrid">
+    </div>
+
+    <!-- 2. 文章問題（JavaScriptでランダム挿入） -->
+    <div class="section-title">2. ぶんしょうもんだい</div>
+    <div id="wordProblemArea">
+        <!-- ここにJavaScriptから問題が自動挿入されます -->
+    </div>
+
+   <!-- 答え合わせボタン・更新ボタンと結果エリア -->
+    <button class="btn-check" id="checkBtn">こたえあわせをする 💮</button>
+    <div class="score-display" id="scoreBox"></div>
+    <!-- スコア表示の下などに追加 -->
+    <div id="scoreBox" style="display:none;"></div>
+        
+    <!-- ↓ ここから追加 ↓ -->
+    <div class="history-container" style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        <h3 style="color: #2b6cb0; margin-top: 0;">📜 いままでの きろく</h3>
+        <div id="historyList" style="text-align: left; max-height: 200px; overflow-y: auto; margin-bottom: 15px;">
+        <!-- ここに過去の成績が自動で入ります -->
+        </div>
+        <button id="clearHistoryBtn" style="background-color: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">
+        きろくを けす
+        </button>
+    </div>
+    <!-- ↑ ここまで追加 ↑ -->
+    <button class="btn-reset" id="resetBtn">あたらしい もんだいに する 🔄</button>
+</div>
+
+<!-- JavaScriptファイルの読み込み -->
+<script src="script.js"></script>
+</body>
+</html>
