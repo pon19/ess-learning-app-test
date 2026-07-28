@@ -59,18 +59,18 @@
                 <input type="text" id="signupName" placeholder="なまえ（例: たろう）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
 
                 <!-- 👇 追加：電話番号入力欄（ハイフンあり・なし両方対応） -->
-                <input type="tel" id="signupPhone" placeholder="けいたいばんごう（例: 09012345678）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <input type="tel" id="signupPhone" placeholder="携帯番号（例: 09012345678）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
 
                 <input type="email" id="signupEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <input type="password" id="signupPassword" placeholder="パスワード（6もし いじょう）" required minlength="6" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#48bb78; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">とうろくする</button>
+                <input type="password" id="signupPassword" placeholder="パスワード（6文字以上）" required minlength="6" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <button type="submit" style="width:100%; padding:10px; background:#48bb78; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">登録する</button>
             </form>
 
             <!-- 3. パスワード再設定メール送信フォーム -->
             <form id="resetRequestForm" style="display:none;">
-                <p style="font-size: 14px; color: #4a5568;">とうろくしたメールアドレスに パスワード さいせっていメールを おくります。</p>
+                <p style="font-size: 14px; color: #4a5568;">登録したメールアドレスに パスワード 再設定メールを 送ります。</p>
                 <input type="email" id="resetEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#ed8936; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">メールを おくる</button>
+                <button type="submit" style="width:100%; padding:10px; background:#ed8936; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">メールの送信</button>
                 <button type="button" class="btnBackToLogin" style="margin-top:10px; background:none; border:none; color:#718096; cursor:pointer; font-size:13px;">← もどる</button>
             </form>
 

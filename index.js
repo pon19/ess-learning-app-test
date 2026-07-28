@@ -104,12 +104,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 簡単な電話番号チェック（10桁または11桁の数字か確認）
         if (phone.length < 10 || phone.length > 11) {
             msg.style.color = 'red';
-            msg.textContent = 'エラー: けいたいばんごう を ただしく にゅうりょくしてください。';
+            msg.textContent = 'エラー: 携帯番号を 正しく 入力してください。';
             return;
         }
 
         msg.style.color = 'black';
-        msg.textContent = 'とうろく中...';
+        msg.textContent = '登録中...';
 
         // 1. Supabase Auth にユーザー作成（メール＋パスワード）
         const { data, error } = await clientSupabase.auth.signUp({ email, password });
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         msg.style.color = 'green';
-        msg.textContent = 'とうろくが かんりょうしました！';
+        msg.textContent = '登録 完了！';
 
         setTimeout(async () => {
             modal.style.display = 'none';
