@@ -68,7 +68,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.textContent = 'とうろく中...';
 
         // 1. Supabase Auth にユーザー作成
-        const { data, error } = await clientSupabase.auth.signUp({ email, password });
+        const { data, error } = await clientSupabase.auth.signUp({ 
+            email, 
+            password 
+        });
 
         if (error) {
             msg.style.color = 'red';
@@ -76,23 +79,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // 2. profiles テーブルに名前を登録
+        // 2. 作成されたユーザーの ID を使って profiles テーブルに名前を保存
         if (data.user) {
             const { error: profileError } = await clientSupabase
                 .from('profiles')
-                .insert([{ id: data.user.id, display_name: name }]);
+                .upsert([
+                    { 
+                        id: data.user.id, 
+                        display_name: name 
+                    }
+                ]);
 
             if (profileError) {
                 console.error('プロフィール保存エラー:', profileError.message);
+                msg.style.color = 'red';
+                msg.textContent = `プロフィール保存エラー: ${profileError.message}`;
+                return;
             }
         }
 
         msg.style.color = 'green';
         msg.textContent = 'とうろくが かんりょうしました！';
-        setTimeout(() => {
+        
+        setTimeout(async () => {
             modal.style.display = 'none';
-            checkAuthState();
-        }, 1500);
+            // 状態を再取得して画面更新
+            await checkAuthState();
+        }, 1000);
     });
 
     // ログアウト処理
