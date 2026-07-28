@@ -298,10 +298,10 @@ async function checkAnswersAndSave() {
         scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん (${totalQuestions}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    // 4. ログイン中の場合、Supabase (math_scores_pb) に保存
+    // 4. ログイン中の場合、Supabase (math_scores_test) に保存
     if (currentUser) {
         const { error } = await clientSupabase
-            .from('math_scores_pb')
+            .from('math_scores_test')
             .insert([
                 {
                     user_id: currentUser.id,
@@ -325,7 +325,7 @@ async function loadScoreHistory() {
     if (!historyList || !currentUser) return;
 
     const { data, error } = await clientSupabase
-        .from('math_scores_pb')
+        .from('math_scores_test')
         .select('*')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false })
