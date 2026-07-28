@@ -75,138 +75,171 @@ async function handleLogout() {
 }
 
 // ====================================================
-// 2. 問題生成ロジック（CSSクラス名をスタイルシートへ最適化）
+// 2. 問題生成ロジック（計算4問・文章3問）
 // ====================================================
 function generateProblems() {
     // 画面のリセット
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
-    // ---- A. 計算問題 (10問) ----
+    // ----------------------------------------------------
+    // A. 計算問題 (4問)
+    // ----------------------------------------------------
     const calcGrid = document.getElementById('calcGrid');
-    if (!calcGrid) return;
-    
-    calcGrid.innerHTML = '';
-    currentCalcAnswers = [];
+    if (calcGrid) {
+        calcGrid.innerHTML = '';
+        currentCalcAnswers = [];
 
-    for (let i = 0; i < 10; i++) {
-        const isAddition = Math.random() > 0.3; // 70% たし算, 30% ひき算
-        let num1, num2, ans, op;
+        for (let i = 0; i < 4; i++) {
+            const isAddition = Math.random() > 0.3; // 70% たし算, 30% ひき算
+            let num1, num2, ans, op;
 
-        if (isAddition) {
-            num1 = Math.floor(Math.random() * 9) + 1;
-            num2 = Math.floor(Math.random() * 9) + 1;
-            ans = num1 + num2;
-            op = '＋';
-        } else {
-            num1 = Math.floor(Math.random() * 9) + 2;
-            num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
-            ans = num1 - num2;
-            op = '－';
+            if (isAddition) {
+                num1 = Math.floor(Math.random() * 9) + 1;
+                num2 = Math.floor(Math.random() * 9) + 1;
+                ans = num1 + num2;
+                op = '＋';
+            } else {
+                num1 = Math.floor(Math.random() * 9) + 2;
+                num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+                ans = num1 - num2;
+                op = '－';
+            }
+
+            currentCalcAnswers.push(ans);
+
+            const card = document.createElement('div');
+            card.className = 'calc-box';
+            card.innerHTML = `
+                <span>(${i + 1}) ${num1} ${op} ${num2} ＝</span>
+                <input type="number" class="input-num" id="calcInput_${i}">
+            `;
+            calcGrid.appendChild(card);
         }
-
-        currentCalcAnswers.push(ans);
-
-        const card = document.createElement('div');
-        card.className = 'calc-box'; // style.cssに合わせ「calc-box」へ修正
-        card.innerHTML = `
-            <span>(${i + 1}) ${num1} ${op} ${num2} ＝</span>
-            <input type="number" class="input-num" id="calcInput_${i}">
-        `;
-        calcGrid.appendChild(card);
     }
 
-    // ---- B. 文章問題 (1問) ----
+    // ----------------------------------------------------
+    // B. 文章問題 (3問)
+    // ----------------------------------------------------
     const wordArea = document.getElementById('wordProblemArea');
-    if (!wordArea) return;
+    if (wordArea) {
+        wordArea.innerHTML = '';
+        currentWordAnswers = [];
 
-    wordArea.innerHTML = '';
-    currentWordAnswers = [];
+        // 文章問題のテンプレート群
+        const wordTemplates = [
+            {
+                text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
+                emoji: "🍎",
+                op: "＋",
+                getParams: () => {
+                    const a = Math.floor(Math.random() * 5) + 2;
+                    const b = Math.floor(Math.random() * 5) + 1;
+                    return { a, b, ans: a + b };
+                }
+            },
+            {
+                text: "こうえんに こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
+                emoji: "👦",
+                op: "－",
+                getParams: () => {
+                    const a = Math.floor(Math.random() * 6) + 4;
+                    const b = Math.floor(Math.random() * (a - 1)) + 1;
+                    return { a, b, ans: a - b };
+                }
+            },
+            {
+                text: "キャンディーが {a}こ あります。おともだちに {b}こ あげました。のこりは なんこですか。",
+                emoji: "🍬",
+                op: "－",
+                getParams: () => {
+                    const a = Math.floor(Math.random() * 5) + 4;
+                    const b = Math.floor(Math.random() * (a - 1)) + 1;
+                    return { a, b, ans: a - b };
+                }
+            },
+            {
+                text: "ねこが {a}ひき います。あとから {b}ひき やってきました。ぜんぶで なんひきに なりましたか。",
+                emoji: "🐱",
+                op: "＋",
+                getParams: () => {
+                    const a = Math.floor(Math.random() * 4) + 2;
+                    const b = Math.floor(Math.random() * 4) + 1;
+                    return { a, b, ans: a + b };
+                }
+            }
+        ];
 
-    const wordTemplates = [
-        {
-            text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
-            emoji: "🍎",
-            op: "＋",
-            getParams: () => {
-                const a = Math.floor(Math.random() * 5) + 2;
-                const b = Math.floor(Math.random() * 5) + 1;
-                return { a, b, ans: a + b };
-            }
-        },
-        {
-            text: "こうえんに こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
-            emoji: "👦👧",
-            op: "－",
-            getParams: () => {
-                const a = Math.floor(Math.random() * 6) + 4;
-                const b = Math.floor(Math.random() * (a - 1)) + 1;
-                return { a, b, ans: a - b };
-            }
+        // テンプレートをシャッフルして重複なく3問選出
+        const shuffledTemplates = [...wordTemplates].sort(() => Math.random() - 0.5);
+
+        for (let i = 0; i < 3; i++) {
+            const selected = shuffledTemplates[i % shuffledTemplates.length];
+            const p = selected.getParams();
+            currentWordAnswers.push(p.ans);
+
+            const problemText = selected.text.replace('{a}', p.a).replace('{b}', p.b);
+
+            const wordCard = document.createElement('div');
+            wordCard.className = 'problem-card';
+            wordCard.innerHTML = `
+                <div class="problem-header">
+                    <div class="problem-num">${i + 1}</div>
+                    <div class="problem-text">${problemText}</div>
+                </div>
+                <div class="illustration-box">
+                    ${selected.emoji.repeat(Math.min(p.a, 8))}
+                </div>
+                <div class="formula-area">
+                    <span class="formula-label">しき：</span>
+                    <input type="text" class="input-num" style="width: 100px; font-size: 16px;" placeholder="${p.a}${selected.op}${p.b}">
+                    <span style="margin-left: 15px;">こたえ：</span>
+                    <input type="number" class="input-num" id="wordInput_${i}">
+                </div>
+            `;
+            wordArea.appendChild(wordCard);
         }
-    ];
-
-    const selected = wordTemplates[Math.floor(Math.random() * wordTemplates.length)];
-    const p = selected.getParams();
-    currentWordAnswers.push(p.ans);
-
-    const problemText = selected.text.replace('{a}', p.a).replace('{b}', p.b);
-
-    const wordCard = document.createElement('div');
-    wordCard.className = 'problem-card'; // style.cssに合わせ「problem-card」へ修正
-    wordCard.innerHTML = `
-        <div class="problem-header">
-            <div class="problem-num">1</div>
-            <div class="problem-text">${problemText}</div>
-        </div>
-        <div class="illustration-box">
-            ${selected.emoji.repeat(Math.min(p.a, 8))}
-        </div>
-        <div class="formula-area">
-            <span class="formula-label">しき：</span>
-            <input type="text" class="input-num" style="width: 100px; font-size: 16px;" placeholder="${p.a}${selected.op}${p.b}">
-            <span style="margin-left: 15px;">こたえ：</span>
-            <input type="number" class="input-num" id="wordInput_0">
-        </div>
-    `;
-    wordArea.appendChild(wordCard);
+    }
 }
 
 // ====================================================
 // 3. 採点 ＆ Supabaseへの成績自動保存
 // ====================================================
 async function checkAnswersAndSave() {
-    let score = 0;
+    let correctCount = 0;
+    const totalQuestions = 7; // 計算4問 ＋ 文章3問 ＝ 計7問
 
-    // 計算問題の採点
+    // 1. 計算問題の採点 (4問)
     currentCalcAnswers.forEach((ans, i) => {
         const input = document.getElementById(`calcInput_${i}`);
-        if (input && parseInt(input.value) === ans) {
-            score += 10;
+        if (input && parseInt(input.value, 10) === ans) {
+            correctCount++;
         }
     });
 
-    // 文章問題の採点
-    const wordInput = document.getElementById(`wordInput_0`);
-    if (wordInput && parseInt(wordInput.value) === currentWordAnswers[0]) {
-        score += 10;
-    }
+    // 2. 文章問題の採点 (3問)
+    currentWordAnswers.forEach((ans, i) => {
+        const wordInput = document.getElementById(`wordInput_${i}`);
+        if (wordInput && parseInt(wordInput.value, 10) === ans) {
+            correctCount++;
+        }
+    });
 
-    // 100点満点表記に調整
-    const finalScore = Math.round((score / 110) * 100);
+    // 3. 100点満点換算（全7問）
+    const finalScore = Math.round((correctCount / totalQuestions) * 100);
 
     // 画面に点数を表示
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
-        scoreBox.className = 'score-display'; // スタイル用クラスの追加
+        scoreBox.className = 'score-display';
         scoreBox.style.background = '#e6fffa';
         scoreBox.style.border = '2px solid #319795';
         scoreBox.style.color = '#234e52';
-        scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん 💮`;
+        scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん (${totalQuestions}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    // ログイン中の場合、Supabase (math_scores_pb) に保存
+    // 4. ログイン中の場合、Supabase (math_scores_pb) に保存
     if (currentUser) {
         const { error } = await clientSupabase
             .from('math_scores_pb')
