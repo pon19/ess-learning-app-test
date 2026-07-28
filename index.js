@@ -155,7 +155,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.textContent = '送信中...';
 
         const { error } = await clientSupabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.href
+            // 現在開いているGitHub PagesのURLを指定
+            redirectTo: window.location.href.split('?')[0].split('#')[0]
         });
 
         if (error) {
