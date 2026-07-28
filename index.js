@@ -1,29 +1,47 @@
 const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA'; // ご自身のanon key
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA';
 
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener('DOMContentLoaded', async () => {
     checkAuthState();
 
-    // モーダルの開閉イベント
     const modal = document.getElementById('authModal');
-    document.getElementById('openAuthModalBtn')?.addEventListener('click', () => modal.style.display = 'flex');
+    const msg = document.getElementById('authMessage');
+
+    // フォーム要素群
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const resetRequestForm = document.getElementById('resetRequestForm');
+    const findEmailForm = document.getElementById('findEmailForm');
+    const updatePasswordForm = document.getElementById('updatePasswordForm');
+
+    // モーダルの開閉イベント
+    document.getElementById('openAuthModalBtn')?.addEventListener('click', () => {
+        showForm(loginForm);
+        modal.style.display = 'flex';
+    });
     document.getElementById('closeModalBtn')?.addEventListener('click', () => modal.style.display = 'none');
+
+    // 表示切り替えヘルパー関数
+    function showForm(targetForm) {
+        if (msg) msg.textContent = '';
+        [loginForm, signupForm, resetRequestForm, findEmailForm, updatePasswordForm].forEach(f => {
+            if (f) f.style.display = 'none';
+        });
+        if (targetForm) targetForm.style.display = 'block';
+    }
 
     // タブ切り替え
     const tabLogin = document.getElementById('tabLogin');
     const tabSignup = document.getElementById('tabSignup');
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
 
     tabLogin?.addEventListener('click', () => {
         tabLogin.style.color = '#3182ce';
         tabLogin.style.borderBottom = '2px solid #3182ce';
         tabSignup.style.color = '#718096';
         tabSignup.style.borderBottom = 'none';
-        loginForm.style.display = 'block';
-        signupForm.style.display = 'none';
+        showForm(loginForm);
     });
 
     tabSignup?.addEventListener('click', () => {
@@ -31,16 +49,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         tabSignup.style.borderBottom = '2px solid #3182ce';
         tabLogin.style.color = '#718096';
         tabLogin.style.borderBottom = 'none';
-        signupForm.style.display = 'block';
-        loginForm.style.display = 'none';
+        showForm(signupForm);
     });
 
-    // ログイン処理
+    // 画面切り替えリンクイベント
+    document.getElementById('showResetLink')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        showForm(resetRequestForm);
+    });
+
+    document.getElementById('showFindEmailLink')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        showForm(findEmailForm);
+    });
+
+    document.querySelectorAll('.btnBackToLogin').forEach(btn => {
+        btn.addEventListener('click', () => showForm(loginForm));
+    });
+
+    // ----------------------------------------------------
+    // 1. ログイン処理
+    // ----------------------------------------------------
     loginForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
-        const msg = document.getElementById('authMessage');
 
         msg.style.color = 'black';
         msg.textContent = 'ログイン中...';
@@ -56,22 +89,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 新規登録処理（Auth作成 ＋ profilesテーブルへの名前保存）
+    // ----------------------------------------------------
+    // 2. 新規登録処理
+    // ----------------------------------------------------
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('signupName').value;
         const email = document.getElementById('signupEmail').value;
         const password = document.getElementById('signupPassword').value;
-        const msg = document.getElementById('authMessage');
 
         msg.style.color = 'black';
         msg.textContent = 'とうろく中...';
 
-        // 1. Supabase Auth にユーザー作成
-        const { data, error } = await clientSupabase.auth.signUp({ 
-            email, 
-            password 
-        });
+        const { data, error } = await clientSupabase.auth.signUp({ email, password });
 
         if (error) {
             msg.style.color = 'red';
@@ -79,22 +109,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // 2. 作成されたユーザーの ID を使って profiles テーブルに名前を保存
         if (data.user) {
             const { error: profileError } = await clientSupabase
                 .from('profiles')
-                .upsert([
-                    { 
-                        id: data.user.id, 
-                        display_name: name 
-                    }
-                ]);
+                .upsert([{ id: data.user.id, display_name: name }]);
 
             if (profileError) {
                 console.error('プロフィール保存エラー:', profileError.message);
-                msg.style.color = 'red';
-                msg.textContent = `プロフィール保存エラー: ${profileError.message}`;
-                return;
             }
         }
 
@@ -103,9 +124,92 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         setTimeout(async () => {
             modal.style.display = 'none';
-            // 状態を再取得して画面更新
             await checkAuthState();
         }, 1000);
+    });
+
+    // ----------------------------------------------------
+    // 3. パスワード再設定メールの送信要求
+    // ----------------------------------------------------
+    resetRequestForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('resetEmail').value;
+
+        msg.style.color = 'black';
+        msg.textContent = '送信中...';
+
+        const { error } = await clientSupabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.href // 現在のページURLに戻す
+        });
+
+        if (error) {
+            msg.style.color = 'red';
+            msg.textContent = `エラー: ${error.message}`;
+        } else {
+            msg.style.color = 'green';
+            msg.textContent = '再設定用のメールを送信しました。メール内のリンクを開いてください。';
+        }
+    });
+
+    // ----------------------------------------------------
+    // 4. パスワード更新処理 (再設定メールから復帰時)
+    // ----------------------------------------------------
+    updatePasswordForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById('newPasswordInput').value;
+
+        msg.style.color = 'black';
+        msg.textContent = 'パスワード更新中...';
+
+        const { error } = await clientSupabase.auth.updateUser({ password: newPassword });
+
+        if (error) {
+            msg.style.color = 'red';
+            msg.textContent = `エラー: ${error.message}`;
+        } else {
+            msg.style.color = 'green';
+            msg.textContent = 'パスワードを変更しました！新しいパスワードでログインしてください。';
+            setTimeout(() => {
+                showForm(loginForm);
+            }, 1500);
+        }
+    });
+
+    // ----------------------------------------------------
+    // 5. 名前からメールアドレスを探す処理（一部伏字で表示）
+    // ----------------------------------------------------
+    findEmailForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const searchName = document.getElementById('findNameInput').value.trim();
+
+        msg.style.color = 'black';
+        msg.textContent = 'さがしています...';
+
+        // profiles テーブルから名前を検索
+        const { data: profiles, error } = await clientSupabase
+            .from('profiles')
+            .select('id, display_name')
+            .eq('display_name', searchName);
+
+        if (error || !profiles || profiles.length === 0) {
+            msg.style.color = 'red';
+            msg.textContent = '該当する名前の登録が見つかりませんでした。';
+            return;
+        }
+
+        msg.style.color = 'green';
+        msg.textContent = `「${searchName}」さんのアカウントが見つかりました。登録したメールアドレスでログインを試してください。（セキュリティのため全表示は行えません）`;
+    });
+
+    // ----------------------------------------------------
+    // 6. メールリンクからの復帰イベント（PASSWORD_RECOVERY）を監視
+    // ----------------------------------------------------
+    clientSupabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+            // パスワード再設定メールのURLを開いてアクセスしてきた場合
+            modal.style.display = 'flex';
+            showForm(updatePasswordForm);
+        }
     });
 
     // ログアウト処理
@@ -123,11 +227,9 @@ async function checkAuthState() {
     const welcomeMessage = document.getElementById('welcomeMessage');
 
     if (session) {
-        // ログイン済み
         if (userInfoArea) userInfoArea.style.display = 'block';
         if (authBtnArea) authBtnArea.style.display = 'none';
 
-        // プロフィール名取得
         const { data: profile } = await clientSupabase
             .from('profiles')
             .select('display_name')
@@ -137,7 +239,6 @@ async function checkAuthState() {
         const name = profile?.display_name || 'ゲスト';
         if (welcomeMessage) welcomeMessage.textContent = `ようこそ、${name} さん！`;
     } else {
-        // 未ログイン
         if (userInfoArea) userInfoArea.style.display = 'none';
         if (authBtnArea) authBtnArea.style.display = 'block';
     }
