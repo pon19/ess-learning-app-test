@@ -1,6 +1,19 @@
 const GEMINI_API_KEY = "AQ.Ab8RN6L_aVgGUuoXLdCliSppPdfPagQ2pAHmExASMYl5iTRcDw";
 
-document.addEventListener('DOMContentLoaded', () => {
+// ----------------------------------------------------
+// Supabase 設定 (ご自身の情報に置き換えてください)
+// ----------------------------------------------------
+const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let attemptCount = 1; // 今回のセッションでの解答回数
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. 認証状態の確認
+    await checkAuth();
+
     loadOrGenerateAll(false);
 
     const checkBtn = document.getElementById('checkBtn');
@@ -11,19 +24,177 @@ document.addEventListener('DOMContentLoaded', () => {
         resetBtn.addEventListener('click', () => {
             const isConfirmed = confirm('あたらしい もんだいに かえますか？\n（いままでの こたえは きえます）');
             if (isConfirmed) {
+                attemptCount = 1; // 挑戦回数をリセット
                 loadOrGenerateAll(true);
                 resetInputs();
             }
         });
     }
+
+    // ログインフォーム送信のイベント
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
 });
 
+// ----------------------------------------------------
+// ログインチェックとプロフィールの読み込み
+// ----------------------------------------------------
+async function checkAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+        currentUser = session.user;
+        document.getElementById('loginModal').style.display = 'none';
+        
+        // profiles から表示名を取得してヘッダーに反映
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', currentUser.id)
+            .single();
+
+        if (profile) {
+            const nameBox = document.querySelector('.name-box');
+            if (nameBox) nameBox.textContent = `なまえ：${profile.display_name}`;
+        }
+        
+        // 履歴のロード
+        loadScoreHistory();
+    } else {
+        // 未ログイン時はログインモーダルを表示
+        document.getElementById('loginModal').style.display = 'flex';
+    }
+}
+
+// ログイン処理
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+
+    errorEl.textContent = 'ログイン中...';
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+        errorEl.textContent = `ログインエラー: ${error.message}`;
+    } else {
+        errorEl.textContent = '';
+        currentUser = data.user;
+        document.getElementById('loginModal').style.display = 'none';
+        checkAuth();
+    }
+}
+
+// ----------------------------------------------------
+// 採点 ＆ math_scores_pb への自動保存
+// ----------------------------------------------------
+async function checkAnswers() {
+    const inputs = document.querySelectorAll('.input-num');
+    let correctCount = 0;
+    const totalCount = inputs.length;
+
+    inputs.forEach(input => {
+        const userAns = input.value.trim();
+        const expected = input.getAttribute('data-ans');
+
+        if (userAns !== '' && userAns === expected) {
+            input.style.backgroundColor = '#c6f6d5';
+            input.style.borderColor = '#38a169';
+            correctCount++;
+        } else {
+            input.style.backgroundColor = '#fed7d7';
+            input.style.borderColor = '#e53e3e';
+        }
+    });
+
+    const scoreBox = document.getElementById('scoreBox');
+    scoreBox.style.display = 'block';
+
+    // 100点満点に換算したスコアを計算
+    const calculatedScore = Math.round((correctCount / totalCount) * 100);
+
+    if (correctCount === totalCount) {
+        scoreBox.innerHTML = '🎉 はなまる！ ぜんぶ せいかいです！ おめでとう！ 💮✨';
+        scoreBox.style.color = '#276749';
+        scoreBox.style.backgroundColor = '#c6f6d5';
+        scoreBox.style.border = '2px solid #38a169';
+    } else {
+        scoreBox.innerHTML = `💪 あとすこし！ ${totalCount}こちゅう ${correctCount}こ せいかいです。<br>あかいところを もういちど かんがえてみよう！`;
+        scoreBox.style.color = '#9b2c2c';
+        scoreBox.style.backgroundColor = '#fed7d7';
+        scoreBox.style.border = '2px solid #e53e3e';
+    }
+
+    // --- Supabase math_scores_pb テーブルへ成績を送信 ---
+    if (currentUser) {
+        const { error } = await supabase
+            .from('math_scores_pb')
+            .insert([
+                {
+                    user_id: currentUser.id,
+                    score: calculatedScore,
+                    attempt_count: attemptCount,
+                    category: 'さんすうプリント'
+                }
+            ]);
+
+        if (error) {
+            console.error('成績保存エラー:', error.message);
+        } else {
+            attemptCount++; // 解答回数をカウントアップ
+            loadScoreHistory(); // 履歴を更新表示
+        }
+    }
+}
+
+// ----------------------------------------------------
+// 履歴の取得・表示 (math_scores_pb から読み込み)
+// ----------------------------------------------------
+async function loadScoreHistory() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList || !currentUser) return;
+
+    const { data: scores, error } = await supabase
+        .from('math_scores_pb')
+        .select('score, attempt_count, solved_at')
+        .eq('user_id', currentUser.id)
+        .order('solved_at', { ascending: false })
+        .limit(10);
+
+    if (error) {
+        historyList.innerHTML = `<p style="color:red;">きろくの よみこみに しっぱいしました</p>`;
+        return;
+    }
+
+    if (!scores || scores.length === 0) {
+        historyList.innerHTML = '<p style="color:#718096; font-size:14px;">まだ きろくが ありません。</p>';
+        return;
+    }
+
+    historyList.innerHTML = '';
+    scores.forEach(item => {
+        const date = new Date(item.solved_at).toLocaleString('ja-JP', {
+            month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        const div = document.createElement('div');
+        div.style.padding = '6px 0';
+        div.style.borderBottom = '1px solid #edf2f7';
+        div.style.fontSize = '14px';
+        div.innerHTML = `📅 <strong>${date}</strong> ： <strong>${item.score}点</strong> (${item.attempt_count}かいめ)`;
+        historyList.appendChild(div);
+    });
+}
+
+// 以下、既存の問題生成ロジック等はそのまま継続
 async function loadOrGenerateAll(forceNew = false) {
     loadOrGenerateCalculations(forceNew);
     await loadOrGenerateWordProblems(forceNew);
 }
 
-// 1. 計算問題（端末ごとにランダム生成）
 function loadOrGenerateCalculations(forceNew) {
     const calcGrid = document.getElementById('calcGrid');
     if (!calcGrid) return;
@@ -72,7 +243,6 @@ function generateQuestionsData() {
     return questions;
 }
 
-// 2. 文章問題（端末ごとのブラウザから Gemini API を呼び出して個別生成）
 async function loadOrGenerateWordProblems(forceNew) {
     const area = document.getElementById('wordProblemArea');
     if (!area) return;
@@ -92,7 +262,6 @@ async function loadOrGenerateWordProblems(forceNew) {
             renderWordProblems(selectedProblems);
         } catch (error) {
             console.error('Gemini API Error:', error);
-            // APIエラー時（通信障害等）のバックアップ問題
             selectedProblems = [
                 { text: "りんごが 3こ あります。みかんが 2こ あります。あわせて なんこですか。", icon: "🍎 🍎 🍎 + 🍊 🍊", num1: 3, num2: 2, answer: 5, unit: "こ", op: "+" },
                 { text: "クッキーが 5こ ありました。2こ たべました。のこりは なんこですか。", icon: "🍪 🍪 🍪 🍪 🍪 ➔ ❌ ❌", num1: 5, num2: 2, answer: 3, unit: "こ", op: "-" },
@@ -103,7 +272,6 @@ async function loadOrGenerateWordProblems(forceNew) {
     }
 }
 
-// Gemini APIへ直接問い合わせる処理（モデル名を正しく修正）
 async function fetchProblemsFromGemini() {
     const prompt = `小学校1年生向けの算数問題を3問生成し、必ず純粋なJSON配列のみを返してください。
 [
@@ -124,7 +292,6 @@ async function fetchProblemsFromGemini() {
 - 答えは1から10までの整数
 - 余計な解説やMarkdownの整形タグは含めず、JSONのみを出力してください。`;
 
-    // モデル名を有効な "gemini-2.5-flash" または "gemini-1.5-flash" に修正
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,13 +302,10 @@ async function fetchProblemsFromGemini() {
 
     const data = await response.json();
     let textResult = data.candidates[0].content.parts[0].text;
-    
-    // 不要な記号(```json 等)を除去してパース
     textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(textResult);
 }
 
-// 画面描画処理
 function renderWordProblems(problems) {
     const area = document.getElementById('wordProblemArea');
     if (!area) return;
@@ -183,39 +347,4 @@ function resetInputs() {
     });
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
-}
-
-function checkAnswers() {
-    const inputs = document.querySelectorAll('.input-num');
-    let correctCount = 0;
-    const totalCount = inputs.length;
-
-    inputs.forEach(input => {
-        const userAns = input.value.trim();
-        const expected = input.getAttribute('data-ans');
-
-        if (userAns !== '' && userAns === expected) {
-            input.style.backgroundColor = '#c6f6d5';
-            input.style.borderColor = '#38a169';
-            correctCount++;
-        } else {
-            input.style.backgroundColor = '#fed7d7';
-            input.style.borderColor = '#e53e3e';
-        }
-    });
-
-    const scoreBox = document.getElementById('scoreBox');
-    scoreBox.style.display = 'block';
-
-    if (correctCount === totalCount) {
-        scoreBox.innerHTML = '🎉 はなまる！ ぜんぶ せいかいです！ おめでとう！ 💮✨';
-        scoreBox.style.color = '#276749';
-        scoreBox.style.backgroundColor = '#c6f6d5';
-        scoreBox.style.border = '2px solid #38a169';
-    } else {
-        scoreBox.innerHTML = `💪 あとすこし！ ${totalCount}こちゅう ${correctCount}こ せいかいです。<br>あかいところを もういちど かんがえてみよう！`;
-        scoreBox.style.color = '#9b2c2c';
-        scoreBox.style.backgroundColor = '#fed7d7';
-        scoreBox.style.border = '2px solid #e53e3e';
-    }
 }
