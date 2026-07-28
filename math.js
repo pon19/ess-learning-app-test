@@ -12,16 +12,26 @@ let currentUser = null;
 let currentCalcAnswers = [];
 let currentWordAnswers = [];
 
+// ストレージ保存用キー
+const STORAGE_KEY = 'math_print_current_problems';
+
 // ====================================================
 // ページ読み込み時の初期化
 // ====================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 問題の初期生成
-    generateProblems();
+    // 1. ページ読み込み時は「既存問題の復元」または「無ければ新規生成」
+    initProblems();
 
     // 2. イベントリスナーの登録
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswersAndSave);
-    document.getElementById('resetBtn')?.addEventListener('click', generateProblems);
+    
+    // ボタン押下時のみ明示的に新規生成を実行
+    document.getElementById('resetBtn')?.addEventListener('click', async () => {
+        if (confirm('あたらしい もんだいに かえますか？')) {
+            await generateNewProblems();
+        }
+    });
+
     document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
 
     // 3. 認証状態の監視
@@ -69,129 +79,185 @@ async function handleLogout() {
 }
 
 // ====================================================
-// 2. 問題生成ロジック（計算4問・文章3問）
+// 2. 問題の初期化と保存・復元ロジック
 // ====================================================
-function generateProblems() {
+
+// ページ読み込み時の呼び出し（保存データがあれば読み込むだけ）
+async function initProblems() {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+        try {
+            const problems = JSON.parse(savedData);
+            renderProblems(problems);
+            return;
+        } catch (e) {
+            console.error('保存データの読み込み失敗:', e);
+        }
+    }
+    // 保存データがない場合のみ新規生成
+    await generateNewProblems();
+}
+
+// 「あたらしい問題にする」ボタン押下時（完全新規生成）
+async function generateNewProblems() {
     // 画面のリセット
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
     // ----------------------------------------------------
-    // A. 計算問題 (4問)
+    // A. 計算問題データ (4問) の生成
     // ----------------------------------------------------
+    const calcProblems = [];
+    for (let i = 0; i < 4; i++) {
+        const isAddition = Math.random() > 0.3;
+        let num1, num2, ans, op;
+
+        if (isAddition) {
+            num1 = Math.floor(Math.random() * 9) + 1;
+            num2 = Math.floor(Math.random() * 9) + 1;
+            ans = num1 + num2;
+            op = '＋';
+        } else {
+            num1 = Math.floor(Math.random() * 9) + 2;
+            num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+            ans = num1 - num2;
+            op = '－';
+        }
+
+        calcProblems.push({ num1, num2, ans, op });
+    }
+
+    // ----------------------------------------------------
+    // B. 文章問題データ (3問) の生成
+    // ----------------------------------------------------
+    // ※今後Gemini APIを呼び出す場合は、ここで行って生成結果を配列にします
+    const wordTemplates = [
+        {
+            text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
+            emoji: "🍎",
+            op: "+",
+            getParams: () => {
+                const a = Math.floor(Math.random() * 5) + 2;
+                const b = Math.floor(Math.random() * 5) + 1;
+                return { a, b, ans: a + b };
+            }
+        },
+        {
+            text: "こうえんに こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
+            emoji: "👦",
+            op: "-",
+            getParams: () => {
+                const a = Math.floor(Math.random() * 6) + 4;
+                const b = Math.floor(Math.random() * (a - 1)) + 1;
+                return { a, b, ans: a - b };
+            }
+        },
+        {
+            text: "キャンディーが {a}こ あります。おともだちに {b}こ あげました。のこりは なんこですか。",
+            emoji: "🍬",
+            op: "-",
+            getParams: () => {
+                const a = Math.floor(Math.random() * 5) + 4;
+                const b = Math.floor(Math.random() * (a - 1)) + 1;
+                return { a, b, ans: a - b };
+            }
+        },
+        {
+            text: "ねこが {a}ひき います。あとから {b}ひき やってきました。ぜんぶで なんひきに なりましたか。",
+            emoji: "🐱",
+            op: "+",
+            getParams: () => {
+                const a = Math.floor(Math.random() * 4) + 2;
+                const b = Math.floor(Math.random() * 4) + 1;
+                return { a, b, ans: a + b };
+            }
+        }
+    ];
+
+    const shuffledTemplates = [...wordTemplates].sort(() => Math.random() - 0.5);
+    const wordProblems = [];
+
+    for (let i = 0; i < 3; i++) {
+        const selected = shuffledTemplates[i % shuffledTemplates.length];
+        const p = selected.getParams();
+        const problemText = selected.text.replace('{a}', p.a).replace('{b}', p.b);
+
+        wordProblems.push({
+            text: problemText,
+            emoji: selected.emoji,
+            count: p.a,
+            op: selected.op,
+            ans: p.ans
+        });
+    }
+
+    // 問題データをオブジェクトにして保存
+    const problemData = {
+        calc: calcProblems,
+        word: wordProblems
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(problemData));
+
+    // 画面に描写
+    renderProblems(problemData);
+}
+
+// ----------------------------------------------------
+// C. 受け取った問題データを画面に表示する処理
+// ----------------------------------------------------
+function renderProblems(problems) {
+    // 画面リセット
+    const scoreBox = document.getElementById('scoreBox');
+    if (scoreBox) scoreBox.style.display = 'none';
+
+    // 1. 計算問題の表示
     const calcGrid = document.getElementById('calcGrid');
-    if (calcGrid) {
+    if (calcGrid && problems.calc) {
         calcGrid.innerHTML = '';
         currentCalcAnswers = [];
 
-        for (let i = 0; i < 4; i++) {
-            const isAddition = Math.random() > 0.3; // 70% たし算, 30% ひき算
-            let num1, num2, ans, op;
-
-            if (isAddition) {
-                num1 = Math.floor(Math.random() * 9) + 1;
-                num2 = Math.floor(Math.random() * 9) + 1;
-                ans = num1 + num2;
-                op = '＋';
-            } else {
-                num1 = Math.floor(Math.random() * 9) + 2;
-                num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
-                ans = num1 - num2;
-                op = '－';
-            }
-
-            currentCalcAnswers.push(ans);
+        problems.calc.forEach((p, i) => {
+            currentCalcAnswers.push(p.ans);
 
             const card = document.createElement('div');
             card.className = 'calc-box';
             card.innerHTML = `
-                <span>(${i + 1}) ${num1} ${op} ${num2} ＝</span>
-                <input type="number" class="input-num" id="calcInput_${i}">
+                <span>(${i + 1}) ${p.num1} ${p.op} ${p.num2} ＝</span>
+                <input type="number" class="input-num" id="calcInput_${i}" autocomplete="off">
             `;
             calcGrid.appendChild(card);
-        }
+        });
     }
 
-    // ----------------------------------------------------
-    // B. 文章問題 (3問)
-    // ----------------------------------------------------
+    // 2. 文章問題の表示
     const wordArea = document.getElementById('wordProblemArea');
-    if (wordArea) {
+    if (wordArea && problems.word) {
         wordArea.innerHTML = '';
         currentWordAnswers = [];
 
-        const wordTemplates = [
-            {
-                text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
-                emoji: "🍎",
-                op: "+",
-                getParams: () => {
-                    const a = Math.floor(Math.random() * 5) + 2;
-                    const b = Math.floor(Math.random() * 5) + 1;
-                    return { a, b, ans: a + b };
-                }
-            },
-            {
-                text: "こうえんに こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
-                emoji: "👦",
-                op: "-",
-                getParams: () => {
-                    const a = Math.floor(Math.random() * 6) + 4;
-                    const b = Math.floor(Math.random() * (a - 1)) + 1;
-                    return { a, b, ans: a - b };
-                }
-            },
-            {
-                text: "キャンディーが {a}こ あります。おともだちに {b}こ あげました。のこりは なんこですか。",
-                emoji: "🍬",
-                op: "-",
-                getParams: () => {
-                    const a = Math.floor(Math.random() * 5) + 4;
-                    const b = Math.floor(Math.random() * (a - 1)) + 1;
-                    return { a, b, ans: a - b };
-                }
-            },
-            {
-                text: "ねこが {a}ひき います。あとから {b}ひき やってきました。ぜんぶで なんひきに なりましたか。",
-                emoji: "🐱",
-                op: "+",
-                getParams: () => {
-                    const a = Math.floor(Math.random() * 4) + 2;
-                    const b = Math.floor(Math.random() * 4) + 1;
-                    return { a, b, ans: a + b };
-                }
-            }
-        ];
-
-        // テンプレートをシャッフルして重複なく3問選出
-        const shuffledTemplates = [...wordTemplates].sort(() => Math.random() - 0.5);
-
-        for (let i = 0; i < 3; i++) {
-            const selected = shuffledTemplates[i % shuffledTemplates.length];
-            const p = selected.getParams();
+        problems.word.forEach((p, i) => {
             currentWordAnswers.push(p.ans);
-
-            const problemText = selected.text.replace('{a}', p.a).replace('{b}', p.b);
 
             const wordCard = document.createElement('div');
             wordCard.className = 'problem-card';
             wordCard.innerHTML = `
                 <div class="problem-header">
                     <div class="problem-num">${i + 1}</div>
-                    <div class="problem-text">${problemText}</div>
+                    <div class="problem-text">${p.text}</div>
                 </div>
                 <div class="illustration-box">
-                    ${selected.emoji.repeat(Math.min(p.a, 8))}
+                    ${p.emoji.repeat(Math.min(p.count, 8))}
                 </div>
                 <div class="formula-area">
                     <span class="formula-label">しき：</span>
-                    <input type="text" class="input-num" style="width: 110px; font-size: 16px;">
+                    <input type="text" class="input-num" id="formulaInput_${i}" style="width: 110px; font-size: 16px;" autocomplete="off">
                     <span style="margin-left: 15px;">こたえ：</span>
-                    <input type="number" class="input-num" id="wordInput_${i}">
+                    <input type="number" class="input-num" id="wordInput_${i}" autocomplete="off">
                 </div>
             `;
             wordArea.appendChild(wordCard);
-        }
+        });
     }
 }
 
@@ -200,7 +266,7 @@ function generateProblems() {
 // ====================================================
 async function checkAnswersAndSave() {
     let correctCount = 0;
-    const totalQuestions = 7; // 計算4問 ＋ 文章3問 ＝ 計7問
+    const totalQuestions = 7;
 
     // 1. 計算問題の採点 (4問)
     currentCalcAnswers.forEach((ans, i) => {
@@ -218,7 +284,7 @@ async function checkAnswersAndSave() {
         }
     });
 
-    // 3. 100点満点換算（全7問）
+    // 3. 100点満点換算
     const finalScore = Math.round((correctCount / totalQuestions) * 100);
 
     // 画面に点数を表示
