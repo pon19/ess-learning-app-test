@@ -2,51 +2,11 @@
 // Supabase 設定
 // ====================================================
 const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA'; // ご自身の anon public キーを貼り付けてください
+// ★★★ 以下にご自身の anon key を貼り付けてください ★★★
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA';
 
-// Supabaseクライアントの初期化（設定済みのものを使用）
+// Supabaseクライアントの初期化
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// 画面読み込み時に名前とログイン状態を取得
-async function loadUserProfile() {
-    const nameDisplay = document.getElementById('userNameDisplay'); // 名前表示用の要素
-
-    // ログイン中のユーザー情報を取得
-    const { data: { session }, error: sessionError } = await clientSupabase.auth.getSession();
-
-    if (sessionError || !session) {
-        console.log("未ログイン状態のためindex.htmlへ移動します");
-        // 未ログインの場合はトップページへ戻す（必要に応じて）
-        // window.location.href = 'index.html';
-        return;
-    }
-
-    const userId = session.user.id;
-
-    // profiles テーブルから display_name を取得
-    const { data: profile, error: profileError } = await clientSupabase
-        .from('profiles')
-        .select('display_name')
-        .eq('id', userId)
-        .maybeSingle();
-
-    if (profileError) {
-        console.error("プロフィール取得エラー:", profileError.message);
-        if (nameDisplay) nameDisplay.textContent = 'なまえ：エラー';
-        return;
-    }
-
-    if (profile && profile.display_name) {
-        if (nameDisplay) nameDisplay.textContent = `なまえ：${profile.display_name}`;
-    } else {
-        if (nameDisplay) nameDisplay.textContent = 'なまえ：ゲスト';
-    }
-}
-
-// ページ読み込み完了時に実行
-document.addEventListener('DOMContentLoaded', () => {
-    loadUserProfile();
-});
 
 // 状態管理変数
 let currentUser = null;
@@ -56,51 +16,57 @@ let currentWordAnswers = [];
 // ====================================================
 // ページ読み込み時の初期化
 // ====================================================
-document.addEventListener('DOMContentLoaded', async () => {
-    // ログイン状態のチェックとプロフィール取得
-    await checkAuth();
-
-    // 問題の初期生成
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. 問題の初期生成
     generateProblems();
 
-    // イベントリスナーの登録
+    // 2. イベントリスナーの登録
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswersAndSave);
     document.getElementById('resetBtn')?.addEventListener('click', generateProblems);
     document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+
+    // 3. 認証状態の監視（セッション復元完了を待ってからプロフィールを取得）
+    clientSupabase.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+            currentUser = session.user;
+            
+            // ログアウトボタンを表示
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.style.display = 'block';
+
+            // プロフィール取得 ＆ 成績履歴読み込み
+            await fetchUserProfile(currentUser.id);
+            await loadScoreHistory();
+        } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
+            // セッション復元チェックが完了し、未ログインが確定した場合のみリダイレクト
+            alert('ログインが必要です。トップページへ もどります。');
+            window.location.href = 'index.html';
+        }
+    });
 });
 
 // ====================================================
-// 1. 認証 ＆ プロフィール表示 ＆ リダイレクト処理
+// 1. 認証 ＆ プロフィール表示 ＆ ログアウト処理
 // ====================================================
-async function checkAuth() {
-    const { data: { session } } = await clientSupabase.auth.getSession();
+async function fetchUserProfile(userId) {
+    const { data: profile, error } = await clientSupabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', userId)
+        .maybeSingle();
 
-    if (session) {
-        currentUser = session.user;
-
-        // ログアウトボタンを表示
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.style.display = 'block';
-
-        // profiles テーブルからユーザー名を取得
-        const { data: profile } = await clientSupabase
-            .from('profiles')
-            .select('display_name')
-            .eq('id', currentUser.id)
-            .single();
-
-        if (profile && profile.display_name) {
-            const nameBox = document.getElementById('userProfileName');
-            if (nameBox) nameBox.textContent = `なまえ：${profile.display_name}`;
-        }
-
-        // 成績履歴の読み込み
-        loadScoreHistory();
-    } else {
-        // 未ログインの場合はトップページ（index.html）へ自動リダイレクト
-        alert('ログインが必要です。トップページへ もどります。');
-        window.location.href = 'index.html';
+    if (error) {
+        console.error('プロフィール取得エラー:', error.message);
+        return;
     }
+
+    const nameText = (profile && profile.display_name) ? `なまえ：${profile.display_name}` : 'なまえ：ゲスト';
+
+    // HTML側の要素ID（userNameDisplay / userProfileName の両方に対応）
+    const nameBox1 = document.getElementById('userNameDisplay');
+    const nameBox2 = document.getElementById('userProfileName');
+    if (nameBox1) nameBox1.textContent = nameText;
+    if (nameBox2) nameBox2.textContent = nameText;
 }
 
 // ログアウト処理
@@ -220,7 +186,7 @@ async function checkAnswersAndSave() {
         score += 10;
     }
 
-    // 100点満点表記に調整（全問正解で100点）
+    // 100点満点表記に調整
     const finalScore = Math.round((score / 110) * 100);
 
     // 画面に点数を表示
