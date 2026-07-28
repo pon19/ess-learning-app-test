@@ -1,114 +1,64 @@
-<!DOCTYPE1.0 html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>しょうがくせいのお勉強アプリ</title>
-    <style>
-        body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-            background-color: #f7fafc;
-            margin: 0;
-            padding: 20px;
-            color: #2d3748;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        h1 {
-            color: #3182ce;
-            font-size: 1.8rem;
-            margin-bottom: 24px;
-        }
-        .subject-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-top: 20px;
-        }
-        .subject-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 24px 16px;
-            text-decoration: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .subject-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
-        }
-        .icon {
-            font-size: 3rem;
-            margin-bottom: 8px;
-        }
-        .title {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        
-        /* 教科ごとの色テーマ */
-        .math { border-color: #4299e1; color: #2b6cb0; }
-        .japanese { border-color: #e53e3e; color: #c53030; }
-        .science { border-color: #38a169; color: #276749; }
-        .social { border-color: #dd6b20; color: #c05621; }
-        
-        /* 準備中ボタン用 */
-        .coming-soon {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .coming-soon:hover {
-            transform: none;
-        }
-        .badge {
-            font-size: 0.8rem;
-            background-color: #cbd5e0;
-            color: #4a5568;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-top: 6px;
-        }
-    </style>
+    <title>しょうがくせい Webプリント</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK の読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>🎒 なにを お勉強する？</h1>
+    <div class="container" style="max-width: 600px; margin: 40px auto; text-align: center;">
+        <h1>✏️ しょうがくせい Webプリント</h1>
         
-        <div class="subject-grid">
-            <!-- 算数（公開中） -->
-            <a href="math.html" class="subject-card math">
-                <div class="icon">🔢</div>
-                <div class="title">さんすう</div>
-            </a>
+        <!-- ログイン状態表示エリア -->
+        <div id="userInfoArea" style="margin-bottom: 20px; padding: 15px; background: #edf2f7; border-radius: 8px; display: none;">
+            <p style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: bold; color: #2b6cb0;" id="welcomeMessage">ようこそ！</p>
+            <button id="topLogoutBtn" style="background: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">ログアウト</button>
+        </div>
 
-            <!-- 国語（準備中） -->
-            <div class="subject-card japanese coming-soon">
-                <div class="icon">📖</div>
-                <div class="title">こくご</div>
-                <div class="badge">じゅんびちゅう</div>
-            </div>
+        <!-- 未ログイン時に表示するボタン -->
+        <div id="authBtnArea" style="margin-bottom: 20px;">
+            <button id="openAuthModalBtn" style="padding: 10px 20px; font-size: 1rem; background: #3182ce; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔐 ログイン / しんきとうろく</button>
+        </div>
 
-            <!-- 理科（準備中） -->
-            <div class="subject-card science coming-soon">
-                <div class="icon">🌱</div>
-                <div class="title">りか</div>
-                <div class="badge">じゅんびちゅう</div>
-            </div>
-
-            <!-- 社会（準備中） -->
-            <div class="subject-card social coming-soon">
-                <div class="icon">🗺️</div>
-                <div class="title">しゃかい</div>
-                <div class="badge">じゅんびちゅう</div>
-            </div>
+        <!-- 学習メニュー -->
+        <div class="menu-grid" style="display: flex; flex-direction: column; gap: 15px; margin-top: 30px;">
+            <a href="math.html" style="display: block; padding: 20px; background: #48bb78; color: white; text-decoration: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold;">🔢 1ねんせい さんすうプリント へいく</a>
         </div>
     </div>
+
+    <!-- ログイン / 新規登録 モーダル -->
+    <div id="authModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; padding:24px; border-radius:12px; width:90%; max-width:400px; text-align:center; position:relative;">
+            <button id="closeModalBtn" style="position:absolute; top:10px; right:15px; border:none; background:none; font-size:20px; cursor:pointer;">×</button>
+            
+            <!-- タブ切り替え -->
+            <div style="display:flex; justify-content:space-around; margin-bottom:20px; border-bottom:2px solid #edf2f7;">
+                <button id="tabLogin" style="padding:8px 16px; border:none; background:none; font-weight:bold; color:#3182ce; border-bottom:2px solid #3182ce; cursor:pointer;">ログイン</button>
+                <button id="tabSignup" style="padding:8px 16px; border:none; background:none; font-weight:bold; color:#718096; cursor:pointer;">しんきとうろく</button>
+            </div>
+
+            <!-- ログインフォーム -->
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <input type="password" id="loginPassword" placeholder="パスワード" required style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <button type="submit" style="width:100%; padding:10px; background:#3182ce; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">ログインする</button>
+            </form>
+
+            <!-- 新規登録フォーム -->
+            <form id="signupForm" style="display:none;">
+                <input type="text" id="signupName" placeholder="なまえ（例: たろう）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <input type="email" id="signupEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <input type="password" id="signupPassword" placeholder="パスワード（6もし いじょう）" required minlength="6" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <button type="submit" style="width:100%; padding:10px; background:#48bb78; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">とうろくする</button>
+            </form>
+
+            <p id="authMessage" style="color:red; margin-top:10px; font-size:14px;"></p>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
 </body>
 </html>
