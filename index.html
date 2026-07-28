@@ -70,15 +70,17 @@
                 <button type="button" class="btnBackToLogin" style="margin-top:10px; background:none; border:none; color:#718096; cursor:pointer; font-size:13px;">← もどる</button>
             </form>
 
-            <!-- 4. メールアドレスさがしフォーム -->
-            <form id="findEmailForm" style="display:none;">
-                <p style="font-size: 14px; color: #4a5568;">とうろくした「なまえ」を にゅうりょくしてください。</p>
-                <input type="text" id="findNameInput" placeholder="なまえ" required style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#319795; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">さがす</button>
-                <button type="button" class="btnBackToLogin" style="margin-top:10px; background:none; border:none; color:#718096; cursor:pointer; font-size:13px;">← もどる</button>
-            </form>
+            <!-- 4. メールアドレスお問い合わせ案内表示 -->
+            <div id="findEmailNotice" style="display:none; text-align: left; background: #f7fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <p style="font-size: 14px; color: #2d3748; margin-top: 0; line-height: 1.6;">
+                    メールアドレスを わすれてしまった ばあいは、かんりしゃ（おうちの ひと や せんせい）に かくにんしてください。
+                </p>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button type="button" class="btnBackToLogin" style="background: #718096; color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">← もどる</button>
+                </div>
+            </div>
 
-            <!-- 5. 新しいパスワード設定フォーム（メールのリンクから戻ってきた際に使用） -->
+            <!-- 5. 新しいパスワード設定フォーム (メールリンクから復帰時) -->
             <form id="updatePasswordForm" style="display:none;">
                 <p style="font-size: 14px; color: #2b6cb0; font-weight: bold;">あたらしい パスワードを にゅうりょくしてください。</p>
                 <input type="password" id="newPasswordInput" placeholder="あたらしい パスワード（6もし いじょう）" required minlength="6" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">

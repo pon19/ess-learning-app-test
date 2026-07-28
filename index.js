@@ -9,11 +9,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modal = document.getElementById('authModal');
     const msg = document.getElementById('authMessage');
 
-    // フォーム要素群
+    // フォーム・案内表示要素群
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     const resetRequestForm = document.getElementById('resetRequestForm');
-    const findEmailForm = document.getElementById('findEmailForm');
+    const findEmailNotice = document.getElementById('findEmailNotice');
     const updatePasswordForm = document.getElementById('updatePasswordForm');
 
     // モーダルの開閉イベント
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 表示切り替えヘルパー関数
     function showForm(targetForm) {
         if (msg) msg.textContent = '';
-        [loginForm, signupForm, resetRequestForm, findEmailForm, updatePasswordForm].forEach(f => {
+        [loginForm, signupForm, resetRequestForm, findEmailNotice, updatePasswordForm].forEach(f => {
             if (f) f.style.display = 'none';
         });
         if (targetForm) targetForm.style.display = 'block';
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('showFindEmailLink')?.addEventListener('click', (e) => {
         e.preventDefault();
-        showForm(findEmailForm);
+        showForm(findEmailNotice);
     });
 
     document.querySelectorAll('.btnBackToLogin').forEach(btn => {
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.textContent = '送信中...';
 
         const { error } = await clientSupabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.href // 現在のページURLに戻す
+            redirectTo: window.location.href
         });
 
         if (error) {
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ----------------------------------------------------
-    // 4. パスワード更新処理 (再設定メールから復帰時)
+    // 4. パスワード更新処理 (再設定メールのリンクから復帰時)
     // ----------------------------------------------------
     updatePasswordForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -176,37 +176,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ----------------------------------------------------
-    // 5. 名前からメールアドレスを探す処理（一部伏字で表示）
-    // ----------------------------------------------------
-    findEmailForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const searchName = document.getElementById('findNameInput').value.trim();
-
-        msg.style.color = 'black';
-        msg.textContent = 'さがしています...';
-
-        // profiles テーブルから名前を検索
-        const { data: profiles, error } = await clientSupabase
-            .from('profiles')
-            .select('id, display_name')
-            .eq('display_name', searchName);
-
-        if (error || !profiles || profiles.length === 0) {
-            msg.style.color = 'red';
-            msg.textContent = '該当する名前の登録が見つかりませんでした。';
-            return;
-        }
-
-        msg.style.color = 'green';
-        msg.textContent = `「${searchName}」さんのアカウントが見つかりました。登録したメールアドレスでログインを試してください。（セキュリティのため全表示は行えません）`;
-    });
-
-    // ----------------------------------------------------
-    // 6. メールリンクからの復帰イベント（PASSWORD_RECOVERY）を監視
+    // 5. メールリンクからの復帰イベント（PASSWORD_RECOVERY）を監視
     // ----------------------------------------------------
     clientSupabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'PASSWORD_RECOVERY') {
-            // パスワード再設定メールのURLを開いてアクセスしてきた場合
             modal.style.display = 'flex';
             showForm(updatePasswordForm);
         }
