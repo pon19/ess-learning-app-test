@@ -3,8 +3,8 @@ const GEMINI_API_KEY = "AQ.Ab8RN6L_aVgGUuoXLdCliSppPdfPagQ2pAHmExASMYl5iTRcDw";
 // ----------------------------------------------------
 // Supabase 設定 (変数名を clientSupabase にして名前衝突を回避)
 // ----------------------------------------------------
-const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA';
 
 // window.supabase は SDK が生成するオブジェクトのため、Clientを作成して別名で受ける
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
