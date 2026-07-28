@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>しょうがく1ねんせい さんすうWebプリント - ぶんしょうもんだい</title>
+    <title>しょうがく1ねんせい さんすうWebプリント</title>
+    <!-- ファビコン (エラー防止) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
     <!-- CSSファイルの読み込み -->
     <link rel="stylesheet" href="style.css">
     <!-- Supabase SDK の読み込み -->
@@ -21,19 +23,19 @@
         <div class="header">
             <div>
                 <span class="title-badge">しょうがく1ねんせい</span>
-                <h1>さんすうプリント（1にちめ）</h1>
+                <h1>さんすうプリント</h1>
             </div>
             <div class="name-box" id="userProfileName">
                 なまえ：____________________
             </div>
         </div>
 
-        <!-- 1. 計算問題 -->
-        <div class="section-title">1. けいさん もんだいを しましょう</div>
+        <!-- 1. 計算問題 (4問) -->
+        <div class="section-title">1. けいさん もんだいを しましょう (4もん)</div>
         <div class="calc-grid" id="calcGrid"></div>
 
-        <!-- 2. 文章問題（JavaScriptでランダム挿入） -->
-        <div class="section-title">2. ぶんしょうもんだい</div>
+        <!-- 2. 文章問題 (3問) -->
+        <div class="section-title">2. ぶんしょう もんだいを しましょう (3もん)</div>
         <div id="wordProblemArea"></div>
 
         <!-- 答え合わせボタンと結果エリア -->
@@ -49,7 +51,7 @@
         <button class="btn-reset" id="resetBtn">あたらしい もんだいに する 🔄</button>
     </div>
 
-    <!-- 算数Webプリント専用 JavaScriptファイルの読み込み -->
+    <!-- 算数Webプリント専用 JavaScript -->
     <script src="math.js"></script>
 </body>
 </html>

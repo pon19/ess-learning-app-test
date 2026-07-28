@@ -2,7 +2,6 @@
 // Supabase 設定
 // ====================================================
 const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
-// ★★★ ご自身の anon key を貼り付けてください ★★★
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA';
 
 // Supabaseクライアントの初期化
@@ -25,20 +24,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('resetBtn')?.addEventListener('click', generateProblems);
     document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
 
-    // 3. 認証状態の監視（セッション復元完了を待ってからプロフィールを取得）
+    // 3. 認証状態の監視
     clientSupabase.auth.onAuthStateChange(async (event, session) => {
         if (session) {
             currentUser = session.user;
             
-            // ログアウトボタンを表示
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.style.display = 'block';
 
-            // プロフィール取得 ＆ 成績履歴読み込み
             await fetchUserProfile(currentUser.id);
             await loadScoreHistory();
         } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
-            // 未ログインが確定した場合のみリダイレクト
             alert('ログインが必要です。トップページへ もどります。');
             window.location.href = 'index.html';
         }
@@ -62,10 +58,8 @@ async function fetchUserProfile(userId) {
 
     const nameText = (profile && profile.display_name) ? `なまえ：${profile.display_name}` : 'なまえ：ゲスト';
 
-    const nameBox1 = document.getElementById('userNameDisplay');
-    const nameBox2 = document.getElementById('userProfileName');
-    if (nameBox1) nameBox1.textContent = nameText;
-    if (nameBox2) nameBox2.textContent = nameText;
+    const nameBox = document.getElementById('userProfileName');
+    if (nameBox) nameBox.textContent = nameText;
 }
 
 // ログアウト処理
@@ -126,12 +120,11 @@ function generateProblems() {
         wordArea.innerHTML = '';
         currentWordAnswers = [];
 
-        // 文章問題のテンプレート群
         const wordTemplates = [
             {
                 text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
                 emoji: "🍎",
-                op: "＋",
+                op: "+",
                 getParams: () => {
                     const a = Math.floor(Math.random() * 5) + 2;
                     const b = Math.floor(Math.random() * 5) + 1;
@@ -141,7 +134,7 @@ function generateProblems() {
             {
                 text: "こうえんに こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
                 emoji: "👦",
-                op: "－",
+                op: "-",
                 getParams: () => {
                     const a = Math.floor(Math.random() * 6) + 4;
                     const b = Math.floor(Math.random() * (a - 1)) + 1;
@@ -151,7 +144,7 @@ function generateProblems() {
             {
                 text: "キャンディーが {a}こ あります。おともだちに {b}こ あげました。のこりは なんこですか。",
                 emoji: "🍬",
-                op: "－",
+                op: "-",
                 getParams: () => {
                     const a = Math.floor(Math.random() * 5) + 4;
                     const b = Math.floor(Math.random() * (a - 1)) + 1;
@@ -161,7 +154,7 @@ function generateProblems() {
             {
                 text: "ねこが {a}ひき います。あとから {b}ひき やってきました。ぜんぶで なんひきに なりましたか。",
                 emoji: "🐱",
-                op: "＋",
+                op: "+",
                 getParams: () => {
                     const a = Math.floor(Math.random() * 4) + 2;
                     const b = Math.floor(Math.random() * 4) + 1;
@@ -192,7 +185,7 @@ function generateProblems() {
                 </div>
                 <div class="formula-area">
                     <span class="formula-label">しき：</span>
-                    <input type="text" class="input-num" style="width: 100px; font-size: 16px;" placeholder="${p.a}${selected.op}${p.b}">
+                    <input type="text" class="input-num" style="width: 110px; font-size: 16px;" placeholder="例: ${p.a}${selected.op}${p.b}">
                     <span style="margin-left: 15px;">こたえ：</span>
                     <input type="number" class="input-num" id="wordInput_${i}">
                 </div>
@@ -253,7 +246,6 @@ async function checkAnswersAndSave() {
         if (error) {
             console.error('成績保存エラー:', error.message);
         } else {
-            // 履歴一覧を更新
             loadScoreHistory();
         }
     }
