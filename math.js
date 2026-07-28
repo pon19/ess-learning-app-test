@@ -2,7 +2,7 @@
 // Supabase 設定
 // ====================================================
 const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
-// ★★★ 以下にご自身の anon key を貼り付けてください ★★★
+// ★★★ ご自身の anon key を貼り付けてください ★★★
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA';
 
 // Supabaseクライアントの初期化
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await fetchUserProfile(currentUser.id);
             await loadScoreHistory();
         } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
-            // セッション復元チェックが完了し、未ログインが確定した場合のみリダイレクト
+            // 未ログインが確定した場合のみリダイレクト
             alert('ログインが必要です。トップページへ もどります。');
             window.location.href = 'index.html';
         }
@@ -62,7 +62,6 @@ async function fetchUserProfile(userId) {
 
     const nameText = (profile && profile.display_name) ? `なまえ：${profile.display_name}` : 'なまえ：ゲスト';
 
-    // HTML側の要素ID（userNameDisplay / userProfileName の両方に対応）
     const nameBox1 = document.getElementById('userNameDisplay');
     const nameBox2 = document.getElementById('userProfileName');
     if (nameBox1) nameBox1.textContent = nameText;
@@ -76,7 +75,7 @@ async function handleLogout() {
 }
 
 // ====================================================
-// 2. 問題生成ロジック
+// 2. 問題生成ロジック（CSSクラス名をスタイルシートへ最適化）
 // ====================================================
 function generateProblems() {
     // 画面のリセット
@@ -109,11 +108,10 @@ function generateProblems() {
         currentCalcAnswers.push(ans);
 
         const card = document.createElement('div');
-        card.className = 'calc-card';
+        card.className = 'calc-box'; // style.cssに合わせ「calc-box」へ修正
         card.innerHTML = `
-            <span class="calc-num">(${i + 1})</span>
-            <span>${num1} ${op} ${num2} ＝</span>
-            <input type="number" class="calc-input" id="calcInput_${i}">
+            <span>(${i + 1}) ${num1} ${op} ${num2} ＝</span>
+            <input type="number" class="input-num" id="calcInput_${i}">
         `;
         calcGrid.appendChild(card);
     }
@@ -128,7 +126,8 @@ function generateProblems() {
     const wordTemplates = [
         {
             text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
-            op: "+",
+            emoji: "🍎",
+            op: "＋",
             getParams: () => {
                 const a = Math.floor(Math.random() * 5) + 2;
                 const b = Math.floor(Math.random() * 5) + 1;
@@ -136,8 +135,9 @@ function generateProblems() {
             }
         },
         {
-            text: "公園に こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
-            op: "-",
+            text: "こうえんに こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
+            emoji: "👦👧",
+            op: "－",
             getParams: () => {
                 const a = Math.floor(Math.random() * 6) + 4;
                 const b = Math.floor(Math.random() * (a - 1)) + 1;
@@ -153,14 +153,20 @@ function generateProblems() {
     const problemText = selected.text.replace('{a}', p.a).replace('{b}', p.b);
 
     const wordCard = document.createElement('div');
-    wordCard.className = 'word-card';
+    wordCard.className = 'problem-card'; // style.cssに合わせ「problem-card」へ修正
     wordCard.innerHTML = `
-        <p style="font-size: 1.1rem; margin-bottom: 12px; line-height: 1.6;">${problemText}</p>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <span>しき：</span>
-            <input type="text" style="width:120px; padding:6px; font-size:1rem; border:1px solid #ccc; border-radius:4px;" placeholder="例: ${p.a}${selected.op}${p.b}">
-            <span>こたえ：</span>
-            <input type="number" class="calc-input" id="wordInput_0">
+        <div class="problem-header">
+            <div class="problem-num">1</div>
+            <div class="problem-text">${problemText}</div>
+        </div>
+        <div class="illustration-box">
+            ${selected.emoji.repeat(Math.min(p.a, 8))}
+        </div>
+        <div class="formula-area">
+            <span class="formula-label">しき：</span>
+            <input type="text" class="input-num" style="width: 100px; font-size: 16px;" placeholder="${p.a}${selected.op}${p.b}">
+            <span style="margin-left: 15px;">こたえ：</span>
+            <input type="number" class="input-num" id="wordInput_0">
         </div>
     `;
     wordArea.appendChild(wordCard);
@@ -193,7 +199,11 @@ async function checkAnswersAndSave() {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
-        scoreBox.innerHTML = `<h2>💮 てんすう： ${finalScore} てん 💮</h2>`;
+        scoreBox.className = 'score-display'; // スタイル用クラスの追加
+        scoreBox.style.background = '#e6fffa';
+        scoreBox.style.border = '2px solid #319795';
+        scoreBox.style.color = '#234e52';
+        scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん 💮`;
     }
 
     // ログイン中の場合、Supabase (math_scores_pb) に保存
@@ -243,11 +253,11 @@ async function loadScoreHistory() {
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            return `<div style="padding: 6px 0; border-bottom: 1px dashed #eee;">
-                📅 ${date} — <strong>${item.score} 点</strong>
+            return `<div style="padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 14px;">
+                📅 <strong>${date}</strong> — 点数: <span style="color: #dd6b20; font-weight: bold;">${item.score}点</span>
             </div>`;
         }).join('');
     } else {
-        historyList.innerHTML = '<p style="color:#718096; margin:0;">まだ きろくが ありません。</p>';
+        historyList.innerHTML = '<p style="color:#718096; margin:0; font-size:14px;">まだ きろくが ありません。</p>';
     }
 }
