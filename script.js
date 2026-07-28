@@ -1,17 +1,19 @@
 const GEMINI_API_KEY = "AQ.Ab8RN6L_aVgGUuoXLdCliSppPdfPagQ2pAHmExASMYl5iTRcDw";
 
 // ----------------------------------------------------
-// Supabase 設定 (ご自身の情報に置き換えてください)
+// Supabase 設定 (変数名を clientSupabase にして名前衝突を回避)
 // ----------------------------------------------------
 const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
 const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// window.supabase は SDK が生成するオブジェクトのため、Clientを作成して別名で受ける
+const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
-let attemptCount = 1; // 今回のセッションでの解答回数
+let attemptCount = 1;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. 認証状態の確認
+    // 1. 認証チェック
     await checkAuth();
 
     loadOrGenerateAll(false);
@@ -24,51 +26,59 @@ document.addEventListener('DOMContentLoaded', async () => {
         resetBtn.addEventListener('click', () => {
             const isConfirmed = confirm('あたらしい もんだいに かえますか？\n（いままでの こたえは きえます）');
             if (isConfirmed) {
-                attemptCount = 1; // 挑戦回数をリセット
+                attemptCount = 1;
                 loadOrGenerateAll(true);
                 resetInputs();
             }
         });
     }
 
-    // ログインフォーム送信のイベント
+    // ログインフォーム処理の追加
     const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+
+    // ログアウトボタン処理の追加
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await clientSupabase.auth.signOut();
+            window.location.reload();
+        });
     }
 });
 
 // ----------------------------------------------------
-// ログインチェックとプロフィールの読み込み
+// 認証確認 ＆ プロフィール読み込み
 // ----------------------------------------------------
 async function checkAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await clientSupabase.auth.getSession();
     
     if (session) {
         currentUser = session.user;
         document.getElementById('loginModal').style.display = 'none';
         
-        // profiles から表示名を取得してヘッダーに反映
-        const { data: profile } = await supabase
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.style.display = 'block';
+
+        // profiles テーブルから名前を取得
+        const { data: profile } = await clientSupabase
             .from('profiles')
             .select('display_name')
             .eq('id', currentUser.id)
             .single();
 
         if (profile) {
-            const nameBox = document.querySelector('.name-box');
+            const nameBox = document.getElementById('userProfileName');
             if (nameBox) nameBox.textContent = `なまえ：${profile.display_name}`;
         }
         
-        // 履歴のロード
         loadScoreHistory();
     } else {
-        // 未ログイン時はログインモーダルを表示
         document.getElementById('loginModal').style.display = 'flex';
     }
 }
 
-// ログイン処理
+// ログインハンドラ
 async function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
@@ -77,20 +87,19 @@ async function handleLogin(e) {
 
     errorEl.textContent = 'ログイン中...';
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await clientSupabase.auth.signInWithPassword({ email, password });
 
     if (error) {
         errorEl.textContent = `ログインエラー: ${error.message}`;
     } else {
         errorEl.textContent = '';
         currentUser = data.user;
-        document.getElementById('loginModal').style.display = 'none';
         checkAuth();
     }
 }
 
 // ----------------------------------------------------
-// 採点 ＆ math_scores_test への自動保存
+// 採点 ＆ math_scores_pb への自動保存
 // ----------------------------------------------------
 async function checkAnswers() {
     const inputs = document.querySelectorAll('.input-num');
@@ -114,7 +123,6 @@ async function checkAnswers() {
     const scoreBox = document.getElementById('scoreBox');
     scoreBox.style.display = 'block';
 
-    // 100点満点に換算したスコアを計算
     const calculatedScore = Math.round((correctCount / totalCount) * 100);
 
     if (correctCount === totalCount) {
@@ -129,10 +137,10 @@ async function checkAnswers() {
         scoreBox.style.border = '2px solid #e53e3e';
     }
 
-    // --- Supabase math_scores_test テーブルへ成績を送信 ---
+    // Supabase math_scores_pb へ保存
     if (currentUser) {
-        const { error } = await supabase
-            .from('math_scores_test')
+        const { error } = await clientSupabase
+            .from('math_scores_pb')
             .insert([
                 {
                     user_id: currentUser.id,
@@ -145,21 +153,21 @@ async function checkAnswers() {
         if (error) {
             console.error('成績保存エラー:', error.message);
         } else {
-            attemptCount++; // 解答回数をカウントアップ
-            loadScoreHistory(); // 履歴を更新表示
+            attemptCount++;
+            loadScoreHistory();
         }
     }
 }
 
 // ----------------------------------------------------
-// 履歴の取得・表示 (math_scores_test から読み込み)
+// 履歴読み込み
 // ----------------------------------------------------
 async function loadScoreHistory() {
     const historyList = document.getElementById('historyList');
     if (!historyList || !currentUser) return;
 
-    const { data: scores, error } = await supabase
-        .from('math_scores_test')
+    const { data: scores, error } = await clientSupabase
+        .from('math_scores_pb')
         .select('score, attempt_count, solved_at')
         .eq('user_id', currentUser.id)
         .order('solved_at', { ascending: false })
@@ -189,7 +197,6 @@ async function loadScoreHistory() {
     });
 }
 
-// 以下、既存の問題生成ロジック等はそのまま継続
 async function loadOrGenerateAll(forceNew = false) {
     loadOrGenerateCalculations(forceNew);
     await loadOrGenerateWordProblems(forceNew);
