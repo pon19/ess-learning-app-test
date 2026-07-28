@@ -94,13 +94,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ----------------------------------------------------
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name = document.getElementById('signupName').value;
-        const email = document.getElementById('signupEmail').value;
+        const name = document.getElementById('signupName').value.trim();
+        const rawPhone = document.getElementById('signupPhone').value;
+        // ハイフンやスペースを除去して数字だけ抽出 (例: "090-1234-5678" -> "09012345678")
+        const phone = rawPhone.replace(/[^\d]/g, ''); 
+        const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
+
+        // 簡単な電話番号チェック（10桁または11桁の数字か確認）
+        if (phone.length < 10 || phone.length > 11) {
+            msg.style.color = 'red';
+            msg.textContent = 'エラー: けいたいばんごう を ただしく にゅうりょくしてください。';
+            return;
+        }
 
         msg.style.color = 'black';
         msg.textContent = 'とうろく中...';
 
+        // 1. Supabase Auth にユーザー作成（メール＋パスワード）
         const { data, error } = await clientSupabase.auth.signUp({ email, password });
 
         if (error) {
@@ -109,10 +120,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        // 2. profiles テーブルに「なまえ」と「電話番号」を紐づけて保存
         if (data.user) {
             const { error: profileError } = await clientSupabase
                 .from('profiles')
-                .upsert([{ id: data.user.id, display_name: name }]);
+                .upsert([{ 
+                    id: data.user.id, 
+                    display_name: name,
+                    phone: phone
+                }]);
 
             if (profileError) {
                 console.error('プロフィール保存エラー:', profileError.message);
@@ -121,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         msg.style.color = 'green';
         msg.textContent = 'とうろくが かんりょうしました！';
-        
+
         setTimeout(async () => {
             modal.style.display = 'none';
             await checkAuthState();
