@@ -4,7 +4,49 @@
 const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
 const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY'; // ご自身の anon public キーを貼り付けてください
 
+// Supabaseクライアントの初期化（設定済みのものを使用）
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 画面読み込み時に名前とログイン状態を取得
+async function loadUserProfile() {
+    const nameDisplay = document.getElementById('userNameDisplay'); // 名前表示用の要素
+
+    // ログイン中のユーザー情報を取得
+    const { data: { session }, error: sessionError } = await clientSupabase.auth.getSession();
+
+    if (sessionError || !session) {
+        console.log("未ログイン状態のためindex.htmlへ移動します");
+        // 未ログインの場合はトップページへ戻す（必要に応じて）
+        // window.location.href = 'index.html';
+        return;
+    }
+
+    const userId = session.user.id;
+
+    // profiles テーブルから display_name を取得
+    const { data: profile, error: profileError } = await clientSupabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', userId)
+        .maybeSingle();
+
+    if (profileError) {
+        console.error("プロフィール取得エラー:", profileError.message);
+        if (nameDisplay) nameDisplay.textContent = 'なまえ：エラー';
+        return;
+    }
+
+    if (profile && profile.display_name) {
+        if (nameDisplay) nameDisplay.textContent = `なまえ：${profile.display_name}`;
+    } else {
+        if (nameDisplay) nameDisplay.textContent = 'なまえ：ゲスト';
+    }
+}
+
+// ページ読み込み完了時に実行
+document.addEventListener('DOMContentLoaded', () => {
+    loadUserProfile();
+});
 
 // 状態管理変数
 let currentUser = null;
