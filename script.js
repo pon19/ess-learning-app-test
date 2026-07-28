@@ -90,7 +90,7 @@ async function handleLogin(e) {
 }
 
 // ----------------------------------------------------
-// 採点 ＆ math_scores_pb への自動保存
+// 採点 ＆ math_scores_test への自動保存
 // ----------------------------------------------------
 async function checkAnswers() {
     const inputs = document.querySelectorAll('.input-num');
@@ -129,10 +129,10 @@ async function checkAnswers() {
         scoreBox.style.border = '2px solid #e53e3e';
     }
 
-    // --- Supabase math_scores_pb テーブルへ成績を送信 ---
+    // --- Supabase math_scores_test テーブルへ成績を送信 ---
     if (currentUser) {
         const { error } = await supabase
-            .from('math_scores_pb')
+            .from('math_scores_test')
             .insert([
                 {
                     user_id: currentUser.id,
@@ -152,14 +152,14 @@ async function checkAnswers() {
 }
 
 // ----------------------------------------------------
-// 履歴の取得・表示 (math_scores_pb から読み込み)
+// 履歴の取得・表示 (math_scores_test から読み込み)
 // ----------------------------------------------------
 async function loadScoreHistory() {
     const historyList = document.getElementById('historyList');
     if (!historyList || !currentUser) return;
 
     const { data: scores, error } = await supabase
-        .from('math_scores_pb')
+        .from('math_scores_test')
         .select('score, attempt_count, solved_at')
         .eq('user_id', currentUser.id)
         .order('solved_at', { ascending: false })
