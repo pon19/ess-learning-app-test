@@ -185,7 +185,7 @@ function generateProblems() {
                 </div>
                 <div class="formula-area">
                     <span class="formula-label">しき：</span>
-                    <input type="text" class="input-num" style="width: 110px; font-size: 16px;" placeholder="例: ${p.a}${selected.op}${p.b}">
+                    <input type="text" class="input-num" style="width: 110px; font-size: 16px;">
                     <span style="margin-left: 15px;">こたえ：</span>
                     <input type="number" class="input-num" id="wordInput_${i}">
                 </div>
