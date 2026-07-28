@@ -2,7 +2,7 @@
 // Supabase 設定
 // ====================================================
 const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY'; // ご自身の anon public キーを貼り付けてください
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA'; // ご自身の anon public キーを貼り付けてください
 
 // Supabaseクライアントの初期化（設定済みのものを使用）
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
