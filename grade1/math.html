@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>しょうがく1ねんせい さんすうWebプリント</title>
-    <!-- ファビコン (エラー防止) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
-    <!-- CSSファイルの読み込み -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Supabase SDK の読み込み -->
-    <!-- 1. Supabase SDK -->
+    
+    <!-- 1. CSSのパスに ../ を追加 -->
+    <link rel="stylesheet" href="../style.css">
+
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- 2. 共通JS -->
-    <script src="common.js"></script>
-    <!-- 3. ページ固有のJS -->
+    
+    <!-- 2. common.js のパスに ../ を追加 -->
+    <script src="../common.js"></script>
+
+    <!-- 3. 同一フォルダ内なので math.js はそのままでOK -->
     <script src="math.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- ナビゲーションバー -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <a href="index.html" style="text-decoration: none; color: #4a5568; font-weight: bold;">🏠 トップへもどる</a>
+            <a href="../index.html" style="text-decoration: none; color: #4a5568; font-weight: bold;">🏠 トップへもどる</a>
             <button id="logoutBtn" style="display:none; background:#cbd5e0; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">ログアウト</button>
         </div>
 
