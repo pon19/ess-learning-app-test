@@ -1,5 +1,4 @@
 // 状態管理変数
-let currentUser = null;
 let currentCalcAnswers = [];
 let currentWordAnswers = [];
 
