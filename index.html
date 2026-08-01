@@ -30,13 +30,42 @@
             <button id="openAuthModalBtn" style="padding: 10px 20px; font-size: 1rem; background: #3182ce; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔐 ログイン / しんきとうろく</button>
         </div>
 
-        <!-- 学習メニュー -->
-        <div class="menu-grid" style="display: flex; flex-direction: column; gap: 15px; margin-top: 30px;">
-            <!-- 学習メニューリンクを grade1/math.html へ変更 -->
-            <a href="grade1/math.html" style="display: block; padding: 20px; background: #48bb78; color: white; text-decoration: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold;">
-            🔢 1ねんせい さんすうプリント へいく
-            </a>
-        </div>
+        <!-- 学年選択メニュー -->
+<h2 style="font-size: 1.2rem; color: #2d3748; margin-top: 25px; margin-bottom: 15px;">👇 学年（がくねん）を えらんでね</h2>
+
+<div class="grade-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 30px;">
+    
+    <!-- 1年生（公開中） -->
+    <a href="grade1/menu.html" class="grade-card active" style="display: block; padding: 18px; background: #48bb78; color: white; text-decoration: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; box-shadow: 0 4px 6px rgba(72,187,120,0.2); transition: transform 0.2s;">
+        🎒 1ねんせい
+    </a>
+
+    <!-- 2年生（準備中） -->
+    <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
+        🐥 2ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
+    </div>
+
+    <!-- 3年生（準備中） -->
+    <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
+        🐥 3ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
+    </div>
+
+    <!-- 4年生（準備中） -->
+    <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
+        🐥 4ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
+    </div>
+
+    <!-- 5年生（準備中） -->
+    <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
+        🐥 5ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
+    </div>
+
+    <!-- 6年生（準備中） -->
+    <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
+        🎓 6ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
+    </div>
+
+</div>
     </div>
     
     <!-- バージョン表記 ＆ お知らせエリア -->
