@@ -1,10 +1,11 @@
-// 状態管理変数
-let currentUser = null;
+// ====================================================
+// 状態管理変数 & 定数
+// ====================================================
 let currentCalcAnswers = [];
 let currentWordAnswers = [];
 
-// ストレージ保存用キー
-const STORAGE_KEY = 'math_print_current_problems';
+// ストレージ保存用キー（1年生算数専用）
+const STORAGE_KEY = 'math_print_current_problems_g1';
 
 // ====================================================
 // ページ読み込み時の初期化
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+    document.getElementById('logoutBtn')?.addEventListener('click', () => handleLogout('index.html'));
 
     // 3. 認証状態の監視
     clientSupabase.auth.onAuthStateChange(async (event, session) => {
@@ -43,25 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ====================================================
-// 1. 認証 ＆ プロフィール表示 ＆ ログアウト処理
+// 1. プロフィール表示
 // ====================================================
 async function fetchUserProfile(userId) {
     const name = await getUserDisplayName(userId);
     const nameBox = document.getElementById('userProfileName');
-    if (nameBox) nameBox.textContent = 'なまえ : ${name}';
-}
-
-// ログアウト処理
-async function handleLogout() {
-    await clientSupabase.auth.signOut();
-    window.location.href = 'index.html';
+    if (nameBox) nameBox.textContent = `なまえ : ${name}`;
 }
 
 // ====================================================
 // 2. 問題の初期化と保存・復元ロジック
 // ====================================================
-
-// ページ読み込み時の呼び出し（保存データがあれば読み込むだけ）
 async function initProblems() {
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
@@ -73,19 +66,14 @@ async function initProblems() {
             console.error('保存データの読み込み失敗:', e);
         }
     }
-    // 保存データがない場合のみ新規生成
     await generateNewProblems();
 }
 
-// 「あたらしい問題にする」ボタン押下時（完全新規生成）
 async function generateNewProblems() {
-    // 画面のリセット
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
-    // ----------------------------------------------------
     // A. 計算問題データ (4問) の生成
-    // ----------------------------------------------------
     const calcProblems = [];
     for (let i = 0; i < 4; i++) {
         const isAddition = Math.random() > 0.3;
@@ -106,10 +94,7 @@ async function generateNewProblems() {
         calcProblems.push({ num1, num2, ans, op });
     }
 
-    // ----------------------------------------------------
     // B. 文章問題データ (3問) の生成
-    // ----------------------------------------------------
-    // ※今後Gemini APIを呼び出す場合は、ここで行って生成結果を配列にします
     const wordTemplates = [
         {
             text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
@@ -170,23 +155,12 @@ async function generateNewProblems() {
         });
     }
 
-    // 問題データをオブジェクトにして保存
-    const problemData = {
-        calc: calcProblems,
-        word: wordProblems
-    };
-
+    const problemData = { calc: calcProblems, word: wordProblems };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(problemData));
-
-    // 画面に描写
     renderProblems(problemData);
 }
 
-// ----------------------------------------------------
-// C. 受け取った問題データを画面に表示する処理
-// ----------------------------------------------------
 function renderProblems(problems) {
-    // 画面リセット
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
@@ -247,7 +221,6 @@ async function checkAnswersAndSave() {
     let correctCount = 0;
     const totalQuestions = 7;
 
-    // 1. 計算問題の採点 (4問)
     currentCalcAnswers.forEach((ans, i) => {
         const input = document.getElementById(`calcInput_${i}`);
         if (input && parseInt(input.value, 10) === ans) {
@@ -255,7 +228,6 @@ async function checkAnswersAndSave() {
         }
     });
 
-    // 2. 文章問題の採点 (3問)
     currentWordAnswers.forEach((ans, i) => {
         const wordInput = document.getElementById(`wordInput_${i}`);
         if (wordInput && parseInt(wordInput.value, 10) === ans) {
@@ -263,10 +235,8 @@ async function checkAnswersAndSave() {
         }
     });
 
-    // 3. 100点満点換算
     const finalScore = Math.round((correctCount / totalQuestions) * 100);
 
-    // 画面に点数を表示
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
@@ -277,7 +247,6 @@ async function checkAnswersAndSave() {
         scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん (${totalQuestions}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    // 4. ログイン中の場合、Supabase (math_scores_test) に保存
     if (currentUser) {
         const { error } = await clientSupabase
             .from('math_scores_test')
