@@ -1,8 +1,8 @@
 // ====================================================
 // Supabase 設定
 // ====================================================
-const SUPABASE_URL = 'https://haljhrrjjignjjqrxezm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhbGpocnJqamlnbmpqcXJ4ZXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxOTY0OTQsImV4cCI6MjEwMDc3MjQ5NH0.SH4lp7DnQKfYh1LxMHGTIIQwh2TNi6aatYn_z6kGOZA';
+const SUPABASE_URL = 'https://lviknsfnmlejkxfnczyy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aWtuc2ZubWxlamt4Zm5jenl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjMxNTYsImV4cCI6MjEwMDg5OTE1Nn0.rc1IPcEgcEEQLxaPUZ9uaOSvYy68fOlx1Ml-cfU4jOg';
 
 // Supabaseクライアントの初期化
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -298,14 +298,15 @@ async function checkAnswersAndSave() {
         scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん (${totalQuestions}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    // 4. ログイン中の場合、Supabase (math_scores_test) に保存
+    // 4. ログイン中の場合、Supabase (math_scores_pb) に保存
     if (currentUser) {
         const { error } = await clientSupabase
-            .from('math_scores_test')
+            .from('math_scores_pb')
             .insert([
                 {
                     user_id: currentUser.id,
-                    score: finalScore
+                    score: finalScore,
+                    total_questions: totalQuestions
                 }
             ]);
 
@@ -325,7 +326,7 @@ async function loadScoreHistory() {
     if (!historyList || !currentUser) return;
 
     const { data, error } = await clientSupabase
-        .from('math_scores_test')
+        .from('math_scores_pb')
         .select('*')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false })
