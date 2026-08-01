@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadScoreHistory();
         } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
             alert('ログインが必要です。トップページへ もどります。');
-            window.location.href = 'index.html';
+            window.location.href = '../index.html'; // ← ここはトップページ（../index.html）のままでOKです
         }
     });
 });
