@@ -1,12 +1,3 @@
-// ====================================================
-// Supabase 設定
-// ====================================================
-const SUPABASE_URL = 'https://lviknsfnmlejkxfnczyy.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aWtuc2ZubWxlamt4Zm5jenl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjMxNTYsImV4cCI6MjEwMDg5OTE1Nn0.rc1IPcEgcEEQLxaPUZ9uaOSvYy68fOlx1Ml-cfU4jOg';
-
-// Supabaseクライアントの初期化
-const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // 状態管理変数
 let currentUser = null;
 let currentCalcAnswers = [];
@@ -55,21 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // 1. 認証 ＆ プロフィール表示 ＆ ログアウト処理
 // ====================================================
 async function fetchUserProfile(userId) {
-    const { data: profile, error } = await clientSupabase
-        .from('profiles')
-        .select('display_name')
-        .eq('id', userId)
-        .maybeSingle();
-
-    if (error) {
-        console.error('プロフィール取得エラー:', error.message);
-        return;
-    }
-
-    const nameText = (profile && profile.display_name) ? `なまえ：${profile.display_name}` : 'なまえ：ゲスト';
-
+    const name = await getUserDisplayName(userId);
     const nameBox = document.getElementById('userProfileName');
-    if (nameBox) nameBox.textContent = nameText;
+    if (nameBox) nameBox.textContent = 'なまえ : ${name}';
 }
 
 // ログアウト処理
