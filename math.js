@@ -1,7 +1,3 @@
-// 状態管理変数
-let currentCalcAnswers = [];
-let currentWordAnswers = [];
-
 // ストレージ保存用キー
 const STORAGE_KEY = 'math_print_current_problems';
 
