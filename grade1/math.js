@@ -64,47 +64,17 @@ async function initProblems() {
 // ====================================================
 // 🤖 Gemini API を使った文章問題生成
 // ====================================================
+// ====================================================
+// 🤖 Supabase Edge Function 経由で文章問題を生成
+// ====================================================
 async function fetchWordProblemsFromGemini() {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const { data, error } = await clientSupabase.functions.invoke('generate-problems');
 
-    const prompt = `
-小学1年生向けの算数の文章問題を5問作成してください。
-
-【制約事項】
-1. 漢字は使わず、すべて「ひらがな」と「数字」のみで記述すること。
-2. たし算（繰り上がりなし、合計10以下）または ひき算（繰り下がりなし、10以下）の難易度にすること。
-3. 問題文、イラスト用の絵文字1つ、最初の数(count)、答え(ans)をJSON形式で出力すること。
-
-【出力フォーマット】
-以下のJSON構造を厳密に守り、JSONのみを出力してください。
-[
-  {
-    "text": "りんごが 3こ あります。 2こ もらいました。 あわせて なんこに なりましたか。",
-    "emoji": "🍎",
-    "count": 3,
-    "ans": 5
-  }
-]
-`;
-
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-                responseMimeType: "application/json" // JSONで返却させる設定
-            }
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error(`Gemini API Error: ${response.status}`);
+    if (error) {
+        throw new Error(`Edge Function Error: ${error.message}`);
     }
 
-    const data = await response.json();
-    const jsonText = data.candidates[0].content.parts[0].text;
-    return JSON.parse(jsonText);
+    return data;
 }
 
 // ⚠️ APIエラー時の代替テンプレート（フォールバック用）
