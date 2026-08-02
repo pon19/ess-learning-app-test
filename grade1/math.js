@@ -7,17 +7,17 @@ let currentWordAnswers = [];
 // ストレージ保存用キー（1年生算数専用）
 const STORAGE_KEY = 'math_print_current_problems_g1';
 
+// 🔑 Gemini API Key（※実際のご自身のAPIキーに置き換えてください）
+const GEMINI_API_KEY = '';
+
 // ====================================================
 // ページ読み込み時の初期化
 // ====================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. ページ読み込み時は「既存問題の復元」または「無ければ新規生成」
     initProblems();
 
-    // 2. イベントリスナーの登録
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswersAndSave);
     
-    // ボタン押下時のみ明示的に新規生成を実行
     document.getElementById('resetBtn')?.addEventListener('click', async () => {
         if (confirm('あたらしい もんだいに かえますか？')) {
             await generateNewProblems();
@@ -26,11 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('logoutBtn')?.addEventListener('click', () => handleLogout('index.html'));
 
-    // 3. 認証状態の監視
     clientSupabase.auth.onAuthStateChange(async (event, session) => {
         if (session) {
             currentUser = session.user;
-            
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.style.display = 'block';
 
@@ -43,18 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ====================================================
-// 1. プロフィール表示
-// ====================================================
 async function fetchUserProfile(userId) {
     const name = await getUserDisplayName(userId);
     const nameBox = document.getElementById('userProfileName');
     if (nameBox) nameBox.textContent = `なまえ : ${name}`;
 }
 
-// ====================================================
-// 2. 問題の初期化と保存・復元ロジック
-// ====================================================
 async function initProblems() {
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
@@ -69,11 +61,78 @@ async function initProblems() {
     await generateNewProblems();
 }
 
+// ====================================================
+// 🤖 Gemini API を使った文章問題生成
+// ====================================================
+async function fetchWordProblemsFromGemini() {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+    const prompt = `
+小学1年生向けの算数の文章問題を5問作成してください。
+
+【制約事項】
+1. 漢字は使わず、すべて「ひらがな」と「数字」のみで記述すること。
+2. たし算（繰り上がりなし、合計10以下）または ひき算（繰り下がりなし、10以下）の難易度にすること。
+3. 問題文、イラスト用の絵文字1つ、最初の数(count)、答え(ans)をJSON形式で出力すること。
+
+【出力フォーマット】
+以下のJSON構造を厳密に守り、JSONのみを出力してください。
+[
+  {
+    "text": "りんごが 3こ あります。 2こ もらいました。 あわせて なんこに なりましたか。",
+    "emoji": "🍎",
+    "count": 3,
+    "ans": 5
+  }
+]
+`;
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                responseMimeType: "application/json" // JSONで返却させる設定
+            }
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error(`Gemini API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const jsonText = data.candidates[0].content.parts[0].text;
+    return JSON.parse(jsonText);
+}
+
+// ⚠️ APIエラー時の代替テンプレート（フォールバック用）
+function getFallbackWordProblems() {
+    const templates = [
+        { text: "りんごが 3こ あります。 2こ もらいました。 あわせて なんこに なりましたか。", emoji: "🍎", count: 3, ans: 5 },
+        { text: "こうえんに こどもが 6にん いました。 2にん かえりました。 のこりは なんにん ですか。", emoji: "👦", count: 6, ans: 4 },
+        { text: "キャンディーが 5こ あります。 2こ あげました。 のこりは なんこですか。", emoji: "🍬", count: 5, ans: 3 },
+        { text: "ねこが 2ひき います。 3ひき やってきました。 ぜんぶで なんひきに なりましたか。", emoji: "🐱", count: 2, ans: 5 },
+        { text: "みかんが 4こ あります。 1こ たべました。 のこりは なんこですか。", emoji: "🍊", count: 4, ans: 3 }
+    ];
+    return templates;
+}
+
+// ====================================================
+// 2. 問題の全体生成
+// ====================================================
 async function generateNewProblems() {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
-    // A. 計算問題データ (10問) の生成 👈 4から10に変更
+    // 生成中メッセージの表示（API呼び出し時の体感速度向上のため）
+    const wordArea = document.getElementById('wordProblemArea');
+    if (wordArea) {
+        wordArea.innerHTML = '<p style="text-align:center; color:#4a5568;">🤖 Geminiが あたらしい もんだいを かんがえています...</p>';
+    }
+
+    // A. 計算問題データ (10問) の生成
     const calcProblems = [];
     for (let i = 0; i < 10; i++) {
         const isAddition = Math.random() > 0.3;
@@ -94,66 +153,13 @@ async function generateNewProblems() {
         calcProblems.push({ num1, num2, ans, op });
     }
 
-    // B. 文章問題データ (5問) の生成 👈 3から5に変更
-    const wordTemplates = [
-        {
-            text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
-            emoji: "🍎",
-            op: "+",
-            getParams: () => {
-                const a = Math.floor(Math.random() * 5) + 2;
-                const b = Math.floor(Math.random() * 5) + 1;
-                return { a, b, ans: a + b };
-            }
-        },
-        {
-            text: "こうえんに こどもが {a}にん いました。 {b}にん おうちに かえりました。のこりは なんにん ですか。",
-            emoji: "👦",
-            op: "-",
-            getParams: () => {
-                const a = Math.floor(Math.random() * 6) + 4;
-                const b = Math.floor(Math.random() * (a - 1)) + 1;
-                return { a, b, ans: a - b };
-            }
-        },
-        {
-            text: "キャンディーが {a}こ あります。おともだちに {b}こ あげました。のこりは なんこですか。",
-            emoji: "🍬",
-            op: "-",
-            getParams: () => {
-                const a = Math.floor(Math.random() * 5) + 4;
-                const b = Math.floor(Math.random() * (a - 1)) + 1;
-                return { a, b, ans: a - b };
-            }
-        },
-        {
-            text: "ねこが {a}ひき います。あとから {b}ひき やってきました。ぜんぶで なんひきに なりましたか。",
-            emoji: "🐱",
-            op: "+",
-            getParams: () => {
-                const a = Math.floor(Math.random() * 4) + 2;
-                const b = Math.floor(Math.random() * 4) + 1;
-                return { a, b, ans: a + b };
-            }
-        }
-    ];
-
-    const shuffledTemplates = [...wordTemplates].sort(() => Math.random() - 0.5);
-    const wordProblems = [];
-
-    // 5問生成する（テンプレートは4つのため、5問目は循環して選択されます）
-    for (let i = 0; i < 5; i++) {
-        const selected = shuffledTemplates[i % shuffledTemplates.length];
-        const p = selected.getParams();
-        const problemText = selected.text.replace('{a}', p.a).replace('{b}', p.b);
-
-        wordProblems.push({
-            text: problemText,
-            emoji: selected.emoji,
-            count: p.a,
-            op: selected.op,
-            ans: p.ans
-        });
+    // B. 文章問題データ (5問) の生成（Gemini API呼び出し）
+    let wordProblems = [];
+    try {
+        wordProblems = await fetchWordProblemsFromGemini();
+    } catch (error) {
+        console.warn('Gemini APIからの取得に失敗したため、固定問題を使用します:', error);
+        wordProblems = getFallbackWordProblems();
     }
 
     const problemData = { calc: calcProblems, word: wordProblems };
@@ -161,6 +167,9 @@ async function generateNewProblems() {
     renderProblems(problemData);
 }
 
+// ====================================================
+// 描画・採点・履歴読み込み処理（変更なし）
+// ====================================================
 function renderProblems(problems) {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
@@ -201,7 +210,7 @@ function renderProblems(problems) {
                     <div class="problem-text">${p.text}</div>
                 </div>
                 <div class="illustration-box">
-                    ${p.emoji.repeat(Math.min(p.count, 8))}
+                    ${(p.emoji || '🍎').repeat(Math.min(p.count || 3, 8))}
                 </div>
                 <div class="formula-area">
                     <span class="formula-label">しき：</span>
@@ -215,12 +224,9 @@ function renderProblems(problems) {
     }
 }
 
-// ====================================================
-// 3. 採点 ＆ Supabaseへの成績自動保存
-// ====================================================
 async function checkAnswersAndSave() {
     let correctCount = 0;
-    const totalQuestions = 15; // 👈 7から15 (10 + 5) に変更
+    const totalQuestions = 15;
 
     currentCalcAnswers.forEach((ans, i) => {
         const input = document.getElementById(`calcInput_${i}`);
@@ -248,15 +254,14 @@ async function checkAnswersAndSave() {
         scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん (${totalQuestions}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    // 4. ログイン中の場合、Supabase (learning_scores_test) に保存
     if (currentUser) {
         const { error } = await clientSupabase
             .from('learning_scores_test')
             .insert([
                 {
                     user_id: currentUser.id,
-                    grade: 1,           // 1年生
-                    subject: 'math',    // 算数
+                    grade: 1,
+                    subject: 'math',
                     score: finalScore,
                     total_questions: totalQuestions
                 }
@@ -270,14 +275,10 @@ async function checkAnswersAndSave() {
     }
 }
 
-// ====================================================
-// 4. 成績履歴の読み込みと表示
-// ====================================================
 async function loadScoreHistory() {
     const historyList = document.getElementById('historyList');
     if (!historyList || !currentUser) return;
 
-    // 1年生・算数のデータのみ絞り込み取得
     const { data, error } = await clientSupabase
         .from('learning_scores_test')
         .select('*')
