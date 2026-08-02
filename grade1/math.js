@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadScoreHistory();
         } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
             alert('ログインが必要です。トップページへ もどります。');
-            window.location.href = '../index.html'; // ← ここはトップページ（../index.html）のままでOKです
+            window.location.href = '../index.html';
         }
     });
 });
@@ -73,9 +73,9 @@ async function generateNewProblems() {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
-    // A. 計算問題データ (4問) の生成
+    // A. 計算問題データ (10問) の生成 👈 4から10に変更
     const calcProblems = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 10; i++) {
         const isAddition = Math.random() > 0.3;
         let num1, num2, ans, op;
 
@@ -94,7 +94,7 @@ async function generateNewProblems() {
         calcProblems.push({ num1, num2, ans, op });
     }
 
-    // B. 文章問題データ (3問) の生成
+    // B. 文章問題データ (5問) の生成 👈 3から5に変更
     const wordTemplates = [
         {
             text: "りんごが {a}こ あります。おとうとから {b}こ もらいました。あわせて なんこに なりましたか。",
@@ -141,7 +141,8 @@ async function generateNewProblems() {
     const shuffledTemplates = [...wordTemplates].sort(() => Math.random() - 0.5);
     const wordProblems = [];
 
-    for (let i = 0; i < 3; i++) {
+    // 5問生成する（テンプレートは4つのため、5問目は循環して選択されます）
+    for (let i = 0; i < 5; i++) {
         const selected = shuffledTemplates[i % shuffledTemplates.length];
         const p = selected.getParams();
         const problemText = selected.text.replace('{a}', p.a).replace('{b}', p.b);
@@ -219,7 +220,7 @@ function renderProblems(problems) {
 // ====================================================
 async function checkAnswersAndSave() {
     let correctCount = 0;
-    const totalQuestions = 7;
+    const totalQuestions = 15; // 👈 7から15 (10 + 5) に変更
 
     currentCalcAnswers.forEach((ans, i) => {
         const input = document.getElementById(`calcInput_${i}`);
