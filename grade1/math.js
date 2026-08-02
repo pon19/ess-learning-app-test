@@ -247,12 +247,15 @@ async function checkAnswersAndSave() {
         scoreBox.innerHTML = `💮 てんすう： <strong>${finalScore}</strong> てん (${totalQuestions}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
+    // 4. ログイン中の場合、Supabase (learning_scores) に保存
     if (currentUser) {
         const { error } = await clientSupabase
-            .from('math_scores_test')
+            .from('learning_scores')
             .insert([
                 {
                     user_id: currentUser.id,
+                    grade: 1,           // 1年生
+                    subject: 'math',    // 算数
                     score: finalScore,
                     total_questions: totalQuestions
                 }
@@ -273,10 +276,13 @@ async function loadScoreHistory() {
     const historyList = document.getElementById('historyList');
     if (!historyList || !currentUser) return;
 
+    // 1年生・算数のデータのみ絞り込み取得
     const { data, error } = await clientSupabase
-        .from('math_scores_test')
+        .from('learning_scores')
         .select('*')
         .eq('user_id', currentUser.id)
+        .eq('grade', 1)
+        .eq('subject', 'math')
         .order('created_at', { ascending: false })
         .limit(5);
 
