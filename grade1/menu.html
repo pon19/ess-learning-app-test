@@ -3,54 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1ねんせい メニュー - しょうがくせい Webプリント</title>
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎒</text></svg>">
-    <link rel="stylesheet" href="../style.css">
-    
-    <!-- Supabase SDK & 共通JS -->
+    <title>1ねんせいの メニュー - えがおプリント</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../common.js"></script>
+    <script src="menu.js" defer></script>
 </head>
-<body>
-    <!-- 各 HTML ファイルの <body> の直下に追加 -->
-    <div class="container" style="max-width: 600px; margin: 40px auto; text-align: center;">
-        <div id="globalHeader"></div>
-        <!-- 戻るボタン -->
-        <div style="text-align: left; margin-bottom: 15px;">
-            <a href="../index.html" style="text-decoration: none; color: #4a5568; font-weight: bold; font-size: 14px;">🏠 がくねんを えらびなおす</a>
-        </div>
+<body style="font-family: sans-serif; background-color: #f7fafc; padding: 20px; max-width: 500px; margin: 0 auto;">
 
-        <span class="title-badge" style="background-color: #3182ce;">🎒 1ねんせい</span>
-        <h1 style="margin-top: 5px; margin-bottom: 25px;">なにを きょうべんきょう する？</h1>
+    <!-- 共通ヘッダー -->
+    <div id="globalHeader"></div>
 
+    <div style="text-align: center;">
+        <h1 style="color: #2b6cb0; font-size: 1.5rem; margin-bottom: 20px;">🎒 1ねんせいの メニュー</h1>
+        
         <!-- 教科選択グリッド -->
         <div style="display: flex; flex-direction: column; gap: 15px;">
-            
-            <!-- 算数（公開中） -->
-            <a href="math.html" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: #48bb78; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 6px rgba(72,187,120,0.2); transition: transform 0.2s;">
-                <span>🔢 さんすう プリント</span>
-                <span style="font-size: 1rem; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;">スタート ➔</span>
+            <a href="math.html" style="background: white; border: 2px solid #4299e1; padding: 15px; border-radius: 12px; text-decoration: none; color: #2b6cb0; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.1s;">
+                🔢 さんすう (計算)
             </a>
+            <!-- 今後教科が増えたらここに追加 -->
+        </div>
 
-            <!-- 国語（将来用・準備中） -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: not-allowed;">
-                <span>✏️ こくご プリント</span>
-                <span style="font-size: 0.85rem; font-weight: normal;">(じゅんびちゅう)</span>
+        <!-- 🏆 前日の回答者ランキングエリア -->
+        <div style="margin-top: 35px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: left;">
+            <h3 style="margin-top: 0; color: #2b6cb0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                🏆 きのうの がんばりやさん（ランキング）
+            </h3>
+            <p style="font-size: 12px; color: #718096; margin-bottom: 12px;">※きのう プリントを といた おともだちの きろくです</p>
+
+            <div id="rankingList">
+                <p style="color: #a0aec0; font-size: 14px; text-align: center;">読み込み中...</p>
             </div>
+        </div>
 
+        <!-- 戻るボタン -->
+        <div style="margin-top: 30px;">
+            <a href="../index.html" style="color: #718096; text-decoration: none; font-size: 14px; font-weight: bold;">← 学年選択にもどる</a>
         </div>
     </div>
 
-    <!-- ログイン状態に応じた表示の制御スクリプト -->
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // ログイン状態を確認して必要に応じてユーザー名等を表示・活用できます
-            const user = await getCurrentUser();
-            if (user) {
-                console.log('ログイン中のユーザー:', user.id);
-            }
-        });
-    </script>
 </body>
 </html>
