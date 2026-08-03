@@ -84,16 +84,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // ----------------------------------------------------
-    // 2. 新規登録処理
-    // ----------------------------------------------------
+    // ====================================================
+    // 新規登録処理（500エラーを回避する安全な直接保存方式）
+    // ====================================================
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name = document.getElementById('signupName').value.trim();
-        const rawPhone = document.getElementById('signupPhone').value;
+
+        const name = document.getElementById('signupName')?.value.trim() || 'ななしさん';
+        const rawPhone = document.getElementById('signupPhone')?.value || '';
         const phone = rawPhone.replace(/[^\d]/g, ''); 
-        const email = document.getElementById('signupEmail').value.trim();
-        const password = document.getElementById('signupPassword').value;
+        const email = document.getElementById('signupEmail')?.value.trim();
+        const password = document.getElementById('signupPassword')?.value;
 
         if (phone.length < 10 || phone.length > 11) {
             msg.style.color = 'red';
@@ -104,24 +105,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.style.color = 'black';
         msg.textContent = '登録中...';
 
-        // 1. Supabase Auth にユーザー作成（メール＋パスワード）
-        const { data, error } = await clientSupabase.auth.signUp({ email, password });
+        // ① Supabase Auth に新規ユーザーを作成（DB側のトリガーを起こさない標準登録）
+        const { data, error } = await clientSupabase.auth.signUp({
+            email: email,
+            password: password
+        });
 
         if (error) {
+            console.error('サインアップエラー:', error.message);
             msg.style.color = 'red';
             msg.textContent = `エラー: ${error.message}`;
             return;
         }
 
-        // 2. 登録成功後、JavaScript側から profiles テーブルへ直接保存する
-        if (data.user) {
+        // ② ユーザー登録が成功したら、返ってきた user.id を使って profiles に書き込む
+        if (data?.user) {
             const { error: profileError } = await clientSupabase
                 .from('profiles')
-                .upsert([{ 
-                    id: data.user.id, 
-                    display_name: name || 'ななしさん',
-                    phone: phone
-                }]);
+                .upsert([
+                    {
+                        id: data.user.id,
+                        display_name: name,
+                        phone: phone
+                    }
+                ]);
 
             if (profileError) {
                 console.error('プロフィール保存エラー:', profileError.message);
@@ -129,11 +136,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         msg.style.color = 'green';
-        msg.textContent = '登録 完了！';
+        msg.textContent = 'とうろくが かんりょうしました！';
 
         setTimeout(async () => {
-            modal.style.display = 'none';
-            await checkAuthState();
+            if (modal) modal.style.display = 'none';
+            if (typeof checkAuthState === 'function') {
+                await checkAuthState();
+            }
         }, 1000);
     });
 
