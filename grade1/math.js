@@ -25,14 +25,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. イベントリスナーの設定
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswersAndSave);
-    document.getElementById('logoutBtn')?.addEventListener('click', () => handleLogout('../index.html'));
+    // 👇 以下の行を削除（common.js 側で共通ログアウト処理が行われるため不要です）
+    // document.getElementById('logoutBtn')?.addEventListener('click', () => handleLogout('../index.html'));
 
     // 3. Supabase 認証状態の監視
     clientSupabase.auth.onAuthStateChange(async (event, session) => {
         if (session) {
             currentUser = session.user;
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) logoutBtn.style.display = 'block';
+            
+            // 👇 以下の2行を削除
+            // const logoutBtn = document.getElementById('logoutBtn');
+            // if (logoutBtn) logoutBtn.style.display = 'block';
 
             await fetchUserProfile(currentUser.id);
             await loadScoreHistory();
