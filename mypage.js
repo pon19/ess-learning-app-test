@@ -76,4 +76,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             msg.textContent = `エラー: ${err.message || '更新に失敗しました。'}`;
         }
     });
+    // 戻るボタンのイベントハンドラーを追加
+    const backBtn = document.getElementById('backBtn');
+    backBtn?.addEventListener('click', () => {
+        // 同じサイト内の別ページから移動してきた場合
+        if (document.referrer && document.referrer.includes(window.location.host)) {
+            history.back(); // 元いたページに戻る
+        } else {
+            window.location.href = 'index.html'; // 直接開いた場合はトップへ
+        }
+    });
 });
