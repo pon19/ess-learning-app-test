@@ -1,8 +1,8 @@
 // ====================================================
 // 共通設定 & Supabase 初期化
 // ====================================================
-const SUPABASE_URL = 'https://lviknsfnmlejkxfnczyy.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aWtuc2ZubWxlamt4Zm5jenl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjMxNTYsImV4cCI6MjEwMDg5OTE1Nn0.rc1IPcEgcEEQLxaPUZ9uaOSvYy68fOlx1Ml-cfU4jOg';
+const SUPABASE_URL = 'https://ygixztswzvcguzxwdzvo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnaXh6dHN3enZjZ3V6eHdkenZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3MzEwMjgsImV4cCI6MjEwMTMwNzAyOH0._ouVAKbboVoNvD1uw-uhSoIeN6eiQviZojjRDpW_NXE';
 
 // グローバルで利用できるSupabaseクライアント
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
