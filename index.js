@@ -2,29 +2,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkAuthState();
 
     const modal = document.getElementById('authModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTabs = document.getElementById('modalTabs');
     const msg = document.getElementById('authMessage');
 
-    // フォーム・案内表示要素群
+    // フォーム群
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     const resetRequestForm = document.getElementById('resetRequestForm');
     const findEmailNotice = document.getElementById('findEmailNotice');
     const updatePasswordForm = document.getElementById('updatePasswordForm');
+    const forceNicknameForm = document.getElementById('forceNicknameForm');
 
-    // モーダルの開閉イベント
+    // モーダル開く
     document.getElementById('openAuthModalBtn')?.addEventListener('click', () => {
         showForm(loginForm);
         modal.style.display = 'flex';
     });
-    document.getElementById('closeModalBtn')?.addEventListener('click', () => modal.style.display = 'none');
 
-    // 表示切り替えヘルパー関数
+    // モーダル閉じる
+    closeModalBtn?.addEventListener('click', () => modal.style.display = 'none');
+
+    // 画面切り替え用共通ヘルパー
     function showForm(targetForm) {
         if (msg) msg.textContent = '';
-        [loginForm, signupForm, resetRequestForm, findEmailNotice, updatePasswordForm].forEach(f => {
+        
+        // 通常時は閉じるボタンとタブを表示
+        if (closeModalBtn) closeModalBtn.style.display = 'block';
+        if (modalTabs) modalTabs.style.display = 'flex';
+
+        [loginForm, signupForm, resetRequestForm, findEmailNotice, updatePasswordForm, forceNicknameForm].forEach(f => {
             if (f) f.style.display = 'none';
         });
+
         if (targetForm) targetForm.style.display = 'block';
+
+        // 強制登録フォームの場合のみ、閉じるボタンとタブを隠して逃げられないようにする
+        if (targetForm === forceNicknameForm) {
+            if (closeModalBtn) closeModalBtn.style.display = 'none';
+            if (modalTabs) modalTabs.style.display = 'none';
+        }
     }
 
     // タブ切り替え
@@ -47,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showForm(signupForm);
     });
 
-    // 画面切り替えリンクイベント
+    // 画面切り替えリンク
     document.getElementById('showResetLink')?.addEventListener('click', (e) => {
         e.preventDefault();
         showForm(resetRequestForm);
@@ -79,23 +96,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             msg.textContent = `エラー: ${error.message}`;
         } else {
             msg.textContent = '';
-            modal.style.display = 'none';
-            checkAuthState();
+            // ログイン成功後にニックネームチェックを実施
+            await checkAuthState();
         }
     });
 
-    // ====================================================
-    // 新規登録処理（2重送信防止ガード付き）
-    // ====================================================
+    // ----------------------------------------------------
+    // 2. 新規登録処理
+    // ----------------------------------------------------
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const submitBtn = signupForm.querySelector('button[type="submit"]');
-        
-        // 既に送信中なら処理を中断（2重送信ガード）
         if (submitBtn && submitBtn.disabled) return;
 
         const name = document.getElementById('signupName')?.value.trim() || 'ななしさん';
+        const nickname = document.getElementById('signupNickname')?.value.trim() || name;
         const rawPhone = document.getElementById('signupPhone')?.value || '';
         const phone = rawPhone.replace(/[^\d]/g, ''); 
         const email = document.getElementById('signupEmail')?.value.trim();
@@ -107,7 +122,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // ボタンを無効化して連打を防ぐ
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.textContent = 'とうろく中...';
@@ -117,18 +131,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.textContent = '登録中...';
 
         try {
-            // ① Supabase Auth に新規ユーザーを作成
-            const { data, error } = await clientSupabase.auth.signUp({
-                email: email,
-                password: password
-            });
+            const { data, error } = await clientSupabase.auth.signUp({ email, password });
 
             if (error) {
-                console.error('サインアップエラー:', error.message);
                 msg.style.color = 'red';
                 msg.textContent = `エラー: ${error.message}`;
-                
-                // エラー時はボタンを元に戻す
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = '登録する';
@@ -136,21 +143,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // ② ユーザー作成に成功したら profiles テーブルに挿入
             if (data?.user) {
-                const { error: profileError } = await clientSupabase
-                    .from('profiles')
-                    .insert([
-                        {
-                            id: data.user.id,
-                            display_name: name,
-                            phone: phone
-                        }
-                    ]);
-
-                if (profileError) {
-                    console.error('プロフィール保存エラー:', profileError.message);
-                }
+                await clientSupabase.from('profiles').insert([{
+                    id: data.user.id,
+                    display_name: name,
+                    nickname: nickname,
+                    phone: phone
+                }]);
             }
 
             msg.style.color = 'green';
@@ -158,10 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             setTimeout(async () => {
                 if (modal) modal.style.display = 'none';
-                if (typeof checkAuthState === 'function') {
-                    await checkAuthState();
-                }
-                // モーダルが閉じた後にボタンを元に戻す
+                await checkAuthState();
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = '登録する';
@@ -169,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 1000);
 
         } catch (err) {
-            console.error('予期せぬエラー:', err);
+            console.error(err);
             msg.style.color = 'red';
             msg.textContent = '登録処理中にエラーが発生しました。';
             if (submitBtn) {
@@ -180,17 +176,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ----------------------------------------------------
-    // 3. パスワード再設定メールの送信要求
+    // 3. 追加：ニックネーム強制更新処理
+    // ----------------------------------------------------
+    forceNicknameForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newNickname = document.getElementById('forceNicknameInput').value.trim();
+        if (!newNickname) return;
+
+        const user = await getCurrentUser();
+        if (!user) return;
+
+        msg.style.color = 'black';
+        msg.textContent = '保存中...';
+
+        // profilesテーブルのnicknameを更新（upsertで安心保存）
+        const { error } = await clientSupabase
+            .from('profiles')
+            .upsert({ 
+                id: user.id, 
+                nickname: newNickname 
+            }, { onConflict: 'id' });
+
+        if (error) {
+            msg.style.color = 'red';
+            msg.textContent = `エラー: ${error.message}`;
+        } else {
+            msg.style.color = 'green';
+            msg.textContent = 'ニックネームを とうろくしました！';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                checkAuthState();
+            }, 1000);
+        }
+    });
+
+    // ----------------------------------------------------
+    // 4. パスワード再設定メール送信
     // ----------------------------------------------------
     resetRequestForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('resetEmail').value;
-
         msg.style.color = 'black';
         msg.textContent = '送信中...';
 
         const { error } = await clientSupabase.auth.resetPasswordForEmail(email, {
-            // 現在開いているGitHub PagesのURLを指定
             redirectTo: window.location.href.split('?')[0].split('#')[0]
         });
 
@@ -199,17 +228,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             msg.textContent = `エラー: ${error.message}`;
         } else {
             msg.style.color = 'green';
-            msg.textContent = '再設定用のメールを送信しました。メール内のリンクを開いてください。';
+            msg.textContent = '再設定用のメールを送信しました。';
         }
     });
 
     // ----------------------------------------------------
-    // 4. パスワード更新処理 (再設定メールのリンクから復帰時)
+    // 5. パスワード更新
     // ----------------------------------------------------
     updatePasswordForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const newPassword = document.getElementById('newPasswordInput').value;
-
         msg.style.color = 'black';
         msg.textContent = 'パスワード更新中...';
 
@@ -220,17 +248,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             msg.textContent = `エラー: ${error.message}`;
         } else {
             msg.style.color = 'green';
-            msg.textContent = 'パスワードを変更しました！新しいパスワードでログインしてください。';
-            setTimeout(() => {
-                showForm(loginForm);
-            }, 1500);
+            msg.textContent = 'パスワードを変更しました！';
+            setTimeout(() => showForm(loginForm), 1500);
         }
     });
 
-    // ----------------------------------------------------
-    // 5. メールリンクからの復帰イベント（PASSWORD_RECOVERY）を監視
-    // ----------------------------------------------------
-    clientSupabase.auth.onAuthStateChange(async (event, session) => {
+    // 監視イベント
+    clientSupabase.auth.onAuthStateChange(async (event) => {
         if (event === 'PASSWORD_RECOVERY') {
             modal.style.display = 'flex';
             showForm(updatePasswordForm);
@@ -244,25 +268,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// ログイン状態チェック関数
+// ====================================================
+// ログイン状態 ＆ ニックネーム未設定の判定・警告処理
+// ====================================================
 async function checkAuthState() {
     const { data: { session } } = await clientSupabase.auth.getSession();
     const userInfoArea = document.getElementById('userInfoArea');
     const authBtnArea = document.getElementById('authBtnArea');
     const welcomeMessage = document.getElementById('welcomeMessage');
+    const modal = document.getElementById('authModal');
+    const forceNicknameForm = document.getElementById('forceNicknameForm');
 
     if (session) {
         if (userInfoArea) userInfoArea.style.display = 'block';
         if (authBtnArea) authBtnArea.style.display = 'none';
 
+        // ユーザーのプロファイル情報を取得
         const { data: profile } = await clientSupabase
             .from('profiles')
-            .select('display_name')
+            .select('display_name, nickname')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
 
-        const name = profile?.display_name || 'ゲスト';
-        if (welcomeMessage) welcomeMessage.textContent = `ようこそ、${name} さん！`;
+        // ニックネームが未設定（null または 空文字）の場合
+        if (!profile || !profile.nickname || profile.nickname.trim() === '') {
+            // モーダルを開いて強制入力画面にする
+            if (modal && forceNicknameForm) {
+                modal.style.display = 'flex';
+                
+                // 画面切り替え（閉じるボタン・タブ非表示にする制御が動く）
+                const closeModalBtn = document.getElementById('closeModalBtn');
+                const modalTabs = document.getElementById('modalTabs');
+                if (closeModalBtn) closeModalBtn.style.display = 'none';
+                if (modalTabs) modalTabs.style.display = 'none';
+
+                // 全フォームを隠して強制的フォームのみ表示
+                document.querySelectorAll('#authModal form, #findEmailNotice').forEach(f => f.style.display = 'none');
+                forceNicknameForm.style.display = 'block';
+            }
+        } else {
+            // ニックネーム設定済みの場合は通常のログイン後表示
+            if (modal) modal.style.display = 'none';
+            const displayName = profile.nickname || profile.display_name || 'ゲスト';
+            if (welcomeMessage) welcomeMessage.textContent = `ようこそ、${displayName} さん！`;
+        }
     } else {
         if (userInfoArea) userInfoArea.style.display = 'none';
         if (authBtnArea) authBtnArea.style.display = 'block';
