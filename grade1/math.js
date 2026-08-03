@@ -3,29 +3,31 @@
 // ====================================================
 let currentCalcAnswers = [];
 let currentWordAnswers = [];
+let currentUser = null;
 
-// ストレージ保存用キー（1年生算数専用）
-const STORAGE_KEY = 'math_print_current_problems_g1';
-
-// 🔑 Gemini API Key（※実際のご自身のAPIキーに置き換えてください）
-const GEMINI_API_KEY = '';
+// ====================================================
+// 📅 今日の日付キーを取得する関数（例: math_print_daily_2026-08-03_g1）
+// ====================================================
+function getTodayKey() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `math_print_daily_${year}-${month}-${day}_g1`;
+}
 
 // ====================================================
 // ページ読み込み時の初期化
 // ====================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. 今日の問題を読み込み（または新規生成）
     initProblems();
 
+    // 2. イベントリスナーの設定
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswersAndSave);
-    
-    document.getElementById('resetBtn')?.addEventListener('click', async () => {
-        if (confirm('あたらしい もんだいに かえますか？')) {
-            await generateNewProblems();
-        }
-    });
+    document.getElementById('logoutBtn')?.addEventListener('click', () => handleLogout('../index.html'));
 
-    document.getElementById('logoutBtn')?.addEventListener('click', () => handleLogout('index.html'));
-
+    // 3. Supabase 認証状態の監視
     clientSupabase.auth.onAuthStateChange(async (event, session) => {
         if (session) {
             currentUser = session.user;
@@ -47,8 +49,14 @@ async function fetchUserProfile(userId) {
     if (nameBox) nameBox.textContent = `なまえ : ${name}`;
 }
 
+// ====================================================
+// 🔍 問題の判定と読み込み処理（日替わり判定の核心部分）
+// ====================================================
 async function initProblems() {
-    const savedData = localStorage.getItem(STORAGE_KEY);
+    const todayKey = getTodayKey();
+    const savedData = localStorage.getItem(todayKey);
+
+    // 【パターンA】今日の問題がすでに保存されている場合 -> それを使う
     if (savedData) {
         try {
             const problems = JSON.parse(savedData);
@@ -58,12 +66,11 @@ async function initProblems() {
             console.error('保存データの読み込み失敗:', e);
         }
     }
-    await generateNewProblems();
+
+    // 【パターンB】今日初めてアクセスした場合 -> 新しく生成して保存する
+    await generateNewProblems(todayKey);
 }
 
-// ====================================================
-// 🤖 Gemini API を使った文章問題生成
-// ====================================================
 // ====================================================
 // 🤖 Supabase Edge Function 経由で文章問題を生成
 // ====================================================
@@ -77,32 +84,30 @@ async function fetchWordProblemsFromGemini() {
     return data;
 }
 
-// ⚠️ APIエラー時の代替テンプレート（フォールバック用）
+// ⚠️ APIエラー時の代替テンプレート
 function getFallbackWordProblems() {
-    const templates = [
+    return [
         { text: "りんごが 3こ あります。 2こ もらいました。 あわせて なんこに なりましたか。", emoji: "🍎", count: 3, ans: 5 },
         { text: "こうえんに こどもが 6にん いました。 2にん かえりました。 のこりは なんにん ですか。", emoji: "👦", count: 6, ans: 4 },
         { text: "キャンディーが 5こ あります。 2こ あげました。 のこりは なんこですか。", emoji: "🍬", count: 5, ans: 3 },
         { text: "ねこが 2ひき います。 3ひき やってきました。 ぜんぶで なんひきに なりましたか。", emoji: "🐱", count: 2, ans: 5 },
         { text: "みかんが 4こ あります。 1こ たべました。 のこりは なんこですか。", emoji: "🍊", count: 4, ans: 3 }
     ];
-    return templates;
 }
 
 // ====================================================
-// 2. 問題の全体生成
+// 🎲 新しい問題を生成して LocalStorage に保存する
 // ====================================================
-async function generateNewProblems() {
+async function generateNewProblems(todayKey) {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
-    // 生成中メッセージの表示（API呼び出し時の体感速度向上のため）
     const wordArea = document.getElementById('wordProblemArea');
     if (wordArea) {
-        wordArea.innerHTML = '<p style="text-align:center; color:#4a5568;">🤖 Geminiが あたらしい もんだいを かんがえています...</p>';
+        wordArea.innerHTML = '<p style="text-align:center; color:#4a5568;">🤖 きょうの もんだいを じゅんび しています...</p>';
     }
 
-    // A. 計算問題データ (10問) の生成
+    // A. 計算問題データ (10問)
     const calcProblems = [];
     for (let i = 0; i < 10; i++) {
         const isAddition = Math.random() > 0.3;
@@ -123,7 +128,7 @@ async function generateNewProblems() {
         calcProblems.push({ num1, num2, ans, op });
     }
 
-    // B. 文章問題データ (5問) の生成（Gemini API呼び出し）
+    // B. 文章問題データ (5問)
     let wordProblems = [];
     try {
         wordProblems = await fetchWordProblemsFromGemini();
@@ -133,18 +138,29 @@ async function generateNewProblems() {
     }
 
     const problemData = { calc: calcProblems, word: wordProblems };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(problemData));
+
+    // 🧹 不要になった過去の古い日付けデータを削除
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('math_print_daily_')) {
+            localStorage.removeItem(key);
+        }
+    });
+
+    // 💾 今日の問題データを保存
+    localStorage.setItem(todayKey, JSON.stringify(problemData));
+
+    // 画面に描画
     renderProblems(problemData);
 }
 
 // ====================================================
-// 描画・採点・履歴読み込み処理（変更なし）
+// 🎨 問題の画面描画
 // ====================================================
 function renderProblems(problems) {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) scoreBox.style.display = 'none';
 
-    // 1. 計算問題の表示
+    // 1. 計算問題
     const calcGrid = document.getElementById('calcGrid');
     if (calcGrid && problems.calc) {
         calcGrid.innerHTML = '';
@@ -163,7 +179,7 @@ function renderProblems(problems) {
         });
     }
 
-    // 2. 文章問題の表示
+    // 2. 文章問題
     const wordArea = document.getElementById('wordProblemArea');
     if (wordArea && problems.word) {
         wordArea.innerHTML = '';
@@ -194,6 +210,9 @@ function renderProblems(problems) {
     }
 }
 
+// ====================================================
+// 💯 採点および Supabase への結果保存
+// ====================================================
 async function checkAnswersAndSave() {
     let correctCount = 0;
     const totalQuestions = 15;
@@ -245,6 +264,9 @@ async function checkAnswersAndSave() {
     }
 }
 
+// ====================================================
+// 📜 成績履歴の読み込み
+// ====================================================
 async function loadScoreHistory() {
     const historyList = document.getElementById('historyList');
     if (!historyList || !currentUser) return;
