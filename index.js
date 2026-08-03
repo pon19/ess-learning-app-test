@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ====================================================
-    // 新規登録処理（500エラーを回避する安全な直接保存方式）
+    // 新規登録処理（安全な直接保存方式）
     // ====================================================
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -105,45 +105,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.style.color = 'black';
         msg.textContent = '登録中...';
 
-        // ① Supabase Auth に新規ユーザーを作成（DB側のトリガーを起こさない標準登録）
-        const { data, error } = await clientSupabase.auth.signUp({
-            email: email,
-            password: password
-        });
+        try {
+            // ① Supabase Auth に新規ユーザーを作成
+            const { data, error } = await clientSupabase.auth.signUp({
+                email: email,
+                password: password
+            });
 
-        if (error) {
-            console.error('サインアップエラー:', error.message);
+            if (error) {
+                console.error('サインアップエラー:', error.message);
+                msg.style.color = 'red';
+                msg.textContent = `エラー: ${error.message}`;
+                return;
+            }
+
+            // ② ユーザー作成に成功したら、profiles テーブルに insert する
+            if (data?.user) {
+                const { error: profileError } = await clientSupabase
+                    .from('profiles')
+                    .insert([
+                        {
+                            id: data.user.id,
+                            display_name: name,
+                            phone: phone
+                        }
+                    ]);
+
+                if (profileError) {
+                    console.error('プロフィール保存エラー:', profileError.message);
+                    // プロフィール保存でエラーが出てもAuth自体は成功しているためログ出力にとどめる
+                }
+            }
+
+            msg.style.color = 'green';
+            msg.textContent = 'とうろくが かんりょうしました！';
+
+            setTimeout(async () => {
+                if (modal) modal.style.display = 'none';
+                if (typeof checkAuthState === 'function') {
+                    await checkAuthState();
+                }
+            }, 1000);
+
+        } catch (err) {
+            console.error('予期せぬエラー:', err);
             msg.style.color = 'red';
-            msg.textContent = `エラー: ${error.message}`;
-            return;
+            msg.textContent = '登録処理中にエラーが発生しました。';
         }
-
-        // ② ユーザー登録が成功したら、返ってきた user.id を使って profiles に書き込む
-        if (data?.user) {
-            const { error: profileError } = await clientSupabase
-                .from('profiles')
-                .upsert([
-                    {
-                        id: data.user.id,
-                        display_name: name,
-                        phone: phone
-                    }
-                ]);
-
-            if (profileError) {
-                console.error('プロフィール保存エラー:', profileError.message);
-            }
-        }
-
-        msg.style.color = 'green';
-        msg.textContent = 'とうろくが かんりょうしました！';
-
-        setTimeout(async () => {
-            if (modal) modal.style.display = 'none';
-            if (typeof checkAuthState === 'function') {
-                await checkAuthState();
-            }
-        }, 1000);
     });
 
     // ----------------------------------------------------
