@@ -85,10 +85,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ====================================================
-    // 新規登録処理（安全な直接保存方式）
+    // 新規登録処理（2重送信防止ガード付き）
     // ====================================================
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const submitBtn = signupForm.querySelector('button[type="submit"]');
+        
+        // 既に送信中なら処理を中断（2重送信ガード）
+        if (submitBtn && submitBtn.disabled) return;
 
         const name = document.getElementById('signupName')?.value.trim() || 'ななしさん';
         const rawPhone = document.getElementById('signupPhone')?.value || '';
@@ -100,6 +105,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             msg.style.color = 'red';
             msg.textContent = 'エラー: 携帯番号を 正しく 入力してください。';
             return;
+        }
+
+        // ボタンを無効化して連打を防ぐ
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'とうろく中...';
         }
 
         msg.style.color = 'black';
@@ -116,10 +127,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.error('サインアップエラー:', error.message);
                 msg.style.color = 'red';
                 msg.textContent = `エラー: ${error.message}`;
+                
+                // エラー時はボタンを元に戻す
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '登録する';
+                }
                 return;
             }
 
-            // ② ユーザー作成に成功したら、profiles テーブルに insert する
+            // ② ユーザー作成に成功したら profiles テーブルに挿入
             if (data?.user) {
                 const { error: profileError } = await clientSupabase
                     .from('profiles')
@@ -133,7 +150,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (profileError) {
                     console.error('プロフィール保存エラー:', profileError.message);
-                    // プロフィール保存でエラーが出てもAuth自体は成功しているためログ出力にとどめる
                 }
             }
 
@@ -145,12 +161,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (typeof checkAuthState === 'function') {
                     await checkAuthState();
                 }
+                // モーダルが閉じた後にボタンを元に戻す
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '登録する';
+                }
             }, 1000);
 
         } catch (err) {
             console.error('予期せぬエラー:', err);
             msg.style.color = 'red';
             msg.textContent = '登録処理中にエラーが発生しました。';
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '登録する';
+            }
         }
     });
 
