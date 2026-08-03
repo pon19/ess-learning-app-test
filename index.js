@@ -91,12 +91,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault();
         const name = document.getElementById('signupName').value.trim();
         const rawPhone = document.getElementById('signupPhone').value;
-        // ハイフンやスペースを除去して数字だけ抽出 (例: "090-1234-5678" -> "09012345678")
         const phone = rawPhone.replace(/[^\d]/g, ''); 
         const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
 
-        // 簡単な電話番号チェック（10桁または11桁の数字か確認）
         if (phone.length < 10 || phone.length > 11) {
             msg.style.color = 'red';
             msg.textContent = 'エラー: 携帯番号を 正しく 入力してください。';
@@ -115,13 +113,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // 2. profiles テーブルに「なまえ」と「電話番号」を紐づけて保存
+        // 2. 登録成功後、JavaScript側から profiles テーブルへ直接保存する
         if (data.user) {
             const { error: profileError } = await clientSupabase
                 .from('profiles')
                 .upsert([{ 
                     id: data.user.id, 
-                    display_name: name,
+                    display_name: name || 'ななしさん',
                     phone: phone
                 }]);
 
