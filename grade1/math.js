@@ -1,5 +1,6 @@
 // グローバル変数
 let currentProblems = []; 
+let currentWordProblems = []; // 文章問題用を追加
 let currentUser = null;    
 
 // ====================================================
@@ -28,12 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ====================================================
 async function loadTodayProblems() {
     try {
-        // 日本時間の今日の日付 (YYYY-MM-DD)
         const todayStr = new Date().toISOString().split('T')[0];
 
+        // データベースから problems（計算）と word_problems（文章問題）の両方を取得
         const { data, error } = await clientSupabase
             .from('daily_problems')
-            .select('problems')
+            .select('problems, word_problems')
             .eq('target_date', todayStr)
             .eq('grade', 1)
             .eq('subject', 'math')
@@ -41,33 +42,43 @@ async function loadTodayProblems() {
 
         if (error) throw error;
 
+        // 計算問題のセット
         if (data && data.problems && data.problems.length > 0) {
             currentProblems = data.problems;
         } else {
-            console.warn('本日の問題が見つからないため、予備の問題を表示します。');
             currentProblems = getFallbackProblems();
         }
 
+        // 文章問題のセット
+        if (data && data.word_problems && data.word_problems.length > 0) {
+            currentWordProblems = data.word_problems;
+        } else {
+            currentWordProblems = getFallbackWordProblems();
+        }
+
         renderProblems(currentProblems);
+        renderWordProblems(currentWordProblems);
 
     } catch (err) {
         console.error('問題読み込みエラー:', err);
+        // エラー時は予備問題を表示
         currentProblems = getFallbackProblems();
+        currentWordProblems = getFallbackWordProblems();
         renderProblems(currentProblems);
+        renderWordProblems(currentWordProblems);
     }
 }
 
 // ====================================================
-// 3. 問題を画面に描画（math.html の #calcGrid に対応）
+// 3. 計算問題を画面に描画
 // ====================================================
 function renderProblems(problems) {
     const calcGrid = document.getElementById('calcGrid');
     if (!calcGrid) return;
 
-    calcGrid.innerHTML = ''; // 中身をリセット
+    calcGrid.innerHTML = ''; 
 
     problems.forEach((p, index) => {
-        // html側のスタイルに合わせた計算用コンテナを作成
         const div = document.createElement('div');
         div.style.display = 'flex';
         div.style.alignItems = 'center';
@@ -89,20 +100,59 @@ function renderProblems(problems) {
 }
 
 // ====================================================
-// 4. 答え合わせ ＆ 成績保存
+// 4. 文章問題を画面に描画
+// ====================================================
+function renderWordProblems(wordProblems) {
+    // 文章問題用の場所(wordGrid)がHTMLになければ、計算問題の下(calcGrid)に追加する
+    let wordGrid = document.getElementById('wordGrid');
+    if (!wordGrid) {
+        const calcGrid = document.getElementById('calcGrid');
+        if (!calcGrid) return;
+        wordGrid = document.createElement('div');
+        wordGrid.id = 'wordGrid';
+        wordGrid.style.marginTop = '30px';
+        calcGrid.parentNode.insertBefore(wordGrid, calcGrid.nextSibling);
+    }
+
+    wordGrid.innerHTML = '<h3 style="margin-bottom: 15px; color: #2d3748; border-bottom: 2px solid #cbd5e0; padding-bottom: 5px;">ぶんしょうもんだい</h3>';
+
+    wordProblems.forEach((wp, index) => {
+        const div = document.createElement('div');
+        div.style.padding = '15px';
+        div.style.marginBottom = '15px';
+        div.style.backgroundColor = '#f7fafc';
+        div.style.borderRadius = '8px';
+        div.style.border = '1px solid #e2e8f0';
+
+        div.innerHTML = `
+            <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; line-height: 1.5;">
+                <span style="color: #718096; font-size: 1rem; margin-right: 5px;">(${index + 1})</span>
+                ${wp.text}
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end; font-size: 1.2rem; font-weight: bold;">
+                しき：<input type="text" id="wp_eq_${index}" style="width: 120px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
+                こたえ：<input type="number" id="wp_ans_${index}" style="width: 70px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
+            </div>
+        `;
+        wordGrid.appendChild(div);
+    });
+}
+
+// ====================================================
+// 5. 答え合わせ ＆ 成績保存
 // ====================================================
 async function checkAnswersAndSave() {
-    if (!currentProblems || currentProblems.length === 0) return;
-
     let correctCount = 0;
-    const totalCount = currentProblems.length;
+    const totalCount = currentProblems.length + currentWordProblems.length;
 
+    if (totalCount === 0) return;
+
+    // 計算問題の答え合わせ
     currentProblems.forEach((problem, index) => {
         const inputEl = document.getElementById(`answer_${index}`);
         if (!inputEl) return;
         
         const userAnswer = parseInt(inputEl.value, 10);
-
         if (!isNaN(userAnswer) && userAnswer === problem.answer) {
             correctCount++;
             inputEl.style.borderColor = '#48bb78';
@@ -113,9 +163,24 @@ async function checkAnswersAndSave() {
         }
     });
 
+    // 文章問題の答え合わせ（今回は「こたえ」の数値のみで判定）
+    currentWordProblems.forEach((wp, index) => {
+        const ansInput = document.getElementById(`wp_ans_${index}`);
+        if (!ansInput) return;
+        
+        const userAnswer = parseInt(ansInput.value, 10);
+        if (!isNaN(userAnswer) && userAnswer === wp.answer) {
+            correctCount++;
+            ansInput.style.borderColor = '#48bb78';
+            ansInput.style.backgroundColor = '#f0fff4';
+        } else {
+            ansInput.style.borderColor = '#e53e3e';
+            ansInput.style.backgroundColor = '#fff5f5';
+        }
+    });
+
     const score = Math.round((correctCount / totalCount) * 100);
 
-    // 点数をアラートではなく画面上の専用ボックスに出力
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
@@ -130,7 +195,6 @@ async function checkAnswersAndSave() {
         scoreBox.innerHTML = `💮 てんすう： ${score} てん (${totalCount}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    // データベースに点数を保存
     if (currentUser) {
         try {
             await clientSupabase
@@ -148,7 +212,7 @@ async function checkAnswersAndSave() {
 }
 
 // ====================================================
-// 5. 予備問題（データ未作成時の保険）
+// 6. 予備問題（DBにデータがない場合の保険）
 // ====================================================
 function getFallbackProblems() {
     return [
@@ -156,6 +220,28 @@ function getFallbackProblems() {
         { id: 2, p1: 7, p2: 4, operator: '－', answer: 3 },
         { id: 3, p1: 5, p2: 5, operator: '＋', answer: 10 },
         { id: 4, p1: 9, p2: 1, operator: '－', answer: 8 },
-        { id: 5, p1: 4, p2: 2, operator: '＋', answer: 6 }
+        { id: 5, p1: 4, p2: 2, operator: '＋', answer: 6 },
+        { id: 6, p1: 8, p2: 3, operator: '－', answer: 5 },
+        { id: 7, p1: 6, p2: 4, operator: '＋', answer: 10 },
+        { id: 8, p1: 10, p2: 2, operator: '－', answer: 8 },
+        { id: 9, p1: 1, p2: 7, operator: '＋', answer: 8 },
+        { id: 10, p1: 5, p2: 0, operator: '－', answer: 5 }
+    ];
+}
+
+function getFallbackWordProblems() {
+    return [
+        {
+            id: 1,
+            text: "りんごが 3こ あります。みかんを 4こ もらいました。あわせて いくつに なりますか。",
+            equation: "3+4",
+            answer: 7
+        },
+        {
+            id: 2,
+            text: "こうえんに こどもが 10にん いました。3にん かえりました。のこりは なんにんですか。",
+            equation: "10-3",
+            answer: 7
+        }
     ];
 }
