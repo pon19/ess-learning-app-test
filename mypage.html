@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイページ - しょうがくせい Webプリント</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK & 共通JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
+    <script src="mypage.js"></script>
+</head>
+<body>
+    <div class="container" style="max-width: 500px; margin: 40px auto; padding: 20px;">
+        <h1 style="text-align: center; margin-bottom: 20px;">👤 マイページ</h1>
+
+        <!-- プロフィール確認・変更エリア -->
+        <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            
+            <!-- 変更不可の情報（確認用） -->
+            <div style="background: #edf2f7; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                <p style="margin: 0 0 8px 0; color: #4a5568;"><strong>お名前（変更不可）:</strong> <span id="displayNameView">-</span></p>
+                <p style="margin: 0; color: #4a5568;"><strong>携帯番号（変更不可）:</strong> <span id="phoneView">-</span></p>
+                <small style="color: #718096; display: block; margin-top: 6px;">※お名前・電話番号の変更はお問い合わせよりご連絡ください。</small>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+            <!-- 変更可能な項目フォーム -->
+            <form id="updateProfileForm">
+                <h3 style="font-size: 1.1rem; margin-top: 0; color: #2d3748;">✏️ プロフィール変更</h3>
+                
+                <!-- ニックネーム -->
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px;">ニックネーム</label>
+                    <input type="text" id="mypageNickname" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+                </div>
+
+                <!-- メールアドレス -->
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px;">メールアドレス</label>
+                    <input type="email" id="mypageEmail" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+                </div>
+
+                <!-- 新しいパスワード -->
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px;">新しいパスワード <span style="font-weight: normal; color: #718096;">(変更する場合のみ入力)</span></label>
+                    <input type="password" id="mypagePassword" placeholder="6文字以上" minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+                </div>
+
+                <button type="submit" id="saveBtn" style="width: 100%; padding: 12px; background: #3182ce; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem;">変更を保存する</button>
+            </form>
+
+            <p id="mypageMsg" style="margin-top: 15px; font-size: 14px; text-align: center; word-break: break-all;"></p>
+        </div>
+
+        <!-- トップにもどるボタン -->
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="index.html" style="color: #4a5568; text-decoration: none; font-weight: bold;">← トップページにもどる</a>
+        </div>
+    </div>
+</body>
+</html>
