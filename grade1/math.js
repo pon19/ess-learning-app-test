@@ -31,10 +31,10 @@ async function loadTodayProblems() {
     try {
         const todayStr = new Date().toISOString().split('T')[0];
 
-        // データベースから problems（計算）と word_problems（文章問題）の両方を取得
+        // まずは確実に存在する problems のみを取得してエラーを防ぐ
         const { data, error } = await clientSupabase
             .from('daily_problems')
-            .select('problems, word_problems')
+            .select('*') // * にすることで存在する列だけを安全に取得
             .eq('target_date', todayStr)
             .eq('grade', 1)
             .eq('subject', 'math')
@@ -42,17 +42,24 @@ async function loadTodayProblems() {
 
         if (error) throw error;
 
-        // 計算問題のセット
-        if (data && data.problems && data.problems.length > 0) {
-            currentProblems = data.problems;
-        } else {
-            currentProblems = getFallbackProblems();
-        }
+        if (data) {
+            // 計算問題のセット
+            if (data.problems && data.problems.length > 0) {
+                currentProblems = data.problems;
+            } else {
+                currentProblems = getFallbackProblems();
+            }
 
-        // 文章問題のセット
-        if (data && data.word_problems && data.word_problems.length > 0) {
-            currentWordProblems = data.word_problems;
+            // 文章問題のセット（列が存在し、データがある場合）
+            if (data.word_problems && data.word_problems.length > 0) {
+                currentWordProblems = data.word_problems;
+            } else {
+                currentWordProblems = getFallbackWordProblems();
+            }
         } else {
+            // 本日のデータ自体が未登録の場合
+            console.warn('本日のデータが未登録のため予備問題を表示します。');
+            currentProblems = getFallbackProblems();
             currentWordProblems = getFallbackWordProblems();
         }
 
@@ -61,7 +68,6 @@ async function loadTodayProblems() {
 
     } catch (err) {
         console.error('問題読み込みエラー:', err);
-        // エラー時は予備問題を表示
         currentProblems = getFallbackProblems();
         currentWordProblems = getFallbackWordProblems();
         renderProblems(currentProblems);
