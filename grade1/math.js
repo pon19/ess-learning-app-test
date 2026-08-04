@@ -29,7 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ====================================================
 async function loadTodayProblems() {
     try {
-        const todayStr = new Date().toISOString().split('T')[0];
+        // math.html 側の JavaScript 例
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`; // 正確なYYYY-MM-DD (日本時間)
 
         // まずは確実に存在する problems のみを取得してエラーを防ぐ
         const { data, error } = await clientSupabase
@@ -109,19 +114,14 @@ function renderProblems(problems) {
 // 4. 文章問題を画面に描画
 // ====================================================
 function renderWordProblems(wordProblems) {
-    // 文章問題用の場所(wordGrid)がHTMLになければ、計算問題の下(calcGrid)に追加する
-    let wordGrid = document.getElementById('wordGrid');
-    if (!wordGrid) {
-        const calcGrid = document.getElementById('calcGrid');
-        if (!calcGrid) return;
-        wordGrid = document.createElement('div');
-        wordGrid.id = 'wordGrid';
-        wordGrid.style.marginTop = '30px';
-        calcGrid.parentNode.insertBefore(wordGrid, calcGrid.nextSibling);
-    }
+    // HTMLにある「wordProblemArea」を取得
+    const wordProblemArea = document.getElementById('wordProblemArea');
+    if (!wordProblemArea) return;
 
-    wordGrid.innerHTML = '<h3 style="margin-bottom: 15px; color: #2d3748; border-bottom: 2px solid #cbd5e0; padding-bottom: 5px;">ぶんしょうもんだい</h3>';
+    // 中身をリセット
+    wordProblemArea.innerHTML = '';
 
+    // 文章問題カードを作成して追加
     wordProblems.forEach((wp, index) => {
         const div = document.createElement('div');
         div.style.padding = '15px';
@@ -140,7 +140,7 @@ function renderWordProblems(wordProblems) {
                 こたえ：<input type="number" id="wp_ans_${index}" style="width: 70px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
             </div>
         `;
-        wordGrid.appendChild(div);
+        wordProblemArea.appendChild(div);
     });
 }
 
