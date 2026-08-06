@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>けいさん トレーニング - しょうがく1ねんせい</title>
+    <link rel="stylesheet" href="../style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../common.js"></script>
+    <script src="practice_math.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
+
+        <div style="margin-bottom: 15px;">
+            <a href="menu.html" style="text-decoration: none; color: #4a5568; font-weight: bold;">⬅️ メニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge" style="background-color: #3182ce;">トレーニング</span>
+                <h1>けいさん れんしゅう</h1>
+            </div>
+            <div class="name-box" id="userProfileName">
+                なまえ：____________________
+            </div>
+        </div>
+
+        <!-- ⚙️ 設定パネル -->
+        <div style="background: #ebf8ff; border: 2px solid #90cdf4; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0; margin-bottom: 10px; color: #2b6cb0; font-size: 1.1rem;">⚙️ もんだいの 設定（せってい）</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                <!-- 計算の種類 -->
+                <div>
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #2d3748; display: block; margin-bottom: 4px;">しゅるい</label>
+                    <select id="settingOp" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 0.95rem; font-weight: bold;">
+                        <option value="mix">ごちゃまぜ (＋/－)</option>
+                        <option value="add">たしざん (＋)</option>
+                        <option value="sub">ひきざん (－)</option>
+                    </select>
+                </div>
+
+                <!-- 数字の範囲 -->
+                <div>
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #2d3748; display: block; margin-bottom: 4px;">かずの はんい</label>
+                    <select id="settingRange" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 0.95rem; font-weight: bold;">
+                        <option value="10">10まで (くりあがり なし)</option>
+                        <option value="20">20まで (くりあがり あり)</option>
+                    </select>
+                </div>
+
+                <!-- 問題数 -->
+                <div>
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #2d3748; display: block; margin-bottom: 4px;">もんだいくう</label>
+                    <select id="settingCount" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 0.95rem; font-weight: bold;">
+                        <option value="5">5もん</option>
+                        <option value="10" selected>10もん</option>
+                        <option value="15">15もん</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateBtn" style="width: 100%; background: #3182ce; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(49,130,206,0.3);">
+                🔄 この 設定で もんだいを つくる
+            </button>
+        </div>
+
+        <!-- 計算問題グリッド -->
+        <div class="calc-grid" id="calcGrid"></div>
+
+        <!-- 答え合わせボタン・結果エリア -->
+        <button class="btn-check" id="checkBtn" style="margin-top: 20px;">こたえあわせをする 💮</button>
+        <div class="score-display" id="scoreBox" style="display:none;"></div>
+    </div>
+</body>
+</html>
