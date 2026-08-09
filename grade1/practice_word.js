@@ -198,9 +198,14 @@ function checkAnswers() {
         }
 
         // 式の入力判定（半角・全角記号を正規化して比較）
+        // 修正後（normalizeEquationを使用）
         if (eqInput) {
-            let userEq = eqInput.value.replace(/\s+/g, '').replace(/＋/g, '+').replace(/－/g, '-');
-            if (userEq === wp.equation) {
+            // 児童の入力値を補正（全角→半角、スペース削除）
+            const normalizedUserEq = normalizeEquation(eqInput.value);
+            // 正解データ側も念のため補正して比較
+            const normalizedTargetEq = normalizeEquation(wp.equation);
+
+            if (normalizedUserEq === normalizedTargetEq) {
                 eqInput.style.borderColor = '#48bb78';
                 eqInput.style.backgroundColor = '#f0fff4';
             } else {
@@ -232,4 +237,19 @@ function resetScoreDisplay() {
         scoreBox.style.display = 'none';
         scoreBox.innerHTML = '';
     }
+}
+
+/**
+ * 入力された文字列の全角英数・記号を半角に変換し、スペースを除去する関数
+ */
+function normalizeEquation(str) {
+    if (!str) return '';
+    return str
+        // 全角英数字を半角に変換
+        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+        // 全角の＋－を半角に変換
+        .replace(/＋/g, '+')
+        .replace(/－/g, '-')
+        // 全角・半角スペースをすべて削除
+        .replace(/\s+/g, '');
 }
