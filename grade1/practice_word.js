@@ -76,7 +76,12 @@ function generateNewProblems() {
         }
 
         let item = tpl.items[Math.floor(Math.random() * tpl.items.length)];
-        let text = tpl.text.replace('{p1}', p1).replace('{p2}', p2).replace('{item}', item).replace('{person}', item);
+        // replaceAll (/g) を使用して文章内のすべての {item} と {person} を置換します
+        let text = tpl.text
+            .replace('{p1}', p1)
+            .replace('{p2}', p2)
+            .replace(/{item}/g, item)
+            .replace(/{person}/g, item);
 
         currentWordProblems.push({
             id: i + 1,
