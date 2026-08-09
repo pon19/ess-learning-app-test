@@ -317,3 +317,28 @@ async function checkAuthState() {
         if (authBtnArea) authBtnArea.style.display = 'block';
     }
 }
+
+// ----------------------------------------------------
+// 【追加】未ログイン時の学年選択ブロック処理
+// ----------------------------------------------------
+const activeGradeCards = document.querySelectorAll('.grade-card.active');
+activeGradeCards.forEach(card => {
+    card.addEventListener('click', async (e) => {
+        // 現在のセッション（ログイン状態）を取得
+        const { data: { session } } = await clientSupabase.auth.getSession();
+
+        // 未ログインの場合
+        if (!session) {
+            // リンク遷移（grade1/menu.htmlへの移動）を停止
+            e.preventDefault();
+
+            // 警告アラートを出してログインモーダルを表示
+            alert('がくねんを えらぶまえに、「ログイン / しんきとうろく」をしてね！');
+
+            const openAuthBtn = document.getElementById('openAuthModalBtn');
+            if (openAuthBtn) {
+                openAuthBtn.click();
+            }
+        }
+    });
+});
