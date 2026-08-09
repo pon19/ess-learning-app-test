@@ -117,7 +117,7 @@ function renderWordProblems(wordProblems) {
             </div>
             <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end; font-size: 1.2rem; font-weight: bold; flex-wrap: wrap;">
                 しき：<input type="text" id="wp_eq_${index}" class="wp-input" data-index="${index}" data-type="eq" style="width: 120px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
-                こたえ：<input type="number" id="wp_ans_${index}" class="wp-input" data-index="${index}" data-type="ans" style="width: 70px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
+                こたえ：<input type="number" id="wp_ans_${index}" class="wp-input" data-index="${index}" data-type="ans" style="width: 70px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;" inputmode="numeric">
             </div>
         `;
         area.appendChild(div);

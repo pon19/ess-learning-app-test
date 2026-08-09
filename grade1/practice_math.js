@@ -102,7 +102,7 @@ function renderProblems(problems) {
                 <span style="color:#718096; font-size:1rem; margin-right:10px;">(${index + 1})</span>
                 <span>${p.p1} ${p.operator} ${p.p2} ＝</span>
             </div>
-            <input type="number" id="answer_${index}" class="calc-input" data-index="${index}" style="width:70px; height:40px; font-size:1.3rem; text-align:center; border:2px solid #cbd5e0; border-radius:8px;" pattern="\\d*">
+            <input type="number" id="answer_${index}" class="calc-input" data-index="${index}" style="width:70px; height:40px; font-size:1.3rem; text-align:center; border:2px solid #cbd5e0; border-radius:8px;" pattern="\\d*" inputmode="numeric">
         `;
         calcGrid.appendChild(div);
     });

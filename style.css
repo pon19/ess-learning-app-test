@@ -331,3 +331,36 @@ h1 {
     .container { border: none; box-shadow: none; padding: 0; }
     .btn-check, .score-display { display: none !important; }
 }
+
+/* 🖨️ 印刷用スタイル設定 */
+@media print {
+    /* 印刷時に不要なUIを隠す */
+    #globalHeader,
+    .btn-check,
+    button,
+    select,
+    .header a,
+    div[style*="background: #e6fffa"],
+    div[style*="background:#e6fffa"] {
+        display: none !important;
+    }
+
+    body {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* 入力欄を印刷用に書き込み枠へ変換 */
+    .calc-input, .wp-input {
+        border: none !important;
+        border-bottom: 2px solid #000 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+    }
+}
