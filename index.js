@@ -260,7 +260,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             showForm(updatePasswordForm);
         }
     });
+    
+    // ----------------------------------------------------
+    // 【追加】未ログイン時の学年選択ブロック処理
+    // ----------------------------------------------------
+    const activeGradeCards = document.querySelectorAll('.grade-card.active');
+    activeGradeCards.forEach(card => {
+        card.addEventListener('click', async (e) => {
+            // 現在のセッションを取得
+            const { data: { session } } = await clientSupabase.auth.getSession();
 
+            // 未ログインの場合
+            if (!session) {
+                // リンク遷移を確実に停止
+                e.preventDefault();
+
+                // 警告表示
+                alert('がくねんを えらぶまえに、「ログイン / しんきとうろく」をしてね！');
+
+                // ログインモーダルを開く
+                const modal = document.getElementById('authModal');
+                const loginForm = document.getElementById('loginForm');
+                if (modal && loginForm) {
+                    // 共通フォーム表示処理を呼び出し
+                    showForm(loginForm);
+                    modal.style.display = 'flex';
+                }
+            }
+        });
+    });
+    
     // ログアウト処理
     document.getElementById('topLogoutBtn')?.addEventListener('click', async () => {
         await clientSupabase.auth.signOut();
@@ -317,28 +346,3 @@ async function checkAuthState() {
         if (authBtnArea) authBtnArea.style.display = 'block';
     }
 }
-
-// ----------------------------------------------------
-// 【追加】未ログイン時の学年選択ブロック処理
-// ----------------------------------------------------
-const activeGradeCards = document.querySelectorAll('.grade-card.active');
-activeGradeCards.forEach(card => {
-    card.addEventListener('click', async (e) => {
-        // 現在のセッション（ログイン状態）を取得
-        const { data: { session } } = await clientSupabase.auth.getSession();
-
-        // 未ログインの場合
-        if (!session) {
-            // リンク遷移（grade1/menu.htmlへの移動）を停止
-            e.preventDefault();
-
-            // 警告アラートを出してログインモーダルを表示
-            alert('がくねんを えらぶまえに、「ログイン / しんきとうろく」をしてね！');
-
-            const openAuthBtn = document.getElementById('openAuthModalBtn');
-            if (openAuthBtn) {
-                openAuthBtn.click();
-            }
-        }
-    });
-});
