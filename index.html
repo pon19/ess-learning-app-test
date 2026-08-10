@@ -113,15 +113,28 @@
             </form>
 
             <!-- 2. 新規登録フォーム -->
+            <!-- index.html の signupForm 内に追加 -->
             <form id="signupForm" style="display:none;">
                 <input type="text" id="signupName" placeholder="お名前（例: 山田 太郎）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
                 <input type="text" id="signupNickname" placeholder="ニックネーム（例: たろう）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+
+                <!-- 👇 学年選択を追加 -->
+                <select id="signupGrade" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-weight:bold; color:#2d3748;">
+                    <option value="" disabled selected>学年（がくねん）を えらんでね</option>
+                    <option value="1">小学1年生</option>
+                    <option value="2">小学2年生</option>
+                    <option value="3">小学3年生</option>
+                    <option value="4">小学4年生</option>
+                    <option value="5">小学5年生</option>
+                    <option value="6">小学6年生</option>
+                </select>
+
                 <input type="tel" id="signupPhone" placeholder="携帯番号（例: 09012345678）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
                 <input type="email" id="signupEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
                 <input type="password" id="signupPassword" placeholder="パスワード（6文字以上）" required minlength="6" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
                 <button type="submit" style="width:100%; padding:10px; background:#48bb78; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">登録する</button>
             </form>
-
+            
             <!-- 3. パスワード再設定メール送信フォーム -->
             <form id="resetRequestForm" style="display:none;">
                 <p style="font-size: 14px; color: #4a5568;">登録したメールアドレスに パスワード 再設定メールを 送ります。</p>

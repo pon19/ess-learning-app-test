@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // ログインチェック
+    // 1. ログインチェック
     const user = await getCurrentUser();
     if (!user) {
         alert('ログインが必要です。');
@@ -7,37 +7,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // 2. DOM要素の取得
     const displayNameView = document.getElementById('displayNameView');
     const phoneView = document.getElementById('phoneView');
+    const gradeView = document.getElementById('gradeView'); // ★学年表示エリア
     const nicknameInput = document.getElementById('mypageNickname');
     const emailInput = document.getElementById('mypageEmail');
-    const passwordInput = document.getElementById('mypagePassword');
-    const updateForm = document.getElementById('updateProfileForm');
+    const profileForm = document.getElementById('profileForm');
     const msg = document.getElementById('mypageMsg');
+    const btnBackHome = document.getElementById('btnBackHome');
 
-    // 1. 現在の情報を画面に反映
-    emailInput.value = user.email || '';
+    // メールアドレスは Auth 情報から取得
+    if (emailInput) {
+        emailInput.value = user.email || '';
+    }
 
+    // ----------------------------------------------------
+    // 3. プロフィール情報 & 学年データの取得（自動進級チェック含む）
+    // ----------------------------------------------------
+    // common.js の getUserProfileInfo を呼び出すことで自動進級処理が実行される
+    const { displayName, gradeLabel } = await getUserProfileInfo(user.id);
+
+    // DB から display_name, phone を取得
     const { data: profile, error } = await clientSupabase
         .from('profiles')
-        .select('display_name, nickname, phone')
+        .select('display_name, phone')
         .eq('id', user.id)
         .maybeSingle();
 
-    if (profile) {
-        displayNameView.textContent = profile.display_name || '（未設定）';
-        phoneView.textContent = profile.phone || '（未設定）';
-        nicknameInput.value = profile.nickname || '';
+    if (error) {
+        console.error('プロフィール取得エラー:', error);
     }
 
-    // 2. 変更保存処理
-    updateForm?.addEventListener('submit', async (e) => {
+    // 画面に取得データをセット
+    if (profile) {
+        if (displayNameView) displayNameView.textContent = profile.display_name || '（未設定）';
+        if (phoneView) phoneView.textContent = profile.phone || '（未設定）';
+    }
+
+    // ★ 学年ラベルを反映（例: "小学1年生"）
+    if (gradeView) {
+        gradeView.textContent = gradeLabel || '未設定';
+    }
+
+    // 変更可能なニックネーム入力欄に初期値をセット
+    if (nicknameInput) {
+        nicknameInput.value = displayName || '';
+    }
+
+    // ----------------------------------------------------
+    // 4. プロフィール更新（ニックネーム変更）処理
+    // ----------------------------------------------------
+    profileForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-
+        
         const newNickname = nicknameInput.value.trim();
-        const newEmail = emailInput.value.trim();
-        const newPassword = passwordInput.value;
-
         if (!newNickname) {
             msg.style.color = 'red';
             msg.textContent = 'ニックネームを入力してください。';
@@ -47,43 +71,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.style.color = 'black';
         msg.textContent = '保存中...';
 
-        try {
-            // ① ニックネームの更新 (profiles テーブル)
-            const { error: profileError } = await clientSupabase
-                .from('profiles')
-                .update({ nickname: newNickname })
-                .eq('id', user.id);
+        const { error: updateError } = await clientSupabase
+            .from('profiles')
+            .update({ nickname: newNickname })
+            .eq('id', user.id);
 
-            if (profileError) throw profileError;
-
-            // ② メールアドレス・パスワードの更新 (Supabase Auth)
-            const authUpdates = {};
-            if (newEmail !== user.email) authUpdates.email = newEmail;
-            if (newPassword) authUpdates.password = newPassword;
-
-            if (Object.keys(authUpdates).length > 0) {
-                const { error: authError } = await clientSupabase.auth.updateUser(authUpdates);
-                if (authError) throw authError;
-            }
-
-            msg.style.color = 'green';
-            msg.textContent = '変更を保存しました！';
-            passwordInput.value = ''; // パスワード欄をクリア
-
-        } catch (err) {
-            console.error('更新エラー:', err);
+        if (updateError) {
             msg.style.color = 'red';
-            msg.textContent = `エラー: ${err.message || '更新に失敗しました。'}`;
+            msg.textContent = `更新エラー: ${updateError.message}`;
+        } else {
+            msg.style.color = 'green';
+            msg.textContent = 'プロフィールを更新しました！';
+            
+            // ヘッダーの表示名を更新するためにリロード
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         }
     });
-    // 戻るボタンのイベントハンドラーを追加
-    const backBtn = document.getElementById('backBtn');
-    backBtn?.addEventListener('click', () => {
-        // 同じサイト内の別ページから移動してきた場合
-        if (document.referrer && document.referrer.includes(window.location.host)) {
-            history.back(); // 元いたページに戻る
-        } else {
-            window.location.href = 'index.html'; // 直接開いた場合はトップへ
-        }
+
+    // ----------------------------------------------------
+    // 5. トップページへ戻るボタン
+    // ----------------------------------------------------
+    btnBackHome?.addEventListener('click', () => {
+        window.location.href = 'index.html';
     });
 });

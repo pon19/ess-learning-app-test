@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     function showForm(targetForm) {
         if (msg) msg.textContent = '';
         
-        // 通常時は閉じるボタンとタブを表示
         if (closeModalBtn) closeModalBtn.style.display = 'block';
         if (modalTabs) modalTabs.style.display = 'flex';
 
@@ -37,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (targetForm) targetForm.style.display = 'block';
 
-        // 強制登録フォームの場合のみ、閉じるボタンとタブを隠して逃げられないようにする
         if (targetForm === forceNicknameForm) {
             if (closeModalBtn) closeModalBtn.style.display = 'none';
             if (modalTabs) modalTabs.style.display = 'none';
@@ -96,13 +94,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             msg.textContent = `エラー: ${error.message}`;
         } else {
             msg.textContent = '';
-            // ログイン成功後にニックネームチェックを実施
             await checkAuthState();
         }
     });
 
     // ----------------------------------------------------
-    // 2. 新規登録処理
+    // 2. 新規登録処理（学年データの保存を追加）
     // ----------------------------------------------------
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -111,6 +108,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const name = document.getElementById('signupName')?.value.trim() || 'ななしさん';
         const nickname = document.getElementById('signupNickname')?.value.trim() || name;
+        
+        // ★学年と現在年度の取得
+        const rawGrade = document.getElementById('signupGrade')?.value;
+        const selectedGrade = rawGrade ? parseInt(rawGrade, 10) : 1;
+        const currentAcademicYear = getCurrentAcademicYear();
+
         const rawPhone = document.getElementById('signupPhone')?.value || '';
         const phone = rawPhone.replace(/[^\d]/g, ''); 
         const email = document.getElementById('signupEmail')?.value.trim();
@@ -144,11 +147,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (data?.user) {
+                // ★profilesテーブルに grade と grade_updated_at を保存
                 await clientSupabase.from('profiles').insert([{
                     id: data.user.id,
                     display_name: name,
                     nickname: nickname,
-                    phone: phone
+                    phone: phone,
+                    grade: selectedGrade,
+                    grade_updated_at: currentAcademicYear
                 }]);
             }
 
@@ -176,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ----------------------------------------------------
-    // 3. 追加：ニックネーム強制更新処理
+    // 3. ニックネーム強制更新処理
     // ----------------------------------------------------
     forceNicknameForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -189,7 +195,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         msg.style.color = 'black';
         msg.textContent = '保存中...';
 
-        // profilesテーブルのnicknameを更新（upsertで安心保存）
         const { error } = await clientSupabase
             .from('profiles')
             .upsert({ 
@@ -261,28 +266,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // ----------------------------------------------------
-    // 【追加】未ログイン時の学年選択ブロック処理
-    // ----------------------------------------------------
+    // 未ログイン時の学年選択ブロック処理
     const activeGradeCards = document.querySelectorAll('.grade-card.active');
     activeGradeCards.forEach(card => {
         card.addEventListener('click', async (e) => {
-            // 現在のセッションを取得
             const { data: { session } } = await clientSupabase.auth.getSession();
 
-            // 未ログインの場合
             if (!session) {
-                // リンク遷移を確実に停止
                 e.preventDefault();
-
-                // 警告表示
                 alert('がくねんを えらぶまえに、「ログイン / しんきとうろく」をしてね！');
 
-                // ログインモーダルを開く
                 const modal = document.getElementById('authModal');
                 const loginForm = document.getElementById('loginForm');
                 if (modal && loginForm) {
-                    // 共通フォーム表示処理を呼び出し
                     showForm(loginForm);
                     modal.style.display = 'flex';
                 }
@@ -298,7 +294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ====================================================
-// ログイン状態 ＆ ニックネーム未設定の判定・警告処理
+// ログイン状態判定・学年バッジ付きメッセージ表示
 // ====================================================
 async function checkAuthState() {
     const { data: { session } } = await clientSupabase.auth.getSession();
@@ -312,34 +308,34 @@ async function checkAuthState() {
         if (userInfoArea) userInfoArea.style.display = 'block';
         if (authBtnArea) authBtnArea.style.display = 'none';
 
-        // ユーザーのプロファイル情報を取得
+        // ★ common.js の getUserProfileInfo で学年情報含め自動進級チェック
+        const { displayName, gradeLabel } = await getUserProfileInfo(session.user.id);
+
+        // ニックネーム未設定チェック
         const { data: profile } = await clientSupabase
             .from('profiles')
-            .select('display_name, nickname')
+            .select('nickname')
             .eq('id', session.user.id)
             .maybeSingle();
 
-        // ニックネームが未設定（null または 空文字）の場合
         if (!profile || !profile.nickname || profile.nickname.trim() === '') {
-            // モーダルを開いて強制入力画面にする
             if (modal && forceNicknameForm) {
                 modal.style.display = 'flex';
-                
-                // 画面切り替え（閉じるボタン・タブ非表示にする制御が動く）
                 const closeModalBtn = document.getElementById('closeModalBtn');
                 const modalTabs = document.getElementById('modalTabs');
                 if (closeModalBtn) closeModalBtn.style.display = 'none';
                 if (modalTabs) modalTabs.style.display = 'none';
 
-                // 全フォームを隠して強制的フォームのみ表示
                 document.querySelectorAll('#authModal form, #findEmailNotice').forEach(f => f.style.display = 'none');
                 forceNicknameForm.style.display = 'block';
             }
         } else {
-            // ニックネーム設定済みの場合は通常のログイン後表示
             if (modal) modal.style.display = 'none';
-            const displayName = profile.nickname || profile.display_name || 'ゲスト';
-            if (welcomeMessage) welcomeMessage.textContent = `ようこそ、${displayName} さん！`;
+            // ★ 学年バッジをつけてメッセージを表示
+            const gradeBadge = gradeLabel ? `<span style="background: #319795; color: white; font-size: 13px; padding: 2px 8px; border-radius: 12px; margin-left: 6px; vertical-align: middle;">${gradeLabel}</span>` : '';
+            if (welcomeMessage) {
+                welcomeMessage.innerHTML = `ようこそ、${escapeHtml(displayName)} さん！ ${gradeBadge}`;
+            }
         }
     } else {
         if (userInfoArea) userInfoArea.style.display = 'none';
