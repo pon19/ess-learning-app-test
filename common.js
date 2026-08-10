@@ -46,7 +46,7 @@ function getBasePath() {
  */
 async function handleLogout(redirectUrl) {
     const basePath = getBasePath();
-    const targetUrl = redirectUrl || `${basePath}index.html`;
+    const targetUrl = redirectUrl || '${basePath}index.html';
     await clientSupabase.auth.signOut();
     window.location.href = targetUrl;
 }
@@ -64,13 +64,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (user) {
         const displayName = await getUserDisplayName(user.id);
         globalHeader.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #edf2f7; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">
-                <div style="font-weight: bold; color: #2b6cb0; font-size: 14px;">
-                    👤 ${displayName} さん
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #edf2f7; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px;">
+                <!-- ★文字サイズを 14px -> 18px に拡大＆アイコンを強調 -->
+                <div style="font-weight: bold; color: #2b6cb0; font-size: 18px; display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 20px;">👤</span> ${escapeHtml(displayName)} さん
                 </div>
                 <div>
-                    <a href="${basePath}mypage.html" style="display: inline-block; background: #3182ce; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; margin-right: 5px;">マイページ</a>
-                    <button id="commonLogoutBtn" style="background: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;">ログアウト</button>
+                    <a href="${basePath}mypage.html" style="display: inline-block; background: #3182ce; color: white; border: none; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; margin-right: 5px;">マイページ</a>
+                    <button id="commonLogoutBtn" style="background: #e53e3e; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold;">ログアウト</button>
                 </div>
             </div>
         `;
@@ -81,9 +82,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         // 未ログイン時
         globalHeader.innerHTML = `
-            <div style="display: flex; justify-content: flex-end; align-items: center; background: #edf2f7; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">
-                <a href="${basePath}index.html" style="background: #3182ce; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;">🔐 ログイン / トップへ</a>
+            <div style="display: flex; justify-content: flex-end; align-items: center; background: #edf2f7; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px;">
+                <a href="${basePath}index.html" style="background: #3182ce; color: white; border: none; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;">🔐 ログイン / トップへ</a>
             </div>
         `;
     }
 });
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
