@@ -37,6 +37,23 @@ function isTopPage() {
 }
 
 /**
+ * ミリ秒タイムスタンプを「YYYY/MM/DD HH:mm」形式に変換
+ */
+function formatLastAccessTime(timestampStr) {
+    if (!timestampStr) return '記録なし';
+    const date = new Date(parseInt(timestampStr, 10));
+    if (isNaN(date.getTime())) return '記録なし';
+
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mi = String(date.getMinutes()).padStart(2, '0');
+
+    return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
+}
+
+/**
  * アクセス時刻の確認とリダイレクト・ログアウト制御
  */
 async function getCurrentUser() {
@@ -164,11 +181,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (user) {
         const { displayName, gradeLabel } = await getUserProfileInfo(user.id);
         const gradeBadge = gradeLabel ? `<span style="background: #319795; color: white; font-size: 13px; padding: 3px 8px; border-radius: 12px; margin-left: 6px; vertical-align: middle; font-weight: bold;">${gradeLabel}</span>` : '';
+        
+        // 最終アクセス日時のフォーマット取得
+        const lastAccessFormatted = formatLastAccessTime(localStorage.getItem('last_access_time'));
 
         globalHeader.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #edf2f7; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #edf2f7; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                 <div style="font-weight: bold; color: #2b6cb0; font-size: 18px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <span style="font-size: 20px;">👤</span> ${escapeHtml(displayName)} さん ${gradeBadge}
+                    <span style="font-weight: normal; font-size: 12px; color: #718096; margin-left: 10px; background: #ffffff; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        🕒 最終アクセス: ${lastAccessFormatted}
+                    </span>
                 </div>
                 <div>
                     <a href="${basePath}mypage.html" style="display: inline-block; background: #3182ce; color: white; border: none; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; margin-right: 5px;">マイページ</a>
