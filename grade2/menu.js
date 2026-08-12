@@ -16,12 +16,12 @@ async function fetchYesterdayRankings() {
             return;
         }
 
-        // 2年生の前日ランキングデータを取得 (grade = 2)
+        // grade2/menu.js の修正例
         const { data, error } = await supabase
             .from('daily_rankings_yesterday')
             .select('*')
             .eq('grade', 2)
-            .order('rank', { ascending: true })
+            .order('max_score', { ascending: false }) // ← 'rank.asc' ではなく 'max_score.desc' に変更
             .limit(5);
 
         if (error) {
