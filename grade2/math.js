@@ -189,32 +189,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * スコア保存処理
+     * スコア保存処理（テーブル定義適合版）
      */
     async function saveLearningScore(grade, score, timeTaken) {
         if (typeof clientSupabase === 'undefined' && typeof supabase === 'undefined') return;
         const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : supabase;
 
         try {
-            const user = (await supabaseClient.auth.getUser())?.data?.user;
-            const userId = user ? user.id : null;
+            const userResp = await supabaseClient.auth.getUser();
+            const userId = userResp?.data?.user?.id;
+            const totalQuestions = currentProblems.length;
 
-            await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('learning_scores_test')
                 .insert([
                     {
                         user_id: userId,
-                        grade: grade,
-                        score: score,
-                        time_taken: timeTaken,
-                        created_at: new Date().toISOString()
+                        grade: Number(grade),
+                        subject: 'math',                         // 必須 (NOT NULL)
+                        score: Number(score),
+                        total_questions: Number(totalQuestions)  // 必須 (NOT NULL)
                     }
                 ]);
+
+            if (error) {
+                console.error('Supabase保存エラー:', error.message, error.details);
+            } else {
+                console.log('スコアを正常に保存しました！');
+            }
         } catch (e) {
-            console.error('スコア保存エラー:', e);
+            console.error('スコア保存例外エラー:', e);
         }
     }
-
     /**
      * 入力正規化 (全角数字・スペース処理)
      */
