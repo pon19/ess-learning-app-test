@@ -10,42 +10,45 @@
     <script src="math.js" defer></script>
 </head>
 <body>
-    <div id="header-placeholder"></div>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
 
-    <main class="container">
-        <section class="challenge-header">
-            <h2>🏆 2ねんせい きょうの チャレンジ</h2>
-            <p>1にちに 1かい！ てんすうを きろくして ランキングに ちょうせんしよう！</p>
-        </section>
-
-        <!-- タイマー表示エリア -->
-        <div id="timer-display" class="timer-card hidden">
-            <span class="timer-label">のこり じかん:</span>
-            <span id="timer-seconds">60</span> 秒
+        <div class="back-link-box">
+            <a href="menu.html" class="btn-back">⬅️ 2ねんせいメニューへもどる</a>
         </div>
 
-        <!-- 問題表示カード -->
-        <section id="quiz-section" class="card">
-            <div id="loading-msg" class="loading">問題をよみこんでいます...</div>
-
-            <form id="challenge-form" class="hidden">
-                <div id="problems-container" class="problems-list"></div>
-                <button type="submit" id="submit-btn" class="btn btn-success btn-large">こたえあわせをして きろくする！</button>
-            </form>
-
-            <div id="result-container" class="result-box hidden">
-                <h3 id="result-score"></h3>
-                <p id="result-time"></p>
-                <p id="result-message"></p>
-                <a href="menu.html" class="btn btn-primary">メニューへもどる</a>
+        <div class="header">
+            <div>
+                <span class="title-badge badge-challenge">きょうのチャレンジ</span>
+                <h1>🏆 2ねんせい きょうの チャレンジ</h1>
             </div>
-        </section>
-
-        <div class="navigation-bottom">
-            <a href="menu.html" class="btn btn-secondary">← 2ねんせいメニューへもどる</a>
         </div>
-    </main>
 
-    <div id="footer-placeholder"></div>
+        <!-- ⏱️ タイマー表示エリア -->
+        <div id="timer-display" class="timer-box hidden">
+            <span>⏱️ のこりじかん:</span>
+            <span id="timer-seconds" class="timer-seconds">60</span>
+            <span>びょう</span>
+        </div>
+
+        <!-- 問題表示エリア -->
+        <div id="loading-msg" class="loading">問題をよみこんでいます...</div>
+
+        <form id="challenge-form" class="hidden">
+            <div id="problems-container" class="calc-grid"></div>
+            <button type="submit" id="submit-btn" class="btn-check btn-check-challenge">こたえあわせをして きろくする！ 💮</button>
+        </form>
+
+        <!-- 結果表示エリア -->
+        <div id="result-container" class="score-box-result hidden">
+            <h3 id="result-score"></h3>
+            <p id="result-time" style="font-weight: bold; margin: 0.5rem 0;"></p>
+            <p id="result-message"></p>
+            <div style="margin-top: 1.5rem;">
+                <a href="menu.html" class="btn-generate">メニューへもどる</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
