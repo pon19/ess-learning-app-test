@@ -25,12 +25,13 @@
             </div>
         </div>
 
-        <!-- ⚙️ 設定パネル -->
-        <div class="settings-panel">
+        <!-- ⚙️ 設定フォーム -->
+        <section id="setup-section" class="settings-panel">
             <h3 class="settings-title">⚙️ もんだいの 設定（せってい）</h3>
+            
             <div class="settings-grid">
                 <div>
-                    <label class="setting-label">しゅるい</label>
+                    <label for="calc-type" class="setting-label">しゅるい</label>
                     <select id="calc-type" class="setting-select">
                         <option value="kuku">九九（かけざん）</option>
                         <option value="add_2digit">2けたの たしざん</option>
@@ -40,9 +41,9 @@
                     </select>
                 </div>
 
-                <!-- 九九用詳細オプション -->
+                <!-- 九九選択時のみ表示する詳細設定 -->
                 <div id="kuku-options">
-                    <label class="setting-label">だんの せんたく</label>
+                    <label for="kuku-dan" class="setting-label">だんの せんたく</label>
                     <select id="kuku-dan" class="setting-select">
                         <option value="all">ぜんぶの だん（ランダム）</option>
                         <option value="1">1の段</option>
@@ -58,7 +59,7 @@
                 </div>
 
                 <div>
-                    <label class="setting-label">もんだいすう</label>
+                    <label for="problem-count" class="setting-label">もんだいすう</label>
                     <select id="problem-count" class="setting-select">
                         <option value="5">5もん</option>
                         <option value="10" selected>10もん</option>
@@ -67,15 +68,28 @@
                     </select>
                 </div>
             </div>
-            <button id="start-btn" class="btn-generate">🔄 この 設定で もんだいを つくる</button>
-        </div>
+
+            <button id="start-btn" class="btn-generate">🔄 れんしゅうを はじめる！</button>
+        </section>
 
         <!-- 問題表示エリア -->
-        <div id="problems-container" class="calc-grid"></div>
+        <section id="quiz-section" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span id="progress-text">もんだい一覧</span>
+                <button id="reset-btn" class="btn-back">やりなおす</button>
+            </div>
 
-        <!-- 答え合わせボタン・結果表示 -->
-        <button id="submit-btn" class="btn-check btn-check-training">こたえあわせをする 💮</button>
-        <div id="result-container" class="score-box-result"></div>
+            <form id="quiz-form">
+                <div id="problems-container" class="calc-grid"></div>
+                <button type="submit" id="submit-btn" class="btn-check btn-check-training">こたえあわせをする 💮</button>
+            </form>
+
+            <div id="result-container" class="score-box-result hidden">
+                <h3 id="result-score"></h3>
+                <p id="result-message"></p>
+                <button id="retry-btn" class="btn-generate" style="margin-top: 1rem;">もう一度ちょうせん</button>
+            </div>
+        </section>
     </div>
 </body>
 </html>

@@ -1085,3 +1085,18 @@ h1 {
 .badge-grade-2 {
     background-color: #319795; /* エメラルドグリーン */
 }
+
+/* === 2年生追加スタイル === */
+.badge-word-training {
+    background-color: #ed8936;
+    color: #ffffff;
+}
+
+.btn-check-word {
+    background-color: #ed8936;
+    color: #ffffff;
+}
+
+.btn-check-word:hover {
+    background-color: #dd6b20;
+}
