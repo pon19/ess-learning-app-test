@@ -3,68 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>しょうがく1ねんせい - メニュー</title>
+    <title>しょうがく1ねんせい - きょうかの せんたく</title>
     <link rel="stylesheet" href="../style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../common.js"></script>
-    <script src="menu.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <!-- 共通ヘッダー -->
+    <div class="container top-container">
         <div id="globalHeader"></div>
 
-        <div class="back-link-box">
+        <div class="back-link-box" style="text-align: left;">
             <a href="../index.html" class="btn-back">⬅️ トップページへもどる</a>
         </div>
 
-        <div class="header">
-            <div>
-                <span class="title-badge badge-grade-1">1ねんせい</span>
-                <h1>なにに ちょうせん する？</h1>
-            </div>
+        <h1 class="grade-select-title">🎒 きょうかを えらんでね</h1>
+
+        <div class="grade-grid">
+            <!-- 算数へ -->
+            <a href="math/menu.html" class="grade-card active g-1">
+                🔢 さんすう
+                <span class="grade-subtext">けいさん・ぶんしょうだい</span>
+            </a>
+
+            <!-- 国語へ -->
+            <a href="japanese/menu.html" class="grade-card active" style="background-color: #e53e3e; box-shadow: 0 4px 6px rgba(229,62,62,0.2);">
+                ✏️ こくご
+                <span class="grade-subtext">ひらがな・ことば・かんじ</span>
+            </a>
         </div>
-
-        <!-- 👑 前日のランキングエリア -->
-        <div class="ranking-card">
-            <h3 class="ranking-title">
-                👑 きのうの チャレンジ ランキング 👑
-            </h3>
-            <div id="rankingList">
-                <p class="ranking-empty-msg">読み込み中...</p>
-            </div>
-        </div>
-
-        <!-- 🎮 モード選択エリア -->
-        <div class="mode-section-container">
-            
-            <!-- 🔥 チャレンジ用（1日1回・ランキング対象） -->
-            <div class="card-challenge">
-                <div class="card-challenge-subtitle">
-                    🏆 ランキングに はんえい されるよ！（1にち 1かい）
-                </div>
-                <a href="math.html" class="btn-challenge">
-                    🔥 【きょうの チャレンジ】さんすうプリント
-                </a>
-            </div>
-
-            <!-- 🏋️ トレーニング用（練習・何度でも挑戦可） -->
-            <div class="card-training">
-                <div class="card-training-title">
-                    🏋️ なんども れんしゅう（トレーニング）
-                </div>
-                <div class="training-grid">
-                    <a href="practice_math.html" class="btn-training-math">
-                        🔢 けいさん<br>トレーニング
-                    </a>
-                    <a href="practice_word.html" class="btn-training-word">
-                        📖 ぶんしょうだい<br>トレーニング
-                    </a>
-                </div>
-            </div>
-
-        </div>
-
     </div>
 </body>
 </html>
