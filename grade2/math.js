@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let timerInterval = null;
     let currentUser = null;
 
-    // 1. ユーザー情報の取得
+    // 1. ユーザー情報の取得と表示
     currentUser = await getCurrentUser();
     if (currentUser) {
         const nameBox = document.getElementById('userProfileName');
@@ -25,13 +25,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             nameBox.textContent = `なまえ： ${displayName} さん`;
         }
 
-        // 2. ★ 本日すでに挑戦済みかチェック
+        // 2. 本日すでに回答済みかチェック
         const todayScore = await checkTodaySubmitted(currentUser.id, 2);
         if (todayScore) {
-            // すでに挑戦済みの場合はフォームを隠して結果を表示
             if (loadingMsg) loadingMsg.classList.add('hidden');
             showAlreadySubmittedView(todayScore);
-            return; // これ以降の挑戦処理を実行しない
+            return; // 提出済みの場合はここで処理を終了（問題を描画せずタイマーも動かさない）
         }
     }
 
@@ -42,20 +41,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentProblems = getFallbackProblems();
     }
 
-    // 問題の描画とタイマー開始
+    // 4. 問題の描画とタイマー開始
     renderProblems(currentProblems);
     if (loadingMsg) loadingMsg.classList.add('hidden');
     if (challengeForm) challengeForm.classList.remove('hidden');
     if (timerDisplay) timerDisplay.classList.remove('hidden');
     startTimer(60);
 
-    // 採点＆提出処理
+    // 5. 採点＆提出イベント設定
     challengeForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // ★ 二重送信防止（ボタン連打対策）
-        if (submitBtn) submitBtn.disabled = true;
-        
+        if (submitBtn) submitBtn.disabled = true; // ボタン連打対策
         submitForm();
     });
 
@@ -69,6 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             elapsedTime = Math.floor((Date.now() - startTimestamp) / 1000);
         }
 
+        if (submitBtn) submitBtn.disabled = true;
         let score = 0;
 
         currentProblems.forEach((problem, index) => {
@@ -110,37 +107,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * ★ 本日の送信履歴を取得する関数
+     * 本日の送信履歴を取得（日本時間考慮）
      */
     async function checkTodaySubmitted(userId, grade) {
         const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
         if (!supabaseClient) return null;
 
         try {
+            // 日本時間の本日の日付文字列 (YYYY-MM-DD) を作成
             const now = new Date();
-            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).toISOString();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
 
+            // 生成列 created_date と比較して重複チェック
             const { data, error } = await supabaseClient
                 .from('learning_scores_test')
                 .select('*')
                 .eq('user_id', userId)
                 .eq('grade', grade)
                 .eq('subject', 'math')
-                .gte('created_at', startOfDay)
-                .lte('created_at', endOfDay)
+                .eq('created_date', todayStr)
                 .maybeSingle();
 
-            if (error) return null;
+            if (error) {
+                console.error('履歴チェックエラー:', error);
+                return null;
+            }
             return data;
         } catch (e) {
-            console.error('履歴チェックエラー:', e);
+            console.error('履歴チェック例外エラー:', e);
             return null;
         }
     }
 
     /**
-     * ★ すでに挑戦済みの場合の画面表示制御
+     * すでに回答済みの場合の画面表示制御
      */
     function showAlreadySubmittedView(scoreData) {
         if (challengeForm) challengeForm.classList.add('hidden');
@@ -150,8 +153,160 @@ document.addEventListener('DOMContentLoaded', async () => {
             resultContainer.classList.remove('hidden');
             if (resultScore) resultScore.textContent = `💮 きょうのスコア: ${scoreData.score} てん！`;
             if (resultTime) resultTime.textContent = scoreData.time_taken ? `かかった じかん: ${scoreData.time_taken} びょう` : '';
-            if (resultMessage) resultMessage.textContent = 'きょうの チャレンジは すでに 完了（かんりょう）しています。また あした ちょうせんしてね！';
+            if (resultMessage) resultMessage.textContent = 'きょうの チャレンジは すでに かんりょう しています。また あした ちょうせんしてね！';
         }
     }
 
-    // --- (タイマー関連・fetchDailyProblems・renderProblems・saveLearningScore などは既存通り) ---
+    /**
+     * タイマー開始関数
+     */
+    function startTimer(durationSeconds = 60) {
+        stopTimer();
+
+        startTimestamp = Date.now();
+        const endTime = startTimestamp + durationSeconds * 1000;
+
+        if (timerSeconds) {
+            timerSeconds.textContent = durationSeconds;
+        }
+
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
+
+            if (timerSeconds) {
+                timerSeconds.textContent = timeLeft;
+            }
+
+            if (timeLeft <= 0) {
+                stopTimer();
+                handleTimeUp();
+            }
+        }, 250);
+    }
+
+    function stopTimer() {
+        if (timerInterval !== null) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function handleTimeUp() {
+        alert('じかんきれです！ さいてんします。');
+        submitForm();
+    }
+
+    /**
+     * DBから本日の問題を取得
+     */
+    async function fetchDailyProblems(grade) {
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+        if (!supabaseClient) return null;
+
+        try {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            const { data, error } = await supabaseClient
+                .from('daily_problems')
+                .select('*')
+                .eq('grade', grade)
+                .eq('subject', 'math')
+                .eq('target_date', todayStr)
+                .maybeSingle();
+
+            if (error || !data) return null;
+            return data.problems || data.problems_json;
+        } catch (e) {
+            console.error('問題取得エラー:', e);
+            return null;
+        }
+    }
+
+    /**
+     * 予備問題（2年生用）
+     */
+    function getFallbackProblems() {
+        return [
+            { text: '6 × 4 = ', answer: 24 },
+            { text: '7 × 8 = ', answer: 56 },
+            { text: '45 + 28 = ', answer: 73 },
+            { text: '82 - 35 = ', answer: 47 },
+            { text: '9 × 3 = ', answer: 27 },
+            { text: '54 + 19 = ', answer: 73 },
+            { text: '63 - 27 = ', answer: 36 },
+            { text: '8 × 7 = ', answer: 56 },
+            { text: '38 + 44 = ', answer: 82 },
+            { text: '91 - 48 = ', answer: 43 }
+        ];
+    }
+
+    /**
+     * 問題描画
+     */
+    function renderProblems(problems) {
+        if (!problemsContainer) return;
+        problemsContainer.innerHTML = '';
+        
+        problems.forEach((p, index) => {
+            const div = document.createElement('div');
+            div.className = 'calc-item';
+
+            div.innerHTML = `
+                <div>
+                    <span class="problem-index">(${index + 1})</span>
+                    <label for="ans-${index}" class="problem-text">${p.text}</label>
+                </div>
+                <input type="number" id="ans-${index}" class="input-answer-num" pattern="\\d*" autocomplete="off" inputmode="numeric">
+                <div id="feedback-${index}" class="feedback-text"></div>
+            `;
+            problemsContainer.appendChild(div);
+        });
+    }
+
+    /**
+     * スコア保存処理
+     */
+    async function saveLearningScore(grade, score, timeTaken) {
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+        if (!supabaseClient) return;
+
+        try {
+            const userResp = await supabaseClient.auth.getUser();
+            const userId = userResp?.data?.user?.id;
+            const totalQuestions = currentProblems.length;
+
+            const { data, error } = await supabaseClient
+                .from('learning_scores_test')
+                .insert([
+                    {
+                        user_id: userId,
+                        grade: Number(grade),
+                        subject: 'math',
+                        score: Number(score),
+                        total_questions: Number(totalQuestions)
+                    }
+                ]);
+
+            if (error) {
+                console.error('Supabase保存エラー:', error.message, error.details);
+            } else {
+                console.log('スコアを正常に保存しました！');
+            }
+        } catch (e) {
+            console.error('スコア保存例外エラー:', e);
+        }
+    }
+
+    function normalizeAnswer(str) {
+        if (!str) return '';
+        return str
+            .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+            .replace(/\s+/g, '')
+            .trim();
+    }
+});

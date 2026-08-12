@@ -1,12 +1,13 @@
 // グローバル変数
 let currentProblems = []; 
-let currentWordProblems = []; // 文章問題用を追加
+let currentWordProblems = []; 
 let currentUser = null;    
 
 // ====================================================
 // 1. 初期化処理
 // ====================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // ユーザー情報の取得と表示
     currentUser = await getCurrentUser();
     if (currentUser) {
         const nameBox = document.getElementById('userProfileName');
@@ -14,12 +15,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const displayName = await getUserDisplayName(currentUser.id);
             nameBox.textContent = `なまえ： ${displayName} さん`;
         }
-        
-        // ★ 本日の挑戦チェック[cite: 13]
+
+        // ★ 本日すでに送信済みかチェック
         const todayScore = await checkTodaySubmitted(currentUser.id, 1);
         if (todayScore) {
-            disableFormAndShowScore(todayScore);
-            return;
+            showAlreadySubmittedView(todayScore);
+            return; // 提出済みの場合はこれ以降の読み込みを行わない
         }
     }
 
@@ -31,7 +32,67 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ====================================================
-// 2. DBから「今日の問題」を取得
+// 2. 本日の送信履歴を取得（重複チェック）
+// ====================================================
+async function checkTodaySubmitted(userId, grade) {
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+    if (!supabaseClient) return null;
+
+    try {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+
+        // 生成列 created_date と比較して重複チェック
+        const { data, error } = await supabaseClient
+            .from('learning_scores_test')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('grade', grade)
+            .eq('subject', 'math')
+            .eq('created_date', todayStr)
+            .maybeSingle();
+
+        if (error) {
+            console.error('履歴チェックエラー:', error);
+            return null;
+        }
+        return data;
+    } catch (e) {
+        console.error('履歴チェック例外エラー:', e);
+        return null;
+    }
+}
+
+// ====================================================
+// 3. 回答済みの場合の画面表示制御
+// ====================================================
+function showAlreadySubmittedView(scoreData) {
+    const calcGrid = document.getElementById('calcGrid');
+    const wordProblemArea = document.getElementById('wordProblemArea');
+    const checkBtn = document.getElementById('checkBtn');
+    const scoreBox = document.getElementById('scoreBox');
+
+    // 問題エリアと提出ボタンを非表示にする
+    if (calcGrid) calcGrid.style.display = 'none';
+    if (wordProblemArea) wordProblemArea.style.display = 'none';
+    if (checkBtn) checkBtn.style.display = 'none';
+
+    // 結果メッセージを表示
+    if (scoreBox) {
+        scoreBox.style.display = 'block';
+        scoreBox.innerHTML = `
+            <h3>きょうの チャレンジは すでに かんりょう しています！</h3>
+            <p>💮 きょうのスコア: <strong>${scoreData.score} てん</strong></p>
+            <p style="margin-top: 10px;">また あした ちょうせんしてね！</p>
+        `;
+    }
+}
+
+// ====================================================
+// 4. DBから「今日の問題」を取得
 // ====================================================
 async function loadTodayProblems() {
     try {
@@ -82,7 +143,7 @@ async function loadTodayProblems() {
 }
 
 // ====================================================
-// 3. 計算問題を画面に描画
+// 5. 計算問題の描画
 // ====================================================
 function renderProblems(problems) {
     const calcGrid = document.getElementById('calcGrid');
@@ -106,7 +167,7 @@ function renderProblems(problems) {
 }
 
 // ====================================================
-// 4. 文章問題を画面に描画
+// 6. 文章問題の描画
 // ====================================================
 function renderWordProblems(wordProblems) {
     const wordProblemArea = document.getElementById('wordProblemArea');
@@ -133,9 +194,12 @@ function renderWordProblems(wordProblems) {
 }
 
 // ====================================================
-// 5. 答え合わせ ＆ 成績保存
+// 7. 答え合わせ ＆ 成績保存
 // ====================================================
 async function checkAnswersAndSave() {
+    const checkBtn = document.getElementById('checkBtn');
+    if (checkBtn) checkBtn.disabled = true; // 連打防止
+
     let correctCount = 0;
     const totalCount = currentProblems.length + currentWordProblems.length;
 
@@ -145,6 +209,7 @@ async function checkAnswersAndSave() {
     currentProblems.forEach((problem, index) => {
         const inputEl = document.getElementById(`answer_${index}`);
         if (!inputEl) return;
+        inputEl.disabled = true;
         
         const userAnswer = parseInt(inputEl.value, 10);
         if (!isNaN(userAnswer) && userAnswer === problem.answer) {
@@ -160,8 +225,11 @@ async function checkAnswersAndSave() {
     // 文章問題の答え合わせ
     currentWordProblems.forEach((wp, index) => {
         const ansInput = document.getElementById(`wp_ans_${index}`);
-        if (!ansInput) return;
+        const eqInput = document.getElementById(`wp_eq_${index}`);
+        if (ansInput) ansInput.disabled = true;
+        if (eqInput) eqInput.disabled = true;
         
+        if (!ansInput) return;
         const userAnswer = parseInt(ansInput.value, 10);
         if (!isNaN(userAnswer) && userAnswer === wp.answer) {
             correctCount++;
@@ -189,7 +257,8 @@ async function checkAnswersAndSave() {
                     user_id: currentUser.id,
                     grade: 1,
                     subject: 'math',
-                    score: score
+                    score: score,
+                    total_questions: totalCount
                 }]);
         } catch (e) {
             console.error('成績保存エラー:', e);
@@ -198,7 +267,7 @@ async function checkAnswersAndSave() {
 }
 
 // ====================================================
-// 6. 予備問題
+// 8. 予備問題
 // ====================================================
 function getFallbackProblems() {
     return [
