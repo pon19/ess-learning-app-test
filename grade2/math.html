@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2ねんせい きょうの チャレンジプリント</title>
+    <title>2ねんせい きょうのチャレンジ</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+    
     <link rel="stylesheet" href="../style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../common.js" defer></script>
@@ -11,13 +13,14 @@
 </head>
 <body>
     <div class="container">
-        <!-- 共通ヘッダー -->
         <div id="globalHeader"></div>
-
-        <div class="back-link-box">
-            <a href="menu.html" class="btn-back">⬅️ 2ねんせいメニューへもどる</a>
+        
+        <!-- ナビゲーションバー -->
+        <div class="nav-bar">
+            <a href="menu.html" class="btn-back">⬅️ メニューへもどる</a>
         </div>
 
+        <!-- ヘッダー -->
         <div class="header">
             <div>
                 <span class="title-badge badge-challenge">きょうのチャレンジ</span>
@@ -32,11 +35,14 @@
             <span>びょう</span>
         </div>
 
-        <!-- 問題表示エリア -->
+        <!-- ローディングメッセージ -->
         <div id="loading-msg" class="loading">問題をよみこんでいます...</div>
 
+        <!-- 問題表示フォーム -->
         <form id="challenge-form" class="hidden">
+            <div class="section-title">けいさん もんだいを しましょう</div>
             <div id="problems-container" class="calc-grid"></div>
+
             <button type="submit" id="submit-btn" class="btn-check btn-check-challenge">こたえあわせをして きろくする！ 💮</button>
         </form>
 
@@ -46,8 +52,14 @@
             <p id="result-time" style="font-weight: bold; margin: 0.5rem 0;"></p>
             <p id="result-message"></p>
             <div style="margin-top: 1.5rem;">
-                <a href="menu.html" class="btn-generate">メニューへもどる</a>
+                <a href="menu.html" class="btn-back">メニューへもどる</a>
             </div>
+        </div>
+
+        <!-- 成績履歴 -->
+        <div class="history-card">
+            <h3 class="history-title">📜 いままでの きろく</h3>
+            <div id="historyList" class="history-list"></div>
         </div>
     </div>
 </body>

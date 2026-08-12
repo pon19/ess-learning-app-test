@@ -15,23 +15,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     let elapsedTime = 0;
     let timerInterval = null;
 
+    // ユーザー情報の取得と名前表示
+    const currentUser = await getCurrentUser();
+    if (currentUser) {
+        const nameBox = document.getElementById('userProfileName');
+        if (nameBox) {
+            const displayName = await getUserDisplayName(currentUser.id);
+            nameBox.textContent = `なまえ： ${displayName} さん`;
+        }
+    }
+
     // 今日の問題を取得 (Grade = 2)
     currentProblems = await fetchDailyProblems(2);
 
     if (!currentProblems || currentProblems.length === 0) {
-        // DBから取得できない場合の予備問題（2年生用）
         currentProblems = getFallbackProblems();
     }
 
     // 問題の描画とタイマー開始
     renderProblems(currentProblems);
-    loadingMsg.classList.add('hidden');
-    challengeForm.classList.remove('hidden');
-    timerDisplay.classList.remove('hidden');
+    if (loadingMsg) loadingMsg.classList.add('hidden');
+    if (challengeForm) challengeForm.classList.remove('hidden');
+    if (timerDisplay) timerDisplay.classList.remove('hidden');
     startTimer(60);
 
     // 採点＆提出処理
-    challengeForm.addEventListener('submit', async (e) => {
+    challengeForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         submitForm();
     });
@@ -42,12 +51,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function submitForm() {
         stopTimer();
         
-        // 経過時間（秒）の計算
         if (startTimestamp) {
             elapsedTime = Math.floor((Date.now() - startTimestamp) / 1000);
         }
 
-        submitBtn.disabled = true;
+        if (submitBtn) submitBtn.disabled = true;
         let score = 0;
 
         currentProblems.forEach((problem, index) => {
@@ -71,24 +79,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // スコア結果の計算と表示
         const calculatedScore = Math.round(score * (100 / currentProblems.length));
-        resultScore.textContent = `${calculatedScore} てん！`;
-        resultTime.textContent = `かかった じかん: ${elapsedTime} びょう`;
+        if (resultScore) resultScore.textContent = `💮 ${calculatedScore} てん！`;
+        if (resultTime) resultTime.textContent = `かかった じかん: ${elapsedTime} びょう`;
 
-        if (calculatedScore === 100) {
-            resultMessage.textContent = '🎉 すごい！ まんてんだよ！ きろくを ほぞんしました！';
-        } else {
-            resultMessage.textContent = '👍 よくがんばったね！ きろくを ほぞんしました！';
+        if (resultMessage) {
+            if (calculatedScore === 100) {
+                resultMessage.textContent = '🎉 すごい！ まんてんだよ！ きろくを ほぞんしました！';
+            } else {
+                resultMessage.textContent = '👍 よくがんばったね！ きろくを ほぞんしました！';
+            }
         }
 
         // Supabaseへスコア保存
         await saveLearningScore(2, calculatedScore, elapsedTime);
 
-        resultContainer.classList.remove('hidden');
+        if (resultContainer) resultContainer.classList.remove('hidden');
     }
 
     /**
      * タイマー開始関数
-     * @param {number} durationSeconds - 制限時間（デフォルト60秒）
      */
     function startTimer(durationSeconds = 60) {
         stopTimer();
@@ -115,9 +124,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 250);
     }
 
-    /**
-     * タイマー停止関数
-     */
     function stopTimer() {
         if (timerInterval !== null) {
             clearInterval(timerInterval);
@@ -125,9 +131,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    /**
-     * タイムアップ時の処理
-     */
     function handleTimeUp() {
         alert('じかんきれです！ さいてんします。');
         submitForm();
@@ -137,20 +140,26 @@ document.addEventListener('DOMContentLoaded', async () => {
      * DBから本日の問題を取得
      */
     async function fetchDailyProblems(grade) {
-        if (typeof clientSupabase === 'undefined' && typeof supabase === 'undefined') return null;
-        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : supabase;
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+        if (!supabaseClient) return null;
 
         try {
-            const todayStr = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
             const { data, error } = await supabaseClient
                 .from('daily_problems')
                 .select('*')
                 .eq('grade', grade)
+                .eq('subject', 'math')
                 .eq('target_date', todayStr)
-                .single();
+                .maybeSingle();
 
             if (error || !data) return null;
-            return data.problems_json;
+            return data.problems || data.problems_json;
         } catch (e) {
             console.error('問題取得エラー:', e);
             return null;
@@ -158,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * DB未接続・データ不在時の予備問題
+     * 予備問題（2年生用）
      */
     function getFallbackProblems() {
         return [
@@ -166,23 +175,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             { text: '7 × 8 = ', answer: 56 },
             { text: '45 + 28 = ', answer: 73 },
             { text: '82 - 35 = ', answer: 47 },
-            { text: '9 × 3 = ', answer: 27 }
+            { text: '9 × 3 = ', answer: 27 },
+            { text: '54 + 19 = ', answer: 73 },
+            { text: '63 - 27 = ', answer: 36 },
+            { text: '8 × 7 = ', answer: 56 },
+            { text: '38 + 44 = ', answer: 82 },
+            { text: '91 - 48 = ', answer: 43 }
         ];
     }
 
     /**
-     * 問題一覧描画
+     * 問題描画（1年生プリントと統一されたグリッドカード）
      */
     function renderProblems(problems) {
+        if (!problemsContainer) return;
         problemsContainer.innerHTML = '';
+        
         problems.forEach((p, index) => {
             const div = document.createElement('div');
-            div.className = 'problem-item';
+            div.className = 'calc-item';
+
             div.innerHTML = `
-                <span class="problem-num">(${index + 1})</span>
-                <label for="ans-${index}" class="problem-text">${p.text}</label>
-                <input type="text" id="ans-${index}" class="answer-input" autocomplete="off" inputmode="numeric">
-                <span id="feedback-${index}" class="feedback-text"></span>
+                <div>
+                    <span class="problem-index">(${index + 1})</span>
+                    <label for="ans-${index}" class="problem-text">${p.text}</label>
+                </div>
+                <input type="number" id="ans-${index}" class="input-answer-num" pattern="\\d*" autocomplete="off" inputmode="numeric">
+                <div id="feedback-${index}" class="feedback-text"></div>
             `;
             problemsContainer.appendChild(div);
         });
@@ -192,8 +211,8 @@ document.addEventListener('DOMContentLoaded', async () => {
      * スコア保存処理（テーブル定義適合版）
      */
     async function saveLearningScore(grade, score, timeTaken) {
-        if (typeof clientSupabase === 'undefined' && typeof supabase === 'undefined') return;
-        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : supabase;
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+        if (!supabaseClient) return;
 
         try {
             const userResp = await supabaseClient.auth.getUser();
@@ -221,9 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('スコア保存例外エラー:', e);
         }
     }
-    /**
-     * 入力正規化 (全角数字・スペース処理)
-     */
+
     function normalizeAnswer(str) {
         if (!str) return '';
         return str
