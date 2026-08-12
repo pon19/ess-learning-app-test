@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2ねんせい けいさんトレーニング</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../common.js" defer></script>
+    <script src="practice_math.js" defer></script>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+        <section class="practice-header">
+            <h2>2ねんせい けいさんトレーニング</h2>
+            <p>しゅるいや もんだいすうを えらんで れんしゅうしよう！</p>
+        </section>
+
+        <!-- 設定フォーム -->
+        <section id="setup-section" class="card">
+            <h3>れんしゅうの設定</h3>
+            
+            <div class="form-group">
+                <label for="calc-type"><strong>もんだいの しゅるい:</strong></label>
+                <select id="calc-type" class="form-control">
+                    <option value="kuku">九九（かけざん）</option>
+                    <option value="add_2digit">2けたの たしざん</option>
+                    <option value="sub_2digit">2けたの ひきざん</option>
+                    <option value="mix_2digit">2けたの たしざん・ひきざん（みっくす）</option>
+                    <option value="unit_calc">長さ・かさの けいさん (cm/mm, L/dL)</option>
+                </select>
+            </div>
+
+            <!-- 九九選択時のみ表示する詳細設定 -->
+            <div id="kuku-options" class="form-group">
+                <label for="kuku-dan"><strong>だんの せんたく:</strong></label>
+                <select id="kuku-dan" class="form-control">
+                    <option value="all">ぜんぶの だん（ランダム）</option>
+                    <option value="1">1の段</option>
+                    <option value="2">2の段</option>
+                    <option value="3">3の段</option>
+                    <option value="4">4の段</option>
+                    <option value="5">5の段</option>
+                    <option value="6">6の段</option>
+                    <option value="7">7の段</option>
+                    <option value="8">8の段</option>
+                    <option value="9">9の段</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="problem-count"><strong>もんだいすう:</strong></label>
+                <select id="problem-count" class="form-control">
+                    <option value="5">5もん</option>
+                    <option value="10" selected>10もん</option>
+                    <option value="15">15もん</option>
+                    <option value="20">20もん</option>
+                </select>
+            </div>
+
+            <button id="start-btn" class="btn btn-primary btn-large">れんしゅうを はじめる！</button>
+        </section>
+
+        <!-- 問題表示エリア -->
+        <section id="quiz-section" class="card hidden">
+            <div class="quiz-header">
+                <span id="progress-text">もんだい 1 / 10</span>
+                <button id="reset-btn" class="btn btn-small btn-secondary">やりなおす</button>
+            </div>
+
+            <form id="quiz-form">
+                <div id="problems-container" class="problems-list"></div>
+                <button type="submit" id="submit-btn" class="btn btn-success btn-large">こたえあわせ</button>
+            </form>
+
+            <div id="result-container" class="result-box hidden">
+                <h3 id="result-score"></h3>
+                <p id="result-message"></p>
+                <button id="retry-btn" class="btn btn-primary">もう一度ちょうせん</button>
+            </div>
+        </section>
+
+        <div class="navigation-bottom">
+            <a href="menu.html" class="btn btn-secondary">← 2ねんせいメニューへもどる</a>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+</body>
+</html>

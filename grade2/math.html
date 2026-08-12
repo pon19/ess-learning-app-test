@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2ねんせい きょうの チャレンジプリント</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../common.js" defer></script>
+    <script src="math.js" defer></script>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+        <section class="challenge-header">
+            <h2>🏆 2ねnせい きょうの チャレンジ</h2>
+            <p>1にちに 1かい！ てんすうを きろくして ランキングに ちょうせんしよう！</p>
+        </section>
+
+        <!-- タイマー表示エリア -->
+        <div id="timer-display" class="timer-card hidden">
+            <span class="timer-label">タイム:</span>
+            <span id="timer-seconds">0</span> 秒
+        </div>
+
+        <!-- 問題表示カード -->
+        <section id="quiz-section" class="card">
+            <div id="loading-msg" class="loading">問題をもみこんでいます...</div>
+
+            <form id="challenge-form" class="hidden">
+                <div id="problems-container" class="problems-list"></div>
+                <button type="submit" id="submit-btn" class="btn btn-success btn-large">こたえあわせをして きろくする！</button>
+            </form>
+
+            <div id="result-container" class="result-box hidden">
+                <h3 id="result-score"></h3>
+                <p id="result-time"></p>
+                <p id="result-message"></p>
+                <a href="menu.html" class="btn btn-primary">メニューへもどる</a>
+            </div>
+        </section>
+
+        <div class="navigation-bottom">
+            <a href="menu.html" class="btn btn-secondary">← 2ねんせいメニューへもどる</a>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+</body>
+</html>
