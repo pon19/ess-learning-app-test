@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchYesterdayRankings();
+    await loadYesterdayRanking();
 });
 
 /**
