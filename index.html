@@ -24,7 +24,7 @@
         <div id="userInfoArea" style="margin-bottom: 20px; padding: 15px; background: #edf2f7; border-radius: 8px; display: none;">
             <p style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: bold; color: #2b6cb0;" id="welcomeMessage">ようこそ！</p>
 
-            <!-- 👇 マイページボタンを追加 -->
+            <!-- マイページボタン -->
             <a href="mypage.html" style="display: inline-block; background: #3182ce; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 14px; margin-right: 8px;">👤 マイページ</a>
 
             <button id="topLogoutBtn" style="background: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">ログアウト</button>
@@ -44,11 +44,10 @@
                 🎒 1ねんせい
             </a>
 
-            <!-- 2年生（準備中）→一時公開中 -->
-            <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
-                🐥 2ねんせい 
-                <!--<span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>-->
-            </div>
+            <!-- 2年生（公開中：有効化） -->
+            <a href="grade2/menu.html" class="grade-card active" style="display: block; padding: 18px; background: #319795; color: white; text-decoration: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; box-shadow: 0 4px 6px rgba(49,151,149,0.2); transition: transform 0.2s;">
+                🐥 2ねんせい
+            </a>
 
             <!-- 3年生（準備中） -->
             <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
@@ -96,7 +95,7 @@
         <div style="background:white; padding:24px; border-radius:12px; width:90%; max-width:400px; text-align:center; position:relative; max-height: 90vh; overflow-y: auto;">
             <button id="closeModalBtn" style="position:absolute; top:10px; right:15px; border:none; background:none; font-size:20px; cursor:pointer;">×</button>
 
-            <!-- タブ切り替え（強制登録時は非表示にします） -->
+            <!-- タブ切り替え（強制登録時は非表示） -->
             <div id="modalTabs" style="display:flex; justify-content:space-around; margin-bottom:20px; border-bottom:2px solid #edf2f7;">
                 <button id="tabLogin" style="padding:8px 12px; border:none; background:none; font-weight:bold; color:#3182ce; border-bottom:2px solid #3182ce; cursor:pointer;">ログイン</button>
                 <button id="tabSignup" style="padding:8px 12px; border:none; background:none; font-weight:bold; color:#718096; cursor:pointer;">しんきとうろく</button>
@@ -115,12 +114,11 @@
             </form>
 
             <!-- 2. 新規登録フォーム -->
-            <!-- index.html の signupForm 内に追加 -->
             <form id="signupForm" style="display:none;">
                 <input type="text" id="signupName" placeholder="お名前（例: 山田 太郎）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
                 <input type="text" id="signupNickname" placeholder="ニックネーム（例: たろう）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
 
-                <!-- 👇 学年選択を追加 -->
+                <!-- 学年選択 -->
                 <select id="signupGrade" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-weight:bold; color:#2d3748;">
                     <option value="" disabled selected>学年（がくねん）を えらんでね</option>
                     <option value="1">小学1年生</option>
@@ -162,7 +160,7 @@
                 <button type="submit" style="width:100%; padding:10px; background:#e53e3e; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">パスワードを 変更</button>
             </form>
 
-            <!-- 👇 6. 追加：既存ユーザー向け ニックネーム強制登録フォーム -->
+            <!-- 6. 既存ユーザー向け ニックネーム強制登録フォーム -->
             <form id="forceNicknameForm" style="display:none;">
                 <div style="background: #fff5f5; border: 1px solid #feb2b2; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <p style="font-size: 14px; color: #c53030; font-weight: bold; margin: 0 0 5px 0;">⚠️ ニックネームが とうろく されていません</p>
