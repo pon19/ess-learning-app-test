@@ -114,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!supabaseClient) return null;
 
         try {
-            // 日本時間の本日の日付文字列 (YYYY-MM-DD) を作成
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -143,25 +142,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * すでに回答済みの場合の画面表示制御
+     * すでに回答済みの場合の画面表示制御（パターンB適用強化）
      */
     function showAlreadySubmittedView(scoreData) {
-        // フォーム、タイマー、問題エリアを非表示にする
+        // フォーム、タイマー、問題エリアを確実に非表示にする
         if (challengeForm) challengeForm.classList.add('hidden');
         if (timerDisplay) timerDisplay.classList.add('hidden');
         if (problemsContainer) problemsContainer.classList.add('hidden');
 
-        // 送信ボタン等が含まれるエリアも非表示
-        const submitArea = document.querySelector('.submit-area');
-        if (submitArea) submitArea.style.display = 'none';
-
-        // 結果エリアだけを表示してメッセージを設定
+        // 結果エリアを表示
         if (resultContainer) {
             resultContainer.classList.remove('hidden');
-            if (resultScore) resultScore.textContent = `💮 きょうのスコア: ${scoreData.score} てん！`;
-            if (resultTime) resultTime.textContent = scoreData.time_taken ? `かかった じかん: ${scoreData.time_taken} びょう` : '';
+            if (resultScore) {
+                resultScore.textContent = `💮 きょうのスコア: ${scoreData.score} てん！`;
+            }
+            if (resultTime) {
+                resultTime.textContent = scoreData.time_taken ? `かかった じかん: ${scoreData.time_taken} びょう` : '';
+            }
             if (resultMessage) {
-                resultMessage.textContent = 'きょうの チャレンジは すでに かんりょう しています。また あした ちょうせんしてね！';
+                resultMessage.textContent = 'きょうの チャレンジは すでに かんりょう しています。また あした ちょうせんしてね！ 💮';
             }
         }
     }
