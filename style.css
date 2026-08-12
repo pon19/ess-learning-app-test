@@ -985,3 +985,98 @@ h1 {
     font-size: 13px;
     text-align: center;
 }
+
+/* === 文章問題トレーニング (practice_word) 用の補正スタイル === */
+
+/* バッジとボタンの配色 */
+.badge-word-training {
+    background-color: #319795;
+}
+
+.btn-check-word {
+    background: #319795;
+}
+.btn-check-word:hover {
+    background: #2b6cb0;
+}
+
+/* 設定パネル */
+.settings-panel-word {
+    background: #e6fffa;
+    border: 2px solid #b2f5ea;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.settings-title-word {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #234e52;
+    font-size: 1.1rem;
+}
+
+.btn-generate-word {
+    width: 100%;
+    background: #319795;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(49, 151, 149, 0.3);
+    margin-top: 10px;
+}
+
+/* 文章問題カード表示 */
+.word-problem-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.word-problem-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    color: #2d3748;
+}
+
+.word-problem-index {
+    color: #319795;
+    font-size: 1.1rem;
+    margin-right: 6px;
+}
+
+.word-problem-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f7fafc;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* 式と答えの入力欄 */
+.input-equation {
+    width: 120px;
+    height: 38px;
+    font-size: 1rem;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    outline: none;
+}
+
+.input-equation:focus, .input-answer-num:focus {
+    border-color: #319795;
+}
