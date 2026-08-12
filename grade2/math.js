@@ -12,8 +12,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let currentProblems = [];
     let startTime = null;
-    let timerInterval = null;
     let elapsedTime = 0;
+    
+    // ==========================================
+    // 1. グローバル変数（タイマー管理用）
+    // ==========================================
+    let timerInterval = null; // setInterval の識別ID
+    let remainingSeconds = 60; // デフォルトの制限時間（秒）
 
     // 今日の問題を取得 (Grade = 2)
     currentProblems = await fetchDailyProblems(2);
@@ -72,19 +77,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         resultContainer.classList.remove('hidden');
     });
 
+    // ==========================================
+    // 3. タイマー開始関数（実時間計算ベース）
+    // ==========================================
     /**
-     * タイマー処理
+     * @param {number} durationSeconds - 制限時間（デフォルト60秒）
      */
-    function startTimer() {
-        startTime = Date.now();
-        timerInterval = setInterval(() => {
-            elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-            timerSeconds.textContent = elapsedTime;
-        }, 1000);
+    function startTimer(durationSeconds = 60) {
+      // ① 開始前に必ず既存タイマーを停止（二重起動防止）
+      stopTimer();
+
+      const timerDisplay = document.getElementById('timer'); // HTMLのタイマー表示要素
+      const startTime = Date.now();
+      const endTime = startTime + durationSeconds * 1000; // 終了すべき時刻（ミリ秒）
+
+      // 初期表示
+      if (timerDisplay) {
+        timerDisplay.textContent = durationSeconds;
+      }
+
+      // ② 250msごとに実時間をチェックして表示を更新（タブ切り替え時のズレ防止）
+      timerInterval = setInterval(() => {
+        const now = Date.now();
+        const timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
+
+        // タイマー表示の更新
+        if (timerDisplay) {
+          timerDisplay.textContent = timeLeft;
+        }
+
+        // ③ 0秒になったら停止して終了処理を実行
+        if (timeLeft <= 0) {
+          stopTimer();
+          handleTimeUp(); // タイムアップ時の処理を実行
+        }
+      }, 250);
     }
 
+    // ==========================================
+    // 2. タイマー停止関数（二重起動防止・リセット用）
+    // ==========================================
     function stopTimer() {
-        if (timerInterval) clearInterval(timerInterval);
+      if (timerInterval !== null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+    
+    // ==========================================
+    // 4. タイムアップ時の処理
+    // ==========================================
+    function handleTimeUp() {
+      // 回答入力欄の無効化や、結果画面を表示する関数を呼び出す
+      alert('じかんきれです！');
+      // ※既存のゲーム終了関数（例: finishGame(), showResultModal() 等）があればここで実行します
     }
 
     /**

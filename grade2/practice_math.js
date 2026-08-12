@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.innerHTML = `
                 <span class="problem-num">(${index + 1})</span>
                 <label for="ans-${index}" class="problem-text">${problem.text}</label>
-                <input type="text" id="ans-${index}" class="answer-input" value="${savedVal}" autocomplete="off" inputmode="numeric">
+                <input type="number" id="ans-${index}" class="answer-input" value="${savedVal}" placeholder="すうじ" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
                 <span class="unit-text">${problem.unit || ''}</span>
                 <span id="feedback-${index}" class="feedback-text"></span>
             `;
