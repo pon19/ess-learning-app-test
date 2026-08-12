@@ -1,12 +1,23 @@
 // ====================================================
 // 共通設定 & Supabase 初期化
 // ====================================================
+console.log('1. [common.js] ファイルの読み込み開始');
+
 const SUPABASE_URL = 'https://ygixztswzvcguzxwdzvo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnaXh6dHN3enZjZ3V6eHdkenZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3MzEwMjgsImV4cCI6MjEwMTMwNzAyOH0._ouVAKbboVoNvD1uw-uhSoIeN6eiQviZojjRDpW_NXE';
 
-const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let clientSupabase = null;
+try {
+    if (typeof supabase !== 'undefined') {
+        clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('2. [common.js] Supabase クライアント生成成功');
+    } else {
+        console.error('2. [common.js] エラー: supabase SDK が読み込まれていません');
+    }
+} catch (e) {
+    console.error('2. [common.js] Supabase 初期化例外:', e);
+}
 
-// 判定用のミリ秒定数
 const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;         // 12時間
 const FIVE_DAYS_MS    = 5 * 24 * 60 * 60 * 1000;     // 5日間
 
@@ -20,39 +31,23 @@ function escapeHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
-/**
- * フォルダ構成に依存せず、トップ階層（index.html）への相対パスを自動計算
- */
 function getBasePath() {
     const fileName = window.location.pathname.split('/').pop();
-    // トップページ直下にいる場合
     if (fileName === '' || fileName === 'index.html' || fileName === 'mypage.html') {
         return './';
     }
-    // サブフォルダ内にいる場合は 1つ上の階層を参照
     return '../';
 }
 
-/**
- * トップページ判定
- * 1. window.IS_TOP_PAGE フラグが存在するかチェック（最も確実に判定）
- * 2. パス末尾が / または index.html かチェック（フォールバック）
- */
 function isTopPage() {
     if (window.IS_TOP_PAGE === true) {
         return true;
     }
-
     const path = window.location.pathname.toLowerCase();
     const fileName = path.split('/').pop();
-
-    // GitHub Pages などで末尾が / や index.html、またはリポジトリ直下の場合の判定
-    return fileName === '' || fileName === 'index.html' || path.endsWith('/');
+    return fileName === '' || fileName === 'index.html' || fileName === 'index.htm' || path.endsWith('/');
 }
 
-/**
- * ミリ秒タイムスタンプを「YYYY/MM/DD HH:mm」形式に変換
- */
 function formatLastAccessTime(timestampStr) {
     if (!timestampStr) return '記録なし';
     const date = new Date(parseInt(timestampStr, 10));
@@ -67,27 +62,39 @@ function formatLastAccessTime(timestampStr) {
     return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
 }
 
-/**
- * アクセス時刻の確認とリダイレクト・ログアウト制御
- */
 async function getCurrentUser() {
-    const { data: { session } } = await clientSupabase.auth.getSession();
+    console.log('4. [getCurrentUser] 関数開始');
+    if (!clientSupabase) {
+        console.error('4. [getCurrentUser] clientSupabase が存在しないため中断');
+        return null;
+    }
+
+    const { data: { session }, error } = await clientSupabase.auth.getSession();
+    if (error) {
+        console.error('4. [getCurrentUser] getSession エラー:', error);
+    }
+    
     if (!session) {
+        console.log('4. [getCurrentUser] セッションなし (未ログイン)');
         localStorage.removeItem('last_access_time');
         return null;
     }
+
+    console.log('5. [getCurrentUser] ログイン中のユーザー:', session.user.email);
 
     const now = Date.now();
     const lastAccessStr = localStorage.getItem('last_access_time');
     const basePath = getBasePath();
     const topCheck = isTopPage();
 
+    console.log('6. [getCurrentUser] topCheck 判定結果:', topCheck, '| lastAccessStr:', lastAccessStr);
+
     if (lastAccessStr) {
         const lastAccess = parseInt(lastAccessStr, 10);
         const elapsed = now - lastAccess;
 
-        // 【1】5日以上経過 -> ログアウト（トップページであってもログアウト）
         if (elapsed > FIVE_DAYS_MS) {
+            console.log('7. 5日以上経過のためログアウト');
             localStorage.removeItem('last_access_time');
             await clientSupabase.auth.signOut();
             alert('前回のアクセスから5日以上経過したためログアウトしました。');
@@ -97,16 +104,14 @@ async function getCurrentUser() {
             return null;
         }
 
-        // 【2】12時間以上経過（トップページ以外の場合のみリダイレクト）
         if (elapsed > TWELVE_HOURS_MS && !topCheck) {
+            console.log('7. 12時間以上経過 (トップ以外)');
             alert('前回のアクセスから12時間以上経過したため、トップページに戻ります。');
             window.location.href = `${basePath}index.html`;
             return session.user;
         }
     }
 
-    // 【3】トップページの場合は無条件で最終アクセス日時を更新
-    // または初回ログイン時（lastAccessStrが存在しない時）
     if (topCheck || !lastAccessStr) {
         console.log('[最終アクセス日時を更新しました]', new Date(now).toLocaleString());
         localStorage.setItem('last_access_time', now.toString());
@@ -121,13 +126,12 @@ async function handleLogout(redirectUrl) {
     const basePath = getBasePath();
     const targetUrl = redirectUrl || `${basePath}index.html`;
     localStorage.removeItem('last_access_time');
-    await clientSupabase.auth.signOut();
+    if (clientSupabase) {
+        await clientSupabase.auth.signOut();
+    }
     window.location.href = targetUrl;
 }
 
-// ----------------------------------------------------
-// 学年判定 ＆ 自動進級（4月1日更新）ロジック
-// ----------------------------------------------------
 function getCurrentAcademicYear() {
     const today = new Date();
     return today.getMonth() < 3 ? today.getFullYear() - 1 : today.getFullYear();
@@ -141,19 +145,8 @@ function formatGradeLabel(gradeNum) {
     return '一般';
 }
 
-async function getUserDisplayName(userId) {
-    if (!userId) return 'ゲスト';
-    const { data: profile } = await clientSupabase
-        .from('profiles')
-        .select('display_name, nickname')
-        .eq('id', userId)
-        .maybeSingle();
-
-    return profile?.nickname || profile?.display_name || 'ゲスト';
-}
-
 async function getUserProfileInfo(userId) {
-    if (!userId) return { displayName: 'ゲスト', gradeLabel: '', rawGrade: 1 };
+    if (!userId || !clientSupabase) return { displayName: 'ゲスト', gradeLabel: '', rawGrade: 1 };
 
     const { data: profile } = await clientSupabase
         .from('profiles')
@@ -188,11 +181,17 @@ async function getUserProfileInfo(userId) {
 }
 
 // ====================================================
-// 全ページ共通：ヘッダー自動描画処理
+// メイン実行処理（DOMContentLoaded 依存を解消）
 // ====================================================
-document.addEventListener('DOMContentLoaded', async () => {
+async function initHeader() {
+    console.log('3. [initHeader] ヘッダー初期化処理開始');
     const globalHeader = document.getElementById('globalHeader');
-    if (!globalHeader) return;
+    
+    // globalHeader が見つからない場合（ページ読み込み途中の場合）
+    if (!globalHeader) {
+        console.warn('3. [initHeader] #globalHeader がまだ存在しません');
+        return;
+    }
 
     const basePath = getBasePath();
     const user = await getCurrentUser();
@@ -201,7 +200,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const { displayName, gradeLabel } = await getUserProfileInfo(user.id);
         const gradeBadge = gradeLabel ? `<span style="background: #319795; color: white; font-size: 13px; padding: 3px 8px; border-radius: 12px; margin-left: 6px; vertical-align: middle; font-weight: bold;">${gradeLabel}</span>` : '';
         
-        // 最終アクセス日時のフォーマット取得
         const lastAccessFormatted = formatLastAccessTime(localStorage.getItem('last_access_time'));
 
         globalHeader.innerHTML = `
@@ -229,4 +227,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
     }
-});
+}
+
+// DOM読み込み状態に応じて即時実行またはイベント待ち
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeader);
+} else {
+    // 既にDOMの構築が終わっている場合は即時実行
+    initHeader();
+}
