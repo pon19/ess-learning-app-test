@@ -20,20 +20,26 @@ function escapeHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
+/**
+ * フォルダ構成に依存せず、トップ階層（index.html）への相対パスを自動計算
+ */
 function getBasePath() {
-    const path = window.location.pathname;
-    if (path.includes('/grade1/')) {
-        return '../';
+    const fileName = window.location.pathname.split('/').pop();
+    // トップページ直下にいる場合
+    if (fileName === '' || fileName === 'index.html' || fileName === 'mypage.html') {
+        return './';
     }
-    return './';
+    // サブフォルダ内にいる場合は 1つ上の階層を参照
+    return '../';
 }
 
 /**
- * トップページかどうかを判定
+ * トップページかどうかを完全自動判定（ファイル名のみでチェック）
  */
 function isTopPage() {
-    const path = window.location.pathname;
-    return path.endsWith('/') || path.endsWith('/index.html');
+    const fileName = window.location.pathname.split('/').pop().toLowerCase();
+    // ファイル名が空（ルート直下 '/'）または 'index.html' や 'index.htm' であればトップページ
+    return fileName === '' || fileName === 'index.html' || fileName === 'index.htm';
 }
 
 /**
