@@ -34,12 +34,20 @@ function getBasePath() {
 }
 
 /**
- * トップページかどうかを完全自動判定（ファイル名のみでチェック）
+ * トップページ判定
+ * 1. window.IS_TOP_PAGE フラグが存在するかチェック（最も確実に判定）
+ * 2. パス末尾が / または index.html かチェック（フォールバック）
  */
 function isTopPage() {
-    const fileName = window.location.pathname.split('/').pop().toLowerCase();
-    // ファイル名が空（ルート直下 '/'）または 'index.html' や 'index.htm' であればトップページ
-    return fileName === '' || fileName === 'index.html' || fileName === 'index.htm';
+    if (window.IS_TOP_PAGE === true) {
+        return true;
+    }
+
+    const path = window.location.pathname.toLowerCase();
+    const fileName = path.split('/').pop();
+
+    // GitHub Pages などで末尾が / や index.html、またはリポジトリ直下の場合の判定
+    return fileName === '' || fileName === 'index.html' || path.endsWith('/');
 }
 
 /**
