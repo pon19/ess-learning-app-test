@@ -80,22 +80,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ----------------------------------------------------
     // 1. ログイン処理
     // ----------------------------------------------------
-    loginForm?.addEventListener('submit', async (e) => {
+    // ログインフォームの送信処理例
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
 
-        msg.style.color = 'black';
-        msg.textContent = 'ログイン中...';
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
 
-        const { error } = await clientSupabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await clientSupabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
         if (error) {
-            msg.style.color = 'red';
-            msg.textContent = `エラー: ${error.message}`;
-        } else {
-            msg.textContent = '';
-            await checkAuthState();
+            alert('ログインに失敗しました: ' + error.message);
+            return;
         }
+
+        // ★ ログイン成功時にアクセス時刻を現在時刻で初期化・更新する
+        localStorage.setItem('last_access_time', Date.now().toString());
+
+        // ログイン後の画面更新またはリダイレクト
+        window.location.reload(); 
     });
 
     // ----------------------------------------------------

@@ -6,6 +6,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// 判定用のミリ秒定数
+const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;         // 12時間
+const FIVE_DAYS_MS    = 5 * 24 * 60 * 60 * 1000;     // 5日間
+
 function escapeHtml(str) {
     if (!str) return '';
     return str
@@ -16,11 +20,6 @@ function escapeHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
-async function getCurrentUser() {
-    const { data: { session } } = await clientSupabase.auth.getSession();
-    return session ? session.user : null;
-}
-
 function getBasePath() {
     const path = window.location.pathname;
     if (path.includes('/grade1/')) {
@@ -29,9 +28,63 @@ function getBasePath() {
     return './';
 }
 
+/**
+ * トップページかどうかを判定
+ */
+function isTopPage() {
+    const path = window.location.pathname;
+    return path.endsWith('/') || path.endsWith('/index.html');
+}
+
+/**
+ * アクセス時刻の確認とリダイレクト・ログアウト制御
+ */
+async function getCurrentUser() {
+    const { data: { session } } = await clientSupabase.auth.getSession();
+    if (!session) {
+        localStorage.removeItem('last_access_time');
+        return null;
+    }
+
+    const now = Date.now();
+    const lastAccessStr = localStorage.getItem('last_access_time');
+    const basePath = getBasePath();
+
+    if (lastAccessStr) {
+        const lastAccess = parseInt(lastAccessStr, 10);
+        const elapsed = now - lastAccess;
+
+        // 【条件1】5日（120時間）以上経過している場合 -> 自動ログアウト
+        if (elapsed > FIVE_DAYS_MS) {
+            localStorage.removeItem('last_access_time');
+            await clientSupabase.auth.signOut();
+            alert('前回のアクセスから5日以上経過したためログアウトしました。');
+            if (!isTopPage()) {
+                window.location.href = `${basePath}index.html`;
+            }
+            return null;
+        }
+
+        // 【条件2】12時間以上経過している場合 -> トップページへ移動
+        if (elapsed > TWELVE_HOURS_MS && !isTopPage()) {
+            alert('前回のアクセスから12時間以上経過したため、トップページに戻ります。');
+            window.location.href = `${basePath}index.html`;
+            return session.user;
+        }
+    }
+
+    // 【更新処理】トップページを開いている時のみ日時を最新化
+    if (isTopPage() || !lastAccessStr) {
+        localStorage.setItem('last_access_time', now.toString());
+    }
+
+    return session.user;
+}
+
 async function handleLogout(redirectUrl) {
     const basePath = getBasePath();
     const targetUrl = redirectUrl || `${basePath}index.html`;
+    localStorage.removeItem('last_access_time');
     await clientSupabase.auth.signOut();
     window.location.href = targetUrl;
 }
@@ -41,7 +94,6 @@ async function handleLogout(redirectUrl) {
 // ----------------------------------------------------
 function getCurrentAcademicYear() {
     const today = new Date();
-    // 1月〜3月の場合は前年が年度（例: 2026年2月 -> 2025年度）
     return today.getMonth() < 3 ? today.getFullYear() - 1 : today.getFullYear();
 }
 
@@ -53,9 +105,6 @@ function formatGradeLabel(gradeNum) {
     return '一般';
 }
 
-/**
- * ユーザーの表示名（ニックネーム優先）を取得する共通関数（★追加）
- */
 async function getUserDisplayName(userId) {
     if (!userId) return 'ゲスト';
     const { data: profile } = await clientSupabase
@@ -67,9 +116,6 @@ async function getUserDisplayName(userId) {
     return profile?.nickname || profile?.display_name || 'ゲスト';
 }
 
-/**
- * ユーザー情報取得 ＋ 自動進級チェック
- */
 async function getUserProfileInfo(userId) {
     if (!userId) return { displayName: 'ゲスト', gradeLabel: '', rawGrade: 1 };
 
@@ -85,13 +131,11 @@ async function getUserProfileInfo(userId) {
     let lastUpdatedYear = profile.grade_updated_at || getCurrentAcademicYear();
     const currentAcademicYear = getCurrentAcademicYear();
 
-    // 4月1日を過ぎて新しい年度になっており、かつ未更新の場合
     if (currentAcademicYear > lastUpdatedYear) {
         const yearsPassed = currentAcademicYear - lastUpdatedYear;
         currentGrade += yearsPassed;
         lastUpdatedYear = currentAcademicYear;
 
-        // DBへ自動進級結果を保存
         await clientSupabase
             .from('profiles')
             .update({
