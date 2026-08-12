@@ -146,14 +146,23 @@ document.addEventListener('DOMContentLoaded', async () => {
      * すでに回答済みの場合の画面表示制御
      */
     function showAlreadySubmittedView(scoreData) {
+        // フォーム、タイマー、問題エリアを非表示にする
         if (challengeForm) challengeForm.classList.add('hidden');
         if (timerDisplay) timerDisplay.classList.add('hidden');
+        if (problemsContainer) problemsContainer.classList.add('hidden');
 
+        // 送信ボタン等が含まれるエリアも非表示
+        const submitArea = document.querySelector('.submit-area');
+        if (submitArea) submitArea.style.display = 'none';
+
+        // 結果エリアだけを表示してメッセージを設定
         if (resultContainer) {
             resultContainer.classList.remove('hidden');
             if (resultScore) resultScore.textContent = `💮 きょうのスコア: ${scoreData.score} てん！`;
             if (resultTime) resultTime.textContent = scoreData.time_taken ? `かかった じかん: ${scoreData.time_taken} びょう` : '';
-            if (resultMessage) resultMessage.textContent = 'きょうの チャレンジは すでに かんりょう しています。また あした ちょうせんしてね！';
+            if (resultMessage) {
+                resultMessage.textContent = 'きょうの チャレンジは すでに かんりょう しています。また あした ちょうせんしてね！';
+            }
         }
     }
 

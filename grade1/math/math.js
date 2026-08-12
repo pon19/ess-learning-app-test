@@ -67,7 +67,7 @@ async function checkTodaySubmitted(userId, grade) {
 }
 
 // ====================================================
-// 3. 回答済みの場合の画面表示制御
+// 3. 回答済みの場合の画面表示制御（パターンB適用）
 // ====================================================
 function showAlreadySubmittedView(scoreData) {
     const calcGrid = document.getElementById('calcGrid');
@@ -75,18 +75,28 @@ function showAlreadySubmittedView(scoreData) {
     const checkBtn = document.getElementById('checkBtn');
     const scoreBox = document.getElementById('scoreBox');
 
-    // 問題エリアと提出ボタンを非表示にする
+    // セクションタイトルも含めて非表示にする場合の設定
+    const sectionTitles = document.querySelectorAll('.section-title');
+    sectionTitles.forEach(title => {
+        title.style.display = 'none';
+    });
+
+    // 計算問題・文章問題のエリアおよびボタンを完全非表示
     if (calcGrid) calcGrid.style.display = 'none';
     if (wordProblemArea) wordProblemArea.style.display = 'none';
     if (checkBtn) checkBtn.style.display = 'none';
 
-    // 結果メッセージを表示
+    // 結果メッセージエリアのみを表示
     if (scoreBox) {
         scoreBox.style.display = 'block';
         scoreBox.innerHTML = `
-            <h3>きょうの チャレンジは すでに かんりょう しています！</h3>
-            <p>💮 きょうのスコア: <strong>${scoreData.score} てん</strong></p>
-            <p style="margin-top: 10px;">また あした ちょうせんしてね！</p>
+            <h2>💮 きょうの チャレンジは すでに かんりょう しています！</h2>
+            <p style="font-size: 1.25rem; font-weight: bold; margin: 15px 0; color: #2b6cb0;">
+                てんすう： ${scoreData.score} てん
+            </p>
+            <p style="color: #4a5568; margin-top: 10px;">
+                また あした ちょうせんしてね！ 💮
+            </p>
         `;
     }
 }
