@@ -591,3 +591,113 @@ h1 {
     border-radius: 8px;
     border: 1px solid #e2e8f0;
 }
+
+/* === プリント学習画面（math.html等）用追加クラス === */
+
+/* ナビゲーションバー */
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn-back {
+    text-decoration: none;
+    color: #4a5568;
+    font-weight: bold;
+}
+
+/* 計算問題・文章問題項目 */
+.calc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.problem-index {
+    color: #718096;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
+.word-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.word-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.word-formula-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* 入力入力欄スタイル補正 */
+.input-answer-num {
+    width: 70px;
+    height: 40px;
+    font-size: 1.3rem;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+}
+
+.input-eq-text {
+    width: 120px;
+    height: 40px;
+    font-size: 1.2rem;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+}
+
+/* 成績結果・履歴 */
+.score-box-result {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    background: #e6fffa;
+    border: 2px solid #319795;
+    color: #234e52;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.history-card {
+    margin-top: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.history-title {
+    color: #2b6cb0;
+    margin-top: 0;
+}
+
+.history-list {
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}

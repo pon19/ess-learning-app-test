@@ -6,25 +6,17 @@
     <title>しょうがく1ねんせい さんすうWebプリント</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
     
-    <!-- 1. CSSのパスに ../ を追加 -->
     <link rel="stylesheet" href="../style.css">
-
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- 2. common.js のパスに ../ を追加 -->
     <script src="../common.js"></script>
-
-    <!-- 3. 同一フォルダ内なので math.js はそのままでOK -->
     <script src="math.js"></script>
 </head>
 <body>
-    <!-- 各 HTML ファイルの <body> の直下に追加 -->
     <div class="container">
         <div id="globalHeader"></div>
         <!-- ナビゲーションバー -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <a href="menu.html" style="text-decoration: none; color: #4a5568; font-weight: bold;">⬅️ メニューへもどる</a>
+        <div class="nav-bar">
+            <a href="menu.html" class="btn-back">⬅️ メニューへもどる</a>
         </div>
 
         <!-- ヘッダー -->
@@ -33,7 +25,6 @@
                 <span class="title-badge">しょうがく1ねんせい</span>
                 <h1>さんすうプリント</h1>
             </div>
-            <!-- userProfileName (なまえ欄) を削除しました -->
         </div>
 
         <!-- 1. 計算問題 (10問) -->
@@ -46,12 +37,12 @@
 
         <!-- 答え合わせボタンと結果エリア -->
         <button class="btn-check" id="checkBtn">こたえあわせをする 💮</button>
-        <div class="score-display" id="scoreBox" style="display:none;"></div>
+        <div class="score-box-result" id="scoreBox"></div>
             
         <!-- 成績履歴 -->
-        <div class="history-container" style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-            <h3 style="color: #2b6cb0; margin-top: 0;">📜 いままでの きろく</h3>
-            <div id="historyList" style="text-align: left; max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
+        <div class="history-card">
+            <h3 class="history-title">📜 いままでの きろく</h3>
+            <div id="historyList" class="history-list"></div>
         </div>
     </div>
 </body>

@@ -7,7 +7,6 @@ let currentUser = null;
 // 1. 初期化処理
 // ====================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // ログイン情報の取得と、プリントへの「なまえ」表示
     currentUser = await getCurrentUser();
     if (currentUser) {
         const nameBox = document.getElementById('userProfileName');
@@ -29,17 +28,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ====================================================
 async function loadTodayProblems() {
     try {
-        // math.html 側の JavaScript 例
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`; // 正確なYYYY-MM-DD (日本時間)
+        const todayStr = `${year}-${month}-${day}`;
 
-        // まずは確実に存在する problems のみを取得してエラーを防ぐ
         const { data, error } = await clientSupabase
             .from('daily_problems')
-            .select('*') // * にすることで存在する列だけを安全に取得
+            .select('*')
             .eq('target_date', todayStr)
             .eq('grade', 1)
             .eq('subject', 'math')
@@ -48,21 +45,18 @@ async function loadTodayProblems() {
         if (error) throw error;
 
         if (data) {
-            // 計算問題のセット
             if (data.problems && data.problems.length > 0) {
                 currentProblems = data.problems;
             } else {
                 currentProblems = getFallbackProblems();
             }
 
-            // 文章問題のセット（列が存在し、データがある場合）
             if (data.word_problems && data.word_problems.length > 0) {
                 currentWordProblems = data.word_problems;
             } else {
                 currentWordProblems = getFallbackWordProblems();
             }
         } else {
-            // 本日のデータ自体が未登録の場合
             console.warn('本日のデータが未登録のため予備問題を表示します。');
             currentProblems = getFallbackProblems();
             currentWordProblems = getFallbackWordProblems();
@@ -91,20 +85,14 @@ function renderProblems(problems) {
 
     problems.forEach((p, index) => {
         const div = document.createElement('div');
-        div.style.display = 'flex';
-        div.style.alignItems = 'center';
-        div.style.justifyContent = 'space-between';
-        div.style.padding = '12px 0';
-        div.style.borderBottom = '1px solid #e2e8f0';
-        div.style.fontSize = '1.3rem';
-        div.style.fontWeight = 'bold';
+        div.className = 'calc-item';
 
         div.innerHTML = `
             <div>
-                <span style="color: #718096; font-size: 1rem; margin-right: 10px;">(${index + 1})</span>
+                <span class="problem-index">(${index + 1})</span>
                 <span>${p.p1} ${p.operator} ${p.p2} ＝</span>
             </div>
-            <input type="number" id="answer_${index}" style="width: 70px; height: 40px; font-size: 1.3rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;" pattern="\\d*">
+            <input type="number" id="answer_${index}" class="input-answer-num" pattern="\\d*">
         `;
         calcGrid.appendChild(div);
     });
@@ -114,30 +102,23 @@ function renderProblems(problems) {
 // 4. 文章問題を画面に描画
 // ====================================================
 function renderWordProblems(wordProblems) {
-    // HTMLにある「wordProblemArea」を取得
     const wordProblemArea = document.getElementById('wordProblemArea');
     if (!wordProblemArea) return;
 
-    // 中身をリセット
     wordProblemArea.innerHTML = '';
 
-    // 文章問題カードを作成して追加
     wordProblems.forEach((wp, index) => {
         const div = document.createElement('div');
-        div.style.padding = '15px';
-        div.style.marginBottom = '15px';
-        div.style.backgroundColor = '#f7fafc';
-        div.style.borderRadius = '8px';
-        div.style.border = '1px solid #e2e8f0';
+        div.className = 'word-card';
 
         div.innerHTML = `
-            <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; line-height: 1.5;">
-                <span style="color: #718096; font-size: 1rem; margin-right: 5px;">(${index + 1})</span>
+            <div class="word-text">
+                <span class="problem-index">(${index + 1})</span>
                 ${wp.text}
             </div>
-            <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end; font-size: 1.2rem; font-weight: bold;">
-                しき：<input type="text" id="wp_eq_${index}" style="width: 120px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
-                こたえ：<input type="number" id="wp_ans_${index}" style="width: 70px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
+            <div class="word-formula-group">
+                しき：<input type="text" id="wp_eq_${index}" class="input-eq-text">
+                こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num">
             </div>
         `;
         wordProblemArea.appendChild(div);
@@ -169,7 +150,7 @@ async function checkAnswersAndSave() {
         }
     });
 
-    // 文章問題の答え合わせ（今回は「こたえ」の数値のみで判定）
+    // 文章問題の答え合わせ
     currentWordProblems.forEach((wp, index) => {
         const ansInput = document.getElementById(`wp_ans_${index}`);
         if (!ansInput) return;
@@ -190,14 +171,6 @@ async function checkAnswersAndSave() {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
-        scoreBox.style.padding = '15px';
-        scoreBox.style.marginTop = '20px';
-        scoreBox.style.background = '#e6fffa';
-        scoreBox.style.border = '2px solid #319795';
-        scoreBox.style.color = '#234e52';
-        scoreBox.style.fontSize = '1.2rem';
-        scoreBox.style.fontWeight = 'bold';
-        scoreBox.style.borderRadius = '8px';
         scoreBox.innerHTML = `💮 てんすう： ${score} てん (${totalCount}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
@@ -218,7 +191,7 @@ async function checkAnswersAndSave() {
 }
 
 // ====================================================
-// 6. 予備問題（DBにデータがない場合の保険）
+// 6. 予備問題
 // ====================================================
 function getFallbackProblems() {
     return [
