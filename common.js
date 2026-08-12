@@ -112,8 +112,9 @@ async function getCurrentUser() {
         }
     }
 
+    // トップページの場合、または初回ログイン時は最終アクセス日時を更新
     if (topCheck || !lastAccessStr) {
-        console.log('[最終アクセス日時を更新しました]', new Date(now).toLocaleString());
+        console.log('★ [最終アクセス日時を更新しました]', new Date(now).toLocaleString());
         localStorage.setItem('last_access_time', now.toString());
     } else {
         console.log('[トップページ以外のため更新スキップ]');
@@ -181,20 +182,22 @@ async function getUserProfileInfo(userId) {
 }
 
 // ====================================================
-// メイン実行処理（DOMContentLoaded 依存を解消）
+// メイン実行処理（ヘッダー要素の有無に関わらず実行）
 // ====================================================
 async function initHeader() {
-    console.log('3. [initHeader] ヘッダー初期化処理開始');
-    const globalHeader = document.getElementById('globalHeader');
+    console.log('3. [initHeader] 初期化処理開始');
     
-    // globalHeader が見つからない場合（ページ読み込み途中の場合）
+    // ★ヘッダーの有無にかかわらず、まずユーザー取得とアクセス日時の更新処理を実行する
+    const user = await getCurrentUser();
+    
+    const globalHeader = document.getElementById('globalHeader');
+    const basePath = getBasePath();
+
+    // ヘッダー要素が存在しないページ（または未読込）の場合はここで終了
     if (!globalHeader) {
-        console.warn('3. [initHeader] #globalHeader がまだ存在しません');
+        console.log('3. [initHeader] #globalHeader なし（日時更新のみ完了）');
         return;
     }
-
-    const basePath = getBasePath();
-    const user = await getCurrentUser();
 
     if (user) {
         const { displayName, gradeLabel } = await getUserProfileInfo(user.id);
@@ -229,10 +232,9 @@ async function initHeader() {
     }
 }
 
-// DOM読み込み状態に応じて即時実行またはイベント待ち
+// ページの読み込み完了（DOM構築後）を確実に待って実行する
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initHeader);
 } else {
-    // 既にDOMの構築が終わっている場合は即時実行
     initHeader();
 }
