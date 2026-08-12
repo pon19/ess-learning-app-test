@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const msg = document.getElementById('authMessage');
 
     // フォーム群
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
+    const loginForm = document.getElementById('loginForm'); // HTMLのformタグのID
+    const emailInput = document.getElementById('loginEmail'); // HTMLのメール入力欄のID
+    const passwordInput = document.getElementById('loginPassword'); // HTMLのパスワード入力欄のID
     const resetRequestForm = document.getElementById('resetRequestForm');
     const findEmailNotice = document.getElementById('findEmailNotice');
     const updatePasswordForm = document.getElementById('updatePasswordForm');
@@ -81,8 +82,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. ログイン処理
     // ----------------------------------------------------
     // ログインフォームの送信処理例
-    loginForm.addEventListener('submit', async (e) => {
+    loginForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // 変数が正しく取得できているか確認
+        if (!emailInput || !passwordInput) {
+            console.error('入力要素が見つかりません。HTMLのIDを確認してください。');
+            return;
+        }
 
         const email = emailInput.value.trim();
         const password = passwordInput.value;
@@ -97,11 +104,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // ★ ログイン成功時にアクセス時刻を現在時刻で初期化・更新する
+        // ログイン成功時のアクセス時刻初期化
         localStorage.setItem('last_access_time', Date.now().toString());
 
-        // ログイン後の画面更新またはリダイレクト
-        window.location.reload(); 
+        // 画面の更新またはリダイレクト
+        window.location.reload();
     });
 
     // ----------------------------------------------------
