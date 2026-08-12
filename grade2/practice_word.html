@@ -10,64 +10,52 @@
     <script src="practice_word.js" defer></script>
 </head>
 <body>
-    <div id="header-placeholder"></div>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
 
-    <main class="container">
-        <section class="practice-header">
-            <h2>2ねんせい ぶんしょうだいトレーニング</h2>
-            <p>文章を よくよんで、しきと こたえを かんがえよう！</p>
-        </section>
+        <div class="back-link-box">
+            <a href="menu.html" class="btn-back">⬅️ 2ねんせいメニューへもどる</a>
+        </div>
 
-        <!-- 設定フォーム -->
-        <section id="setup-section" class="card">
-            <h3>れんしゅうの設定</h3>
-            
-            <div class="form-group">
-                <label for="word-type"><strong>もんだいの しゅるい:</strong></label>
-                <select id="word-type" class="form-control">
-                    <option value="kuku_word">かけざんの ぶんしょうだい</option>
-                    <option value="step2_word">ふたつの しきの けいさん（たしざん・ひきざん）</option>
-                    <option value="unit_word">長さ・かさの ぶんしょうだい</option>
-                    <option value="mix_word">ぜんぶの しゅるい（ランダム）</option>
-                </select>
+        <div class="header">
+            <div>
+                <span class="title-badge badge-word-training">ぶんしょうだい</span>
+                <h1>ぶんしょうだい トレーニング</h1>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="problem-count"><strong>もんだいすう:</strong></label>
-                <select id="problem-count" class="form-control">
-                    <option value="3">3もん</option>
-                    <option value="5" selected>5もん</option>
-                    <option value="10">10もん</option>
-                </select>
+        <!-- ⚙️ 設定パネル -->
+        <div class="settings-panel-word">
+            <h3 class="settings-title-word">⚙️ もんだいの 設定（せってい）</h3>
+            <div class="settings-grid">
+                <div>
+                    <label class="setting-label">しゅるい</label>
+                    <select id="word-type" class="setting-select">
+                        <option value="kuku_word">かけざんの ぶんしょうだい</option>
+                        <option value="step2_word">ふたつの しきの けいさん（たしざん・ひきざん）</option>
+                        <option value="unit_word">長さ・かさの ぶんしょうだい</option>
+                        <option value="mix_word">ぜんぶの しゅるい（ランダム）</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="setting-label">もんだいすう</label>
+                    <select id="problem-count" class="setting-select">
+                        <option value="3">3もん</option>
+                        <option value="5" selected>5もん</option>
+                        <option value="10">10もん</option>
+                    </select>
+                </div>
             </div>
-
-            <button id="start-btn" class="btn btn-primary btn-large">れんしゅうを はじめる！</button>
-        </section>
+            <button id="start-btn" class="btn-generate-word">🔄 この 設定で もんだいを つくる</button>
+        </div>
 
         <!-- 問題表示エリア -->
-        <section id="quiz-section" class="card hidden">
-            <div class="quiz-header">
-                <span id="progress-text">もんだい</span>
-                <button id="reset-btn" class="btn btn-small btn-secondary">やりなおす</button>
-            </div>
+        <div id="problems-container"></div>
 
-            <form id="quiz-form">
-                <div id="problems-container" class="problems-list"></div>
-                <button type="submit" id="submit-btn" class="btn btn-success btn-large">こたえあわせ</button>
-            </form>
-
-            <div id="result-container" class="result-box hidden">
-                <h3 id="result-score"></h3>
-                <p id="result-message"></p>
-                <button id="retry-btn" class="btn btn-primary">もう一度ちょうせん</button>
-            </div>
-        </section>
-
-        <div class="navigation-bottom">
-            <a href="menu.html" class="btn btn-secondary">← 2ねんせいメニューへもどる</a>
-        </div>
-    </main>
-
-    <div id="footer-placeholder"></div>
+        <!-- 答え合わせボタン・結果表示 -->
+        <button id="submit-btn" class="btn-check btn-check-word">こたえあわせをする 💮</button>
+        <div id="result-container" class="score-box-result"></div>
+    </div>
 </body>
 </html>
