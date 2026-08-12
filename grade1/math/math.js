@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const displayName = await getUserDisplayName(currentUser.id);
             nameBox.textContent = `なまえ： ${displayName} さん`;
         }
+        
+        // ★ 本日の挑戦チェック[cite: 13]
+        const todayScore = await checkTodaySubmitted(currentUser.id, 1);
+        if (todayScore) {
+            disableFormAndShowScore(todayScore);
+            return;
+        }
     }
 
     // 答え合わせボタンのイベント設定
