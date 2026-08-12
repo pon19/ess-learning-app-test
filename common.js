@@ -80,33 +80,38 @@ async function getCurrentUser() {
     const now = Date.now();
     const lastAccessStr = localStorage.getItem('last_access_time');
     const basePath = getBasePath();
+    const topCheck = isTopPage();
 
     if (lastAccessStr) {
         const lastAccess = parseInt(lastAccessStr, 10);
         const elapsed = now - lastAccess;
 
-        // 【条件1】5日（120時間）以上経過している場合 -> 自動ログアウト
+        // 【1】5日以上経過 -> ログアウト（トップページであってもログアウト）
         if (elapsed > FIVE_DAYS_MS) {
             localStorage.removeItem('last_access_time');
             await clientSupabase.auth.signOut();
             alert('前回のアクセスから5日以上経過したためログアウトしました。');
-            if (!isTopPage()) {
+            if (!topCheck) {
                 window.location.href = `${basePath}index.html`;
             }
             return null;
         }
 
-        // 【条件2】12時間以上経過している場合 -> トップページへ移動
-        if (elapsed > TWELVE_HOURS_MS && !isTopPage()) {
+        // 【2】12時間以上経過（トップページ以外の場合のみリダイレクト）
+        if (elapsed > TWELVE_HOURS_MS && !topCheck) {
             alert('前回のアクセスから12時間以上経過したため、トップページに戻ります。');
             window.location.href = `${basePath}index.html`;
             return session.user;
         }
     }
 
-    // 【更新処理】トップページを開いている時のみ日時を最新化
-    if (isTopPage() || !lastAccessStr) {
+    // 【3】トップページの場合は無条件で最終アクセス日時を更新
+    // または初回ログイン時（lastAccessStrが存在しない時）
+    if (topCheck || !lastAccessStr) {
+        console.log('[最終アクセス日時を更新しました]', new Date(now).toLocaleString());
         localStorage.setItem('last_access_time', now.toString());
+    } else {
+        console.log('[トップページ以外のため更新スキップ]');
     }
 
     return session.user;
