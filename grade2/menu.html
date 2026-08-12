@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2ねんせいの さんすう - メニュー</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../common.js" defer></script>
+    <script src="menu.js" defer></script>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+        <section class="grade-header">
+            <h2>2ねんせいの さんすう</h2>
+            <p>チャレンジや トレーニングを はじめよう！</p>
+        </section>
+
+        <!-- 前日のランキング表示エリア -->
+        <section class="ranking-section">
+            <h3>🏆 ぜんじつの ランキング (2ねんせい)</h3>
+            <div id="ranking-list" class="ranking-list">
+                <p>読み込み中...</p>
+            </div>
+        </section>
+
+        <!-- モード選択ボタン -->
+        <section class="mode-selection">
+            <a href="math.html" class="mode-card challenge">
+                <div class="card-icon">🏆</div>
+                <div class="card-content">
+                    <h3>きょうの チャレンジ</h3>
+                    <p>1にしに 1かい！ てんすうを きろくして ランキングに ちょうせんしよう！</p>
+                </div>
+            </a>
+
+            <a href="practice_math.html" class="mode-card practice">
+                <div class="card-icon">🔢</div>
+                <div class="card-content">
+                    <h3>けいさん トレーニング</h3>
+                    <p>たしざん・ひきざん・くく（かけざん）の れんしゅうを しよう！</p>
+                </div>
+            </a>
+
+            <a href="practice_word.html" class="mode-card word">
+                <div class="card-icon">📖</div>
+                <div class="card-content">
+                    <h3>ぶんしょうだい トレーニング</h3>
+                    <p>文章を よんで 式と こたえを かんがえよう！</p>
+                </div>
+            </a>
+        </section>
+
+        <div class="navigation-bottom">
+            <a href="../index.html" class="btn btn-secondary">← 学年を えらびなおす</a>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+</body>
+</html>
