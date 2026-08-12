@@ -4,19 +4,24 @@
 const SUPABASE_URL = 'https://ygixztswzvcguzxwdzvo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnaXh6dHN3enZjZ3V6eHdkenZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3MzEwMjgsImV4cCI6MjEwMTMwNzAyOH0._ouVAKbboVoNvD1uw-uhSoIeN6eiQviZojjRDpW_NXE';
 
-// clientSupabase だけでなく、supabase という名前でもインスタンスを保持・参照できるようにする
+// SDKの参照を別名で保持
+const SupabaseSDK = window.supabase;
+
+// クライアントインスタンス用の変数
 let clientSupabase = null;
-let supabase = null; 
 
 try {
-    if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
-        // クライアントインスタンスを生成して保持
-        clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        supabase = clientSupabase; // 各JSから supabase.from() で使えるように代入
+    if (SupabaseSDK && typeof SupabaseSDK.createClient === 'function') {
+        clientSupabase = SupabaseSDK.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 } catch (e) {
     console.error('Supabase 初期化例外:', e);
 }
+
+// 他のファイル（menu.jsなど）で `supabase.from()` と呼べるようにエイリアス（別名）を設定
+// （再宣言を避けるため let / const はつけずに割り当てます）
+var supabase = clientSupabase;
+
 
 const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;         // 12時間
 const FIVE_DAYS_MS    = 5 * 24 * 60 * 60 * 1000;     // 5日間
