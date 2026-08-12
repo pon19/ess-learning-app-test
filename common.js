@@ -54,6 +54,20 @@ function formatGradeLabel(gradeNum) {
 }
 
 /**
+ * ユーザーの表示名（ニックネーム優先）を取得する共通関数（★追加）
+ */
+async function getUserDisplayName(userId) {
+    if (!userId) return 'ゲスト';
+    const { data: profile } = await clientSupabase
+        .from('profiles')
+        .select('display_name, nickname')
+        .eq('id', userId)
+        .maybeSingle();
+
+    return profile?.nickname || profile?.display_name || 'ゲスト';
+}
+
+/**
  * ユーザー情報取得 ＋ 自動進級チェック
  */
 async function getUserProfileInfo(userId) {

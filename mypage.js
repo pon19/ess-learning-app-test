@@ -7,26 +7,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 2. DOM要素の取得（mypage.html の ID に完全対応）
+    // 2. DOM要素の取得
     const displayNameView = document.getElementById('displayNameView');
     const phoneView = document.getElementById('phoneView');
     const gradeView = document.getElementById('gradeView');
     const nicknameInput = document.getElementById('mypageNickname');
     const emailInput = document.getElementById('mypageEmail');
     const passwordInput = document.getElementById('mypagePassword');
-    const updateForm = document.getElementById('updateProfileForm'); // ★ ID修正
+    const updateForm = document.getElementById('updateProfileForm');
     const msg = document.getElementById('mypageMsg');
-    const backBtn = document.getElementById('backBtn'); // ★ ID修正
+    const backBtn = document.getElementById('backBtn');
 
-    // メールアドレスの初期セット
     if (emailInput) {
         emailInput.value = user.email || '';
     }
 
     // ----------------------------------------------------
-    // 3. プロフィール情報 & 学年データの取得（自動進級チェック含む）
+    // 3. プロフィール情報 & 学年データの取得（自動進級処理含む）
     // ----------------------------------------------------
-    // common.js の getUserProfileInfo を呼び出すことで自動進級処理が実行される
     const { displayName, gradeLabel } = await getUserProfileInfo(user.id);
 
     // DB から display_name, phone を取得
@@ -41,18 +39,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 画面表示へ反映
-    if (profile) {
-        if (displayNameView) displayNameView.textContent = profile.display_name || '（未設定）';
-        if (phoneView) phoneView.textContent = profile.phone || '（未設定）';
-    }
-
-    if (gradeView) {
-        gradeView.textContent = gradeLabel || '未設定';
-    }
-
-    if (nicknameInput) {
-        nicknameInput.value = displayName || '';
-    }
+    if (displayNameView) displayNameView.textContent = profile?.display_name || '（未設定）';
+    if (phoneView) phoneView.textContent = profile?.phone || '（未設定）';
+    if (gradeView) gradeView.textContent = gradeLabel || '未設定';
+    if (nicknameInput) nicknameInput.value = displayName || '';
 
     // ----------------------------------------------------
     // 4. プロフィール更新（ニックネーム・メール・パスワード）処理
@@ -102,10 +92,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (passwordInput) passwordInput.value = '';
 
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-
         } catch (err) {
             console.error('更新エラー:', err);
             if (msg) {
@@ -119,7 +105,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 5. 前のページへ戻るボタン処理
     // ----------------------------------------------------
     backBtn?.addEventListener('click', () => {
-        // 同じサイト内から遷移してきた場合はひとつ前の画面に戻る
         if (document.referrer && document.referrer.includes(window.location.host)) {
             history.back();
         } else {
