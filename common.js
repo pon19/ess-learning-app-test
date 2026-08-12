@@ -4,10 +4,15 @@
 const SUPABASE_URL = 'https://ygixztswzvcguzxwdzvo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnaXh6dHN3enZjZ3V6eHdkenZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3MzEwMjgsImV4cCI6MjEwMTMwNzAyOH0._ouVAKbboVoNvD1uw-uhSoIeN6eiQviZojjRDpW_NXE';
 
+// clientSupabase だけでなく、supabase という名前でもインスタンスを保持・参照できるようにする
 let clientSupabase = null;
+let supabase = null; 
+
 try {
-    if (typeof supabase !== 'undefined') {
-        clientSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+        // クライアントインスタンスを生成して保持
+        clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabase = clientSupabase; // 各JSから supabase.from() で使えるように代入
     }
 } catch (e) {
     console.error('Supabase 初期化例外:', e);
