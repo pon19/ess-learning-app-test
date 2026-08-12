@@ -10,54 +10,61 @@
     <script src="menu.js" defer></script>
 </head>
 <body>
-    <div id="header-placeholder"></div>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
 
-    <main class="container">
-        <section class="grade-header">
-            <h2>2ねんせいの さんすう</h2>
-            <p>チャレンジや トレーニングを はじめよう！</p>
-        </section>
-
-        <!-- 前日のランキング表示エリア -->
-        <section class="ranking-section">
-            <h3>🏆 ぜんじつの ランキング (2ねんせい)</h3>
-            <div id="ranking-list" class="ranking-list">
-                <p>読み込み中...</p>
-            </div>
-        </section>
-
-        <!-- モード選択ボタン -->
-        <section class="mode-selection">
-            <a href="math.html" class="mode-card challenge">
-                <div class="card-icon">🏆</div>
-                <div class="card-content">
-                    <h3>きょうの チャレンジ</h3>
-                    <p>1にちに 1かい！ てんすうを きろくして ランキングに ちょうせんしよう！</p>
-                </div>
-            </a>
-
-            <a href="practice_math.html" class="mode-card practice">
-                <div class="card-icon">🔢</div>
-                <div class="card-content">
-                    <h3>けいさん トレーニング</h3>
-                    <p>たしざん・ひきざん・くく（かけざん）の れんしゅうを しよう！</p>
-                </div>
-            </a>
-
-            <a href="practice_word.html" class="mode-card word">
-                <div class="card-icon">📖</div>
-                <div class="card-content">
-                    <h3>ぶんしょうだい トレーニング</h3>
-                    <p>文章を よんで 式と こたえを かんがえよう！</p>
-                </div>
-            </a>
-        </section>
-
-        <div class="navigation-bottom">
-            <a href="../index.html" class="btn btn-secondary">← 学年を えらびなおす</a>
+        <div class="back-link-box">
+            <a href="../index.html" class="btn-back">⬅️ がくねんを えらびなおす</a>
         </div>
-    </main>
 
-    <div id="footer-placeholder"></div>
+        <div class="header">
+            <div>
+                <span class="title-badge badge-grade-2" style="background-color: #319795;">2ねんせい</span>
+                <h1>なにに ちょうせん する？</h1>
+            </div>
+        </div>
+
+        <!-- 👑 前日のランキングエリア -->
+        <div class="ranking-card">
+            <h3 class="ranking-title">
+                👑 きのうの チャレンジ ランキング (2ねんせい) 👑
+            </h3>
+            <div id="rankingList">
+                <p class="ranking-empty-msg">読み込み中...</p>
+            </div>
+        </div>
+
+        <!-- 🎮 モード選択エリア -->
+        <div class="mode-section-container">
+            
+            <!-- 🔥 チャレンジ用（1日1回・ランキング対象） -->
+            <div class="card-challenge">
+                <div class="card-challenge-subtitle">
+                    🏆 ランキングに はんえい されるよ！（1にち 1かい）
+                </div>
+                <a href="math.html" class="btn-challenge">
+                    🔥 【きょうの チャレンジ】さんすうプリント
+                </a>
+            </div>
+
+            <!-- 🏋️ トレーニング用（練習・何度でも挑戦可） -->
+            <div class="card-training">
+                <div class="card-training-title">
+                    🏋️ なんども れんしゅう（トレーニング）
+                </div>
+                <div class="training-grid">
+                    <a href="practice_math.html" class="btn-training-math">
+                        🔢 けいさん<br>トレーニング
+                    </a>
+                    <a href="practice_word.html" class="btn-training-word">
+                        📖 ぶんしょうだい<br>トレーニング
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 </body>
 </html>

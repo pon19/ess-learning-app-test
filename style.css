@@ -1080,3 +1080,8 @@ h1 {
 .input-equation:focus, .input-answer-num:focus {
     border-color: #319795;
 }
+
+/* === 2年生用バッジ追加スタイル === */
+.badge-grade-2 {
+    background-color: #319795; /* エメラルドグリーン */
+}
