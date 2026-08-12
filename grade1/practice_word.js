@@ -76,7 +76,6 @@ function generateNewProblems() {
         }
 
         let item = tpl.items[Math.floor(Math.random() * tpl.items.length)];
-        // replaceAll (/g) を使用して文章内のすべての {item} と {person} を置換します
         let text = tpl.text
             .replace('{p1}', p1)
             .replace('{p2}', p2)
@@ -108,16 +107,16 @@ function renderWordProblems(wordProblems) {
 
     wordProblems.forEach((wp, index) => {
         const div = document.createElement('div');
-        div.style.cssText = 'padding:15px; margin-bottom:15px; background-color:#f7fafc; border-radius:8px; border:1px solid #e2e8f0;';
+        div.className = 'word-problem-card';
 
         div.innerHTML = `
-            <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; line-height: 1.5;">
-                <span style="color: #718096; font-size: 1rem; margin-right: 5px;">(${index + 1})</span>
+            <div class="word-problem-text">
+                <span class="word-problem-index">(${index + 1})</span>
                 ${wp.text}
             </div>
-            <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end; font-size: 1.2rem; font-weight: bold; flex-wrap: wrap;">
-                しき：<input type="text" id="wp_eq_${index}" class="wp-input" data-index="${index}" data-type="eq" style="width: 120px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;">
-                こたえ：<input type="number" id="wp_ans_${index}" class="wp-input" data-index="${index}" data-type="ans" style="width: 70px; height: 40px; font-size: 1.2rem; text-align: center; border: 2px solid #cbd5e0; border-radius: 8px;" inputmode="numeric">
+            <div class="word-problem-inputs">
+                しき：<input type="text" id="wp_eq_${index}" class="wp-input input-equation" data-index="${index}" data-type="eq">
+                こたえ：<input type="number" id="wp_ans_${index}" class="wp-input input-answer-num" data-index="${index}" data-type="ans" inputmode="numeric">
             </div>
         `;
         area.appendChild(div);
@@ -197,12 +196,8 @@ function checkAnswers() {
             ansInput.style.backgroundColor = '#fff5f5';
         }
 
-        // 式の入力判定（半角・全角記号を正規化して比較）
-        // 修正後（normalizeEquationを使用）
         if (eqInput) {
-            // 児童の入力値を補正（全角→半角、スペース削除）
             const normalizedUserEq = normalizeEquation(eqInput.value);
-            // 正解データ側も念のため補正して比較
             const normalizedTargetEq = normalizeEquation(wp.equation);
 
             if (normalizedUserEq === normalizedTargetEq) {
@@ -219,14 +214,6 @@ function checkAnswers() {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
-        scoreBox.style.padding = '15px';
-        scoreBox.style.marginTop = '20px';
-        scoreBox.style.background = '#e6fffa';
-        scoreBox.style.border = '2px solid #319795';
-        scoreBox.style.color = '#234e52';
-        scoreBox.style.fontSize = '1.2rem';
-        scoreBox.style.fontWeight = 'bold';
-        scoreBox.style.borderRadius = '8px';
         scoreBox.innerHTML = `💮 てんすう： ${score} てん (${currentWordProblems.length}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 }
@@ -245,11 +232,8 @@ function resetScoreDisplay() {
 function normalizeEquation(str) {
     if (!str) return '';
     return str
-        // 全角英数字を半角に変換
         .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
-        // 全角の＋－を半角に変換
         .replace(/＋/g, '+')
         .replace(/－/g, '-')
-        // 全角・半角スペースをすべて削除
         .replace(/\s+/g, '');
 }

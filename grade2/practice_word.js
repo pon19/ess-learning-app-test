@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setupSection.classList.add('hidden');
         quizSection.classList.remove('hidden');
+        resultContainer.classList.add('hidden');
     });
 
     // やりなおすボタン
@@ -78,8 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     feedbackEl.innerHTML = '<span class="correct">⭕ せいかい！</span>';
                 } else {
                     let msg = '<span class="incorrect">❌ ざんねん！<br>';
-                    if (!isEqCorrect) msg += `【正しい式】 ${p.equation}<br>`;
-                    if (!isAnsCorrect) msg += `【正しいこたえ】 ${p.answer}${p.unit}`;
+                    if (!isEqCorrect) msg += `【正しい式】 ${escapeHTML(p.displayEq || p.equation)}<br>`;
+                    if (!isAnsCorrect) msg += `【正しいこたえ】 ${p.answer}${escapeHTML(p.unit)}`;
                     msg += '</span>';
                     feedbackEl.innerHTML = msg;
                 }
@@ -88,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // スコア表示
         const total = currentProblems.length;
-        resultScore.textContent = `${total}もん つち ${totalScore}もん せいかい！`;
+        resultScore.textContent = `${total}もん うち ${totalScore}もん せいかい！`;
 
         if (totalScore === total) {
             resultMessage.textContent = '🎉 すごい！ まんてん！ かんぺきだね！';
@@ -119,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (selectedType === 'kuku_word') {
-                // かけざん文章題
                 const items = [
                     { name: 'りんご', unit: 'こ', dish: 'お皿' },
                     { name: 'クッキー', unit: 'こ', dish: 'ふくろ' },
@@ -132,14 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 problems.push({
                     text: `1つの ${item.dish} に ${item.name} が ${perNum}${item.unit} ずつ はいっています。${item.dish} が ${countNum}つ あります。ぜんぶで ${item.name} は なんにん（なん${item.unit}）ありますか。`,
-                    equation: `${perNum}*${countNum}`, // 内部比較用 ('*' は 'x' や '×' と置換判定される)
+                    equation: `${perNum}*${countNum}`,
                     displayEq: `${perNum} × ${countNum}`,
                     answer: perNum * countNum,
                     unit: item.unit
                 });
 
             } else if (selectedType === 'step2_word') {
-                // 2段階計算 (足して引く、または引いて足す)
                 const isAddThenSub = Math.random() < 0.5;
                 if (isAddThenSub) {
                     const start = getRandomInt(10, 30);
@@ -166,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
             } else if (selectedType === 'unit_word') {
-                // 長さ・かさ文章題
                 const isLength = Math.random() < 0.5;
                 if (isLength) {
                     const l1 = getRandomInt(10, 40);
@@ -207,16 +205,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const savedAns = userAnswers[index] ? userAnswers[index].ans : '';
 
             div.innerHTML = `
-                <p class="problem-statement"><strong>(${index + 1})</strong> ${problem.text}</p>
+                <p class="problem-statement"><strong>(${index + 1})</strong> ${escapeHTML(problem.text)}</p>
                 <div class="input-group-word">
                     <div class="field-row">
                         <label for="eq-${index}">しき:</label>
-                        <input type="text" id="eq-${index}" class="form-control eq-input" value="${savedEq}" autocomplete="off" placeholder="れい: 3x4">
+                        <input type="text" id="eq-${index}" class="form-control eq-input" value="${escapeHTML(savedEq)}" autocomplete="off" placeholder="れい: 3x4">
                     </div>
                     <div class="field-row">
                         <label for="ans-${index}">こたえ:</label>
-                        <input type="text" id="ans-${index}" class="form-control ans-input" value="${savedAns}" autocomplete="off" inputmode="numeric">
-                        <span class="unit-label">${problem.unit}</span>
+                        <input type="text" id="ans-${index}" class="form-control ans-input" value="${escapeHTML(savedAns)}" autocomplete="off" inputmode="numeric">
+                        <span class="unit-label">${escapeHTML(problem.unit)}</span>
                     </div>
                 </div>
                 <div id="feedback-${index}" class="feedback-text"></div>
@@ -232,9 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!eq) return '';
         return eq
             .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0)) // 全角数字 -> 半角
-            .replace(/[＋＋]/g, '+')
-            .replace(/[−−ー−]/g, '-')
+            .replace(/[＋]/g, '+')
+            .replace(/[−ー-]/g, '-')
             .replace(/[✕×xX]/g, '*') // 九九の各種かけ算記号を統一
+            .replace(/[÷/]/g, '/')   // 割り算記号の統一
             .replace(/\s+/g, '')     // スペース除去
             .trim();
     }
@@ -277,5 +276,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
     }
 });

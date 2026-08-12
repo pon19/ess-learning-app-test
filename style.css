@@ -701,3 +701,287 @@ h1 {
     overflow-y: auto;
     margin-bottom: 15px;
 }
+
+/* === メニュー画面（menu.html等）用追加クラス === */
+
+/* トップページへ戻るリンクエリア */
+.back-link-box {
+    margin-bottom: 15px;
+}
+
+/* タイトルバッジ（オレンジ） */
+.badge-grade-1 {
+    background-color: #ed8936;
+}
+
+/* 👑 前日のランキングエリア */
+.ranking-card {
+    background-color: #fffaf0;
+    border: 2px solid #fbd38d;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.ranking-title {
+    margin-top: 0;
+    color: #dd6b20;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.ranking-empty-msg {
+    text-align: center;
+    color: #a0aec0;
+    padding: 15px 0;
+    font-size: 14px;
+}
+
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 14px;
+}
+
+.ranking-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ranking-rank {
+    font-weight: bold;
+    width: 30px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.ranking-user-name {
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.ranking-score-info {
+    text-align: right;
+}
+
+.ranking-score {
+    color: #e53e3e;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.ranking-attempts {
+    font-size: 11px;
+    color: #718096;
+    display: block;
+}
+
+/* 🎮 モード選択エリア */
+.mode-section-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* チャレンジカード */
+.card-challenge {
+    background: #fff5f5;
+    border: 2px solid #feb2b2;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-challenge-subtitle {
+    font-weight: bold;
+    color: #e53e3e;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.btn-challenge {
+    display: block;
+    background: #e53e3e;
+    color: white;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* トレーニングカード */
+.card-training {
+    background: #f7fafc;
+    border: 2px solid #cbd5e0;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.card-training-title {
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.training-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn-training-math {
+    background: white;
+    border: 2px solid #4299e1;
+    padding: 14px 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #2b6cb0;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-training-word {
+    background: white;
+    border: 2px solid #319795;
+    padding: 14px 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #234e52;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* === トレーニング画面（practice_math.html等）用追加クラス === */
+
+/* タイトルバッジ（青） */
+.badge-training {
+    background-color: #3182ce;
+}
+
+/* ⚙️ 設定パネル */
+.settings-panel {
+    background: #ebf8ff;
+    border: 2px solid #90cdf4;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.settings-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #2b6cb0;
+    font-size: 1.1rem;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.setting-label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #2d3748;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.setting-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.btn-generate {
+    width: 100%;
+    background: #3182ce;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(49, 130, 206, 0.3);
+}
+
+.btn-check-training {
+    margin-top: 20px;
+}
+
+/* === ランキング表示（menu.js 動的生成用） === */
+.ranking-empty-msg {
+    text-align: center;
+    color: #a0aec0;
+    padding: 15px 0;
+    font-size: 14px;
+}
+
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 14px;
+}
+
+.ranking-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ranking-rank {
+    font-weight: bold;
+    width: 30px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.ranking-user-name {
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.ranking-score-info {
+    text-align: right;
+}
+
+.ranking-score {
+    color: #e53e3e;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.ranking-attempts {
+    font-size: 11px;
+    color: #718096;
+    display: block;
+}
+
+.ranking-error-msg {
+    color: #e53e3e;
+    font-size: 13px;
+    text-align: center;
+}

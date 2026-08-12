@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setupSection.classList.add('hidden');
         quizSection.classList.remove('hidden');
+        resultContainer.classList.add('hidden');
     });
 
     // リセットボタン
@@ -88,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // スコア表示
         const total = currentProblems.length;
-        resultScore.textContent = `${total}もん つち ${score}もん せいかい！`;
+        resultScore.textContent = `${total}もん うち ${score}もん せいかい！`;
         
         if (score === total) {
             resultMessage.textContent = '🎉 すごい！ まんてん！ かんぺきだね！';
@@ -152,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 長さ・かさの単位問題
                 const isLength = Math.random() < 0.5;
                 if (isLength) {
-                    // cm - mm 関係 (例: 3cm + 5mm = 35mm や 1cm = 10mm 基礎)
                     const cm = getRandomInt(1, 8);
                     const mm = getRandomInt(1, 9);
                     problems.push({
@@ -161,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         unit: 'mm'
                     });
                 } else {
-                    // L - dL 関係 (例: 2L 3dL は 何dL？)
                     const l = getRandomInt(1, 5);
                     const dl = getRandomInt(1, 9);
                     problems.push({
@@ -189,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.innerHTML = `
                 <span class="problem-num">(${index + 1})</span>
                 <label for="ans-${index}" class="problem-text">${problem.text}</label>
-                <input type="number" id="ans-${index}" class="answer-input" value="${savedVal}" placeholder="すうじ" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" id="ans-${index}" class="answer-input" value="${escapeHTML(savedVal)}" placeholder="すうじ" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
                 <span class="unit-text">${problem.unit || ''}</span>
                 <span id="feedback-${index}" class="feedback-text"></span>
             `;
@@ -246,5 +245,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
     }
 });

@@ -5,61 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>しょうがく1ねんせい - メニュー</title>
     <link rel="stylesheet" href="../style.css">
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../common.js"></script>
     <script src="menu.js" defer></script>
 </head>
 <body>
     <div class="container">
-        <!-- 共通ヘッダー（名前表示はこちらを残します） -->
+        <!-- 共通ヘッダー -->
         <div id="globalHeader"></div>
 
-        <div style="margin-bottom: 15px;">
-            <a href="../index.html" style="text-decoration: none; color: #4a5568; font-weight: bold;">⬅️ トップページへもどる</a>
+        <div class="back-link-box">
+            <a href="../index.html" class="btn-back">⬅️ トップページへもどる</a>
         </div>
 
         <div class="header">
             <div>
-                <span class="title-badge" style="background-color: #ed8936;">1ねんせい</span>
+                <span class="title-badge badge-grade-1">1ねんせい</span>
                 <h1>なにに ちょうせん する？</h1>
             </div>
-            <!-- ページ本文側の名前表示(userProfileName)は削除しました -->
         </div>
 
         <!-- 👑 前日のランキングエリア -->
-        <div style="background-color: #fffaf0; border: 2px solid #fbd38d; border-radius: 12px; padding: 15px; margin-bottom: 25px;">
-            <h3 style="margin-top:0; color: #dd6b20; text-align: center; font-size: 1.2rem;">
+        <div class="ranking-card">
+            <h3 class="ranking-title">
                 👑 きのうの チャレンジ ランキング 👑
             </h3>
             <div id="rankingList">
-                <p style="text-align: center; color: #a0aec0;">読み込み中...</p>
+                <p class="ranking-empty-msg">読み込み中...</p>
             </div>
         </div>
 
         <!-- 🎮 モード選択エリア -->
-        <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="mode-section-container">
             
             <!-- 🔥 チャレンジ用（1日1回・ランキング対象） -->
-            <div style="background: #fff5f5; border: 2px solid #feb2b2; border-radius: 12px; padding: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <div style="font-weight: bold; color: #e53e3e; font-size: 0.9rem; margin-bottom: 5px; text-align: center;">
+            <div class="card-challenge">
+                <div class="card-challenge-subtitle">
                     🏆 ランキングに はんえい されるよ！（1にち 1かい）
                 </div>
-                <a href="math.html" style="display: block; background: #e53e3e; color: white; border-radius: 8px; padding: 14px; text-align: center; text-decoration: none; font-weight: bold; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <a href="math.html" class="btn-challenge">
                     🔥 【きょうの チャレンジ】さんすうプリント
                 </a>
             </div>
 
             <!-- 🏋️ トレーニング用（練習・何度でも挑戦可） -->
-            <div style="background: #f7fafc; border: 2px solid #cbd5e0; border-radius: 12px; padding: 18px;">
-                <div style="font-weight: bold; color: #2d3748; margin-bottom: 12px; font-size: 1.1rem; text-align: center;">
+            <div class="card-training">
+                <div class="card-training-title">
                     🏋️ なんども れんしゅう（トレーニング）
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <a href="practice_math.html" style="background: white; border: 2px solid #4299e1; padding: 14px 8px; border-radius: 8px; text-decoration: none; color: #2b6cb0; font-weight: bold; text-align: center; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div class="training-grid">
+                    <a href="practice_math.html" class="btn-training-math">
                         🔢 けいさん<br>トレーニング
                     </a>
-                    <a href="practice_word.html" style="background: white; border: 2px solid #319795; padding: 14px 8px; border-radius: 8px; text-decoration: none; color: #234e52; font-weight: bold; text-align: center; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <a href="practice_word.html" class="btn-training-word">
                         📖 ぶんしょうだい<br>トレーニング
                     </a>
                 </div>

@@ -6,15 +6,21 @@ document.addEventListener('DOMContentLoaded', async () => {
  * 前日のランキングデータを Supabase から取得して表示する関数（2年生用）
  */
 async function loadYesterdayRanking() {
-    const rankingList = document.getElementById('rankingList');
+    const rankingList = document.getElementById('ranking-list');
     if (!rankingList) return;
+
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+    if (!supabaseClient) {
+        rankingList.innerHTML = `<p class="ranking-error-msg">ランキングの よみこみに しっぱいしました。</p>`;
+        return;
+    }
 
     try {
         // ビューから2年生（grade=2）の前日ランキングを取得
-        const { data, error } = await clientSupabase
+        const { data, error } = await supabaseClient
             .from('daily_rankings_yesterday')
             .select('*')
-            .eq('grade', 2) // ★ 2年生に指定
+            .eq('grade', 2)
             .order('max_score', { ascending: false })
             .limit(5); // 上位5名を表示
 
@@ -22,7 +28,7 @@ async function loadYesterdayRanking() {
 
         if (!data || data.length === 0) {
             rankingList.innerHTML = `
-                <div style="text-align: center; color: #a0aec0; padding: 15px 0; font-size: 14px;">
+                <div class="ranking-empty-msg">
                     きのうの チャレンジ者は まだ いません 🐾<br>きょう 1ばんになろう！
                 </div>
             `;
@@ -38,14 +44,14 @@ async function loadYesterdayRanking() {
             const name = item.nickname || item.display_name || 'ゲスト';
 
             return `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #edf2f7; font-size: 14px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-weight: bold; width: 30px; text-align: center; font-size: 1.1rem;">${rankStr}</span>
-                        <span style="font-weight: bold; color: #2d3748;">${escapeHtml(name)} さん</span>
+                <div class="ranking-item">
+                    <div class="ranking-user-info">
+                        <span class="ranking-rank">${rankStr}</span>
+                        <span class="ranking-user-name">${escapeHTML(name)} さん</span>
                     </div>
-                    <div style="text-align: right;">
-                        <span style="color: #e53e3e; font-weight: bold; font-size: 1rem;">${item.max_score}てん</span>
-                        <span style="font-size: 11px; color: #718096; display: block;">(${item.total_attempts}かい チャレンジ)</span>
+                    <div class="ranking-score-info">
+                        <span class="ranking-score">${item.max_score}てん</span>
+                        <span class="ranking-attempts">(${item.total_attempts}かい チャレンジ)</span>
                     </div>
                 </div>
             `;
@@ -53,7 +59,7 @@ async function loadYesterdayRanking() {
 
     } catch (err) {
         console.error('ランキング取得エラー:', err);
-        rankingList.innerHTML = `<p style="color: red; font-size: 13px;">ランキングの よみこみに しっぱいしました。</p>`;
+        rankingList.innerHTML = `<p class="ranking-error-msg">ランキングの よみこみに しっぱいしました。</p>`;
     }
 }
 
@@ -61,6 +67,7 @@ async function loadYesterdayRanking() {
  * HTMLエスケープ処理
  */
 function escapeHTML(str) {
+    if (!str) return '';
     return str.replace(/[&<>'"]/g, 
         tag => ({
             '&': '&amp;',

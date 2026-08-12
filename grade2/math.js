@@ -11,14 +11,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const submitBtn = document.getElementById('submit-btn');
 
     let currentProblems = [];
-    let startTime = null;
+    let startTimestamp = null;
     let elapsedTime = 0;
-    
-    // ==========================================
-    // 1. グローバル変数（タイマー管理用）
-    // ==========================================
-    let timerInterval = null; // setInterval の識別ID
-    let remainingSeconds = 60; // デフォルトの制限時間（秒）
+    let timerInterval = null;
 
     // 今日の問題を取得 (Grade = 2)
     currentProblems = await fetchDailyProblems(2);
@@ -33,18 +28,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingMsg.classList.add('hidden');
     challengeForm.classList.remove('hidden');
     timerDisplay.classList.remove('hidden');
-    startTimer();
+    startTimer(60);
 
     // 採点＆提出処理
     challengeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        submitForm();
+    });
+
+    /**
+     * 採点・保存実行関数
+     */
+    async function submitForm() {
         stopTimer();
+        
+        // 経過時間（秒）の計算
+        if (startTimestamp) {
+            elapsedTime = Math.floor((Date.now() - startTimestamp) / 1000);
+        }
 
         submitBtn.disabled = true;
         let score = 0;
 
         currentProblems.forEach((problem, index) => {
             const input = document.getElementById(`ans-${index}`);
+            if (input) input.disabled = true;
+
             const userVal = input ? normalizeAnswer(input.value) : '';
             const isCorrect = (userVal === problem.answer.toString());
 
@@ -60,8 +69,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // スコア結果の表示
-        const calculatedScore = score * (100 / currentProblems.length);
+        // スコア結果の計算と表示
+        const calculatedScore = Math.round(score * (100 / currentProblems.length));
         resultScore.textContent = `${calculatedScore} てん！`;
         resultTime.textContent = `かかった じかん: ${elapsedTime} びょう`;
 
@@ -75,73 +84,65 @@ document.addEventListener('DOMContentLoaded', async () => {
         await saveLearningScore(2, calculatedScore, elapsedTime);
 
         resultContainer.classList.remove('hidden');
-    });
+    }
 
-    // ==========================================
-    // 3. タイマー開始関数（実時間計算ベース）
-    // ==========================================
     /**
+     * タイマー開始関数
      * @param {number} durationSeconds - 制限時間（デフォルト60秒）
      */
     function startTimer(durationSeconds = 60) {
-      // ① 開始前に必ず既存タイマーを停止（二重起動防止）
-      stopTimer();
+        stopTimer();
 
-      const timerDisplay = document.getElementById('timer'); // HTMLのタイマー表示要素
-      const startTime = Date.now();
-      const endTime = startTime + durationSeconds * 1000; // 終了すべき時刻（ミリ秒）
+        startTimestamp = Date.now();
+        const endTime = startTimestamp + durationSeconds * 1000;
 
-      // 初期表示
-      if (timerDisplay) {
-        timerDisplay.textContent = durationSeconds;
-      }
-
-      // ② 250msごとに実時間をチェックして表示を更新（タブ切り替え時のズレ防止）
-      timerInterval = setInterval(() => {
-        const now = Date.now();
-        const timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
-
-        // タイマー表示の更新
-        if (timerDisplay) {
-          timerDisplay.textContent = timeLeft;
+        if (timerSeconds) {
+            timerSeconds.textContent = durationSeconds;
         }
 
-        // ③ 0秒になったら停止して終了処理を実行
-        if (timeLeft <= 0) {
-          stopTimer();
-          handleTimeUp(); // タイムアップ時の処理を実行
-        }
-      }, 250);
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
+
+            if (timerSeconds) {
+                timerSeconds.textContent = timeLeft;
+            }
+
+            if (timeLeft <= 0) {
+                stopTimer();
+                handleTimeUp();
+            }
+        }, 250);
     }
 
-    // ==========================================
-    // 2. タイマー停止関数（二重起動防止・リセット用）
-    // ==========================================
+    /**
+     * タイマー停止関数
+     */
     function stopTimer() {
-      if (timerInterval !== null) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
+        if (timerInterval !== null) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
     }
-    
-    // ==========================================
-    // 4. タイムアップ時の処理
-    // ==========================================
+
+    /**
+     * タイムアップ時の処理
+     */
     function handleTimeUp() {
-      // 回答入力欄の無効化や、結果画面を表示する関数を呼び出す
-      alert('じかんきれです！');
-      // ※既存のゲーム終了関数（例: finishGame(), showResultModal() 等）があればここで実行します
+        alert('じかんきれです！ さいてんします。');
+        submitForm();
     }
 
     /**
      * DBから本日の問題を取得
      */
     async function fetchDailyProblems(grade) {
-        if (typeof supabase === 'undefined') return null;
+        if (typeof clientSupabase === 'undefined' && typeof supabase === 'undefined') return null;
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : supabase;
 
         try {
             const todayStr = new Date().toISOString().split('T')[0];
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('daily_problems')
                 .select('*')
                 .eq('grade', grade)
@@ -191,13 +192,14 @@ document.addEventListener('DOMContentLoaded', async () => {
      * スコア保存処理
      */
     async function saveLearningScore(grade, score, timeTaken) {
-        if (typeof supabase === 'undefined') return;
+        if (typeof clientSupabase === 'undefined' && typeof supabase === 'undefined') return;
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : supabase;
 
         try {
-            const user = (await supabase.auth.getUser())?.data?.user;
+            const user = (await supabaseClient.auth.getUser())?.data?.user;
             const userId = user ? user.id : null;
 
-            await supabase
+            await supabaseClient
                 .from('learning_scores_test')
                 .insert([
                     {

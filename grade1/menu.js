@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // ログイン状態チェック（未ログイン時は common.js 側でハンドリングされるか、必要に応じて制限）
+    // ログイン状態チェック
     const user = await getCurrentUser();
 
     // 前日のランキングを取得して表示
@@ -26,7 +26,7 @@ async function loadYesterdayRanking() {
 
         if (!data || data.length === 0) {
             rankingList.innerHTML = `
-                <div style="text-align: center; color: #a0aec0; padding: 15px 0; font-size: 14px;">
+                <div class="ranking-empty-msg">
                     きのうの チャレンジ者は まだ いません 🐾<br>きょう 1番に チャレンジしてみよう！
                 </div>
             `;
@@ -42,14 +42,14 @@ async function loadYesterdayRanking() {
             const name = item.nickname || item.display_name || 'ゲスト';
 
             return `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #edf2f7; font-size: 14px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-weight: bold; width: 30px; text-align: center; font-size: 1.1rem;">${rankStr}</span>
-                        <span style="font-weight: bold; color: #2d3748;">${escapeHtml(name)} さん</span>
+                <div class="ranking-item">
+                    <div class="ranking-user-info">
+                        <span class="ranking-rank">${rankStr}</span>
+                        <span class="ranking-user-name">${escapeHtml(name)} さん</span>
                     </div>
-                    <div style="text-align: right;">
-                        <span style="color: #e53e3e; font-weight: bold; font-size: 1rem;">${item.max_score}点</span>
-                        <span style="font-size: 11px; color: #718096; display: block;">(${item.total_attempts}回チャレンジ)</span>
+                    <div class="ranking-score-info">
+                        <span class="ranking-score">${item.max_score}点</span>
+                        <span class="ranking-attempts">(${item.total_attempts}回チャレンジ)</span>
                     </div>
                 </div>
             `;

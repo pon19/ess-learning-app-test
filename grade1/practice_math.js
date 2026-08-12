@@ -96,13 +96,13 @@ function renderProblems(problems) {
 
     problems.forEach((p, index) => {
         const div = document.createElement('div');
-        div.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #e2e8f0; font-size:1.3rem; font-weight:bold;';
+        div.className = 'calc-item';
         div.innerHTML = `
             <div>
-                <span style="color:#718096; font-size:1rem; margin-right:10px;">(${index + 1})</span>
+                <span class="problem-index">(${index + 1})</span>
                 <span>${p.p1} ${p.operator} ${p.p2} ＝</span>
             </div>
-            <input type="number" id="answer_${index}" class="calc-input" data-index="${index}" style="width:70px; height:40px; font-size:1.3rem; text-align:center; border:2px solid #cbd5e0; border-radius:8px;" pattern="\\d*" inputmode="numeric">
+            <input type="number" id="answer_${index}" class="calc-input input-answer-num" data-index="${index}" pattern="\\d*" inputmode="numeric">
         `;
         calcGrid.appendChild(div);
     });
@@ -185,14 +185,6 @@ function checkAnswers() {
     const scoreBox = document.getElementById('scoreBox');
     if (scoreBox) {
         scoreBox.style.display = 'block';
-        scoreBox.style.padding = '15px';
-        scoreBox.style.marginTop = '20px';
-        scoreBox.style.background = '#e6fffa';
-        scoreBox.style.border = '2px solid #319795';
-        scoreBox.style.color = '#234e52';
-        scoreBox.style.fontSize = '1.2rem';
-        scoreBox.style.fontWeight = 'bold';
-        scoreBox.style.borderRadius = '8px';
         scoreBox.innerHTML = `💮 てんすう： ${score} てん (${currentProblems.length}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 }

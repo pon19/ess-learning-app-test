@@ -15,27 +15,26 @@
         <!-- 共通ヘッダー -->
         <div id="globalHeader"></div>
 
-        <div style="margin-bottom: 15px;">
-            <a href="menu.html" style="text-decoration: none; color: #4a5568; font-weight: bold;">⬅️ メニューへもどる</a>
+        <div class="back-link-box">
+            <a href="menu.html" class="btn-back">⬅️ メニューへもどる</a>
         </div>
 
         <div class="header">
             <div>
-                <span class="title-badge" style="background-color: #319795;">トレーニング</span>
+                <span class="title-badge badge-word-training">トレーニング</span>
                 <h1>ぶんしょうだい れんしゅう</h1>
             </div>
-            <!-- userProfileName (なまえ欄) を削除しました -->
         </div>
 
         <!-- ⚙️ 設定パネル -->
-        <div style="background: #e6fffa; border: 2px solid #b2f5ea; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
-            <h3 style="margin-top: 0; margin-bottom: 10px; color: #234e52; font-size: 1.1rem;">⚙️ もんだいの 設定（せってい）</h3>
+        <div class="settings-panel-word">
+            <h3 class="settings-title-word">⚙️ もんだいの 設定（せってい）</h3>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px;">
+            <div class="settings-grid">
                 <!-- 算数の種類 -->
                 <div>
-                    <label style="font-weight: bold; font-size: 0.85rem; color: #2d3748; display: block; margin-bottom: 4px;">しゅるい</label>
-                    <select id="settingOp" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 0.95rem; font-weight: bold;">
+                    <label class="setting-label">しゅるい</label>
+                    <select id="settingOp" class="setting-select">
                         <option value="mix">ごちゃまぜ (＋/－)</option>
                         <option value="add">たしざん (＋)</option>
                         <option value="sub">ひきざん (－)</option>
@@ -44,15 +43,15 @@
 
                 <!-- 問題数 -->
                 <div>
-                    <label style="font-weight: bold; font-size: 0.85rem; color: #2d3748; display: block; margin-bottom: 4px;">もんだいくう</label>
-                    <select id="settingCount" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 0.95rem; font-weight: bold;">
+                    <label class="setting-label">もんだいくう</label>
+                    <select id="settingCount" class="setting-select">
                         <option value="3">3もん</option>
                         <option value="5" selected>5もん</option>
                     </select>
                 </div>
             </div>
 
-            <button id="generateBtn" style="width: 100%; background: #319795; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(49,151,149,0.3);">
+            <button id="generateBtn" class="btn-generate-word">
                 🔄 この 設定で もんだいを つくる
             </button>
         </div>
@@ -61,8 +60,8 @@
         <div id="wordProblemArea"></div>
 
         <!-- 答え合わせボタン・結果エリア -->
-        <button class="btn-check" id="checkBtn" style="margin-top: 20px; background-color: #319795;">こたえあわせをする 💮</button>
-        <div class="score-display" id="scoreBox" style="display:none;"></div>
+        <button class="btn-check btn-check-word" id="checkBtn">こたえあわせをする 💮</button>
+        <div class="score-box-result" id="scoreBox"></div>
     </div>
 </body>
 </html>
