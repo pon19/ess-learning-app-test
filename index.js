@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const findEmailNotice = document.getElementById('findEmailNotice');
     const updatePasswordForm = document.getElementById('updatePasswordForm');
     const forceNicknameForm = document.getElementById('forceNicknameForm');
-
+    
     // モーダル開く
     document.getElementById('openAuthModalBtn')?.addEventListener('click', () => {
         showForm(loginForm);
@@ -43,23 +43,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // タブ切り替え
+    // タブ切り替え（JSで style を直接いじるのではなくクラスを付け替え）
     const tabLogin = document.getElementById('tabLogin');
     const tabSignup = document.getElementById('tabSignup');
 
     tabLogin?.addEventListener('click', () => {
-        tabLogin.style.color = '#3182ce';
-        tabLogin.style.borderBottom = '2px solid #3182ce';
-        tabSignup.style.color = '#718096';
-        tabSignup.style.borderBottom = 'none';
+        tabLogin.className = 'modal-tab-btn active';
+        tabSignup.className = 'modal-tab-btn inactive';
         showForm(loginForm);
     });
 
     tabSignup?.addEventListener('click', () => {
-        tabSignup.style.color = '#3182ce';
-        tabSignup.style.borderBottom = '2px solid #3182ce';
-        tabLogin.style.color = '#718096';
-        tabLogin.style.borderBottom = 'none';
+        tabSignup.className = 'modal-tab-btn active';
+        tabLogin.className = 'modal-tab-btn inactive';
         showForm(signupForm);
     });
 
@@ -345,7 +341,7 @@ async function checkAuthState() {
         } else {
             if (modal) modal.style.display = 'none';
             // ★ 学年バッジをつけてメッセージを表示
-            const gradeBadge = gradeLabel ? `<span style="background: #319795; color: white; font-size: 13px; padding: 2px 8px; border-radius: 12px; margin-left: 6px; vertical-align: middle;">${gradeLabel}</span>` : '';
+            const gradeBadge = gradeLabel ? `<span class="user-grade-badge">${gradeLabel}</span>` : '';
             if (welcomeMessage) {
                 welcomeMessage.innerHTML = `ようこそ、${escapeHtml(displayName)} さん！ ${gradeBadge}`;
             }

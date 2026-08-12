@@ -8,66 +8,36 @@
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="style.css">
     <script> window.IS_TOP_PAGE = true; </script>
-    <!-- Supabase SDK の読み込み -->
-    <!-- 1. Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- 2. 共通JS（Supabase初期化や共通関数） -->
     <script src="common.js"></script>
-    <!-- 3. ページ固有のJS -->
     <script src="index.js"></script>
 </head>
 <body>
-    <div class="container" style="max-width: 600px; margin: 40px auto; text-align: center;">
+    <div class="container top-container">
         <h1>✏️ しょうがくせい Webプリント</h1>
         
         <!-- ログイン状態表示エリア -->
-        <div id="userInfoArea" style="margin-bottom: 20px; padding: 15px; background: #edf2f7; border-radius: 8px; display: none;">
-            <p style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: bold; color: #2b6cb0;" id="welcomeMessage">ようこそ！</p>
-
-            <!-- マイページボタン -->
-            <a href="mypage.html" style="display: inline-block; background: #3182ce; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 14px; margin-right: 8px;">👤 マイページ</a>
-
-            <button id="topLogoutBtn" style="background: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">ログアウト</button>
+        <div id="userInfoArea" class="user-info-box">
+            <p id="welcomeMessage" class="welcome-msg">ようこそ！</p>
+            <a href="mypage.html" class="btn-mypage">👤 マイページ</a>
+            <button id="topLogoutBtn" class="btn-logout">ログアウト</button>
         </div>
 
         <!-- 未ログイン時に表示するボタン -->
         <div id="authBtnArea" style="margin-bottom: 20px;">
-            <button id="openAuthModalBtn" style="padding: 10px 20px; font-size: 1rem; background: #3182ce; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔐 ログイン / しんきとうろく</button>
+            <button id="openAuthModalBtn" class="btn-auth-open">🔐 ログイン / しんきとうろく</button>
         </div>
 
         <!-- 学年選択メニュー -->
-        <h2 style="font-size: 1.2rem; color: #2d3748; margin-top: 25px; margin-bottom: 15px;">👇 学年（がくねん）を えらんでね</h2>
+        <h2 class="grade-select-title">👇 学年（がくねん）を えらんでね</h2>
 
-        <div class="grade-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 30px;">
-            <!-- 1年生（公開中） -->
-            <a href="grade1/menu.html" class="grade-card active" style="display: block; padding: 18px; background: #48bb78; color: white; text-decoration: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; box-shadow: 0 4px 6px rgba(72,187,120,0.2); transition: transform 0.2s;">
-                🎒 1ねんせい
-            </a>
-
-            <!-- 2年生（公開中：有効化） -->
-            <a href="grade2/menu.html" class="grade-card active" style="display: block; padding: 18px; background: #319795; color: white; text-decoration: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; box-shadow: 0 4px 6px rgba(49,151,149,0.2); transition: transform 0.2s;">
-                🐥 2ねんせい
-            </a>
-
-            <!-- 3年生（準備中） -->
-            <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
-                🐥 3ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
-            </div>
-
-            <!-- 4年生（準備中） -->
-            <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
-                🐥 4ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
-            </div>
-
-            <!-- 5年生（準備中） -->
-            <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
-                🐥 5ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
-            </div>
-
-            <!-- 6年生（準備中） -->
-            <div class="grade-card disabled" style="padding: 18px; background: #e2e8f0; color: #a0aec0; border-radius: 12px; font-size: 1.1rem; font-weight: bold; text-align: center; cursor: not-allowed;">
-                🎓 6ねんせい <span style="font-size: 0.8rem; display: block; font-weight: normal; margin-top: 4px;">(じゅんびちゅう)</span>
-            </div>
+        <div class="grade-grid">
+            <a href="grade1/menu.html" class="grade-card active g-1">🎒 1ねんせい</a>
+            <a href="grade2/menu.html" class="grade-card active g-2">🐥 2ねんせい</a>
+            <div class="grade-card disabled">🐥 3ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
+            <div class="grade-card disabled">🐥 4ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
+            <div class="grade-card disabled">🐥 5ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
+            <div class="grade-card disabled">🎓 6ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
         </div>
     </div>
     
@@ -91,35 +61,34 @@
     </div>
 
     <!-- ログイン / 新規登録 / サポート / ニックネーム登録 モーダル -->
-    <div id="authModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; padding:24px; border-radius:12px; width:90%; max-width:400px; text-align:center; position:relative; max-height: 90vh; overflow-y: auto;">
-            <button id="closeModalBtn" style="position:absolute; top:10px; right:15px; border:none; background:none; font-size:20px; cursor:pointer;">×</button>
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="closeModalBtn" class="modal-close-btn">×</button>
 
-            <!-- タブ切り替え（強制登録時は非表示） -->
-            <div id="modalTabs" style="display:flex; justify-content:space-around; margin-bottom:20px; border-bottom:2px solid #edf2f7;">
-                <button id="tabLogin" style="padding:8px 12px; border:none; background:none; font-weight:bold; color:#3182ce; border-bottom:2px solid #3182ce; cursor:pointer;">ログイン</button>
-                <button id="tabSignup" style="padding:8px 12px; border:none; background:none; font-weight:bold; color:#718096; cursor:pointer;">しんきとうろく</button>
+            <!-- タブ切り替え -->
+            <div id="modalTabs" class="modal-tabs">
+                <button id="tabLogin" class="modal-tab-btn active">ログイン</button>
+                <button id="tabSignup" class="modal-tab-btn inactive">しんきとうろく</button>
             </div>
 
             <!-- 1. ログインフォーム -->
             <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <input type="password" id="loginPassword" placeholder="パスワード" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#3182ce; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">ログインする</button>
+                <input type="email" id="loginEmail" class="modal-input" placeholder="メールアドレス" required>
+                <input type="password" id="loginPassword" class="modal-input" placeholder="パスワード" required>
+                <button type="submit" class="modal-submit-btn btn-blue">ログインする</button>
 
-                <div style="margin-top: 12px; font-size: 13px; text-align: right;">
-                    <a href="#" id="showResetLink" style="color: #4299e1; text-decoration: none;">🔑 パスワードを わすれた</a><br>
-                    <a href="#" id="showFindEmailLink" style="color: #4299e1; text-decoration: none;">✉️ メアドを わすれた</a>
+                <div class="modal-link-group">
+                    <a href="#" id="showResetLink" class="modal-link">🔑 パスワードを わすれた</a><br>
+                    <a href="#" id="showFindEmailLink" class="modal-link">✉️ メアドを わすれた</a>
                 </div>
             </form>
 
             <!-- 2. 新規登録フォーム -->
             <form id="signupForm" style="display:none;">
-                <input type="text" id="signupName" placeholder="お名前（例: 山田 太郎）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <input type="text" id="signupNickname" placeholder="ニックネーム（例: たろう）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+                <input type="text" id="signupName" class="modal-input" placeholder="お名前（例: 山田 太郎）" required>
+                <input type="text" id="signupNickname" class="modal-input" placeholder="ニックネーム（例: たろう）" required>
 
-                <!-- 学年選択 -->
-                <select id="signupGrade" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-weight:bold; color:#2d3748;">
+                <select id="signupGrade" class="modal-select" required style="font-weight:bold; color:#2d3748;">
                     <option value="" disabled selected>学年（がくねん）を えらんでね</option>
                     <option value="1">小学1年生</option>
                     <option value="2">小学2年生</option>
@@ -129,45 +98,45 @@
                     <option value="6">小学6年生</option>
                 </select>
 
-                <input type="tel" id="signupPhone" placeholder="携帯番号（例: 09012345678）" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <input type="email" id="signupEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <input type="password" id="signupPassword" placeholder="パスワード（6文字以上）" required minlength="6" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#48bb78; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">登録する</button>
+                <input type="tel" id="signupPhone" class="modal-input" placeholder="携帯番号（例: 09012345678）" required>
+                <input type="email" id="signupEmail" class="modal-input" placeholder="メールアドレス" required>
+                <input type="password" id="signupPassword" class="modal-input" placeholder="パスワード（6文字以上）" required minlength="6">
+                <button type="submit" class="modal-submit-btn btn-green">登録する</button>
             </form>
             
             <!-- 3. パスワード再設定メール送信フォーム -->
             <form id="resetRequestForm" style="display:none;">
                 <p style="font-size: 14px; color: #4a5568;">登録したメールアドレスに パスワード 再設定メールを 送ります。</p>
-                <input type="email" id="resetEmail" placeholder="メールアドレス" required style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#ed8936; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">メールの送信</button>
+                <input type="email" id="resetEmail" class="modal-input" placeholder="メールアドレス" required>
+                <button type="submit" class="modal-submit-btn btn-orange">メールの送信</button>
                 <button type="button" class="btnBackToLogin" style="margin-top:10px; background:none; border:none; color:#718096; cursor:pointer; font-size:13px;">← もどる</button>
             </form>
 
             <!-- 4. メールアドレスお問い合わせ案内表示 -->
-            <div id="findEmailNotice" style="display:none; text-align: left; background: #f7fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div id="findEmailNotice" class="notice-info-box" style="display:none;">
                 <p style="font-size: 14px; color: #2d3748; margin-top: 0; line-height: 1.6;">
                     メールアドレスを わすれてしまった ばあいは、かんりしゃ（おうちの ひと）に きいてね。
                 </p>
                 <div style="text-align: center; margin-top: 15px;">
-                    <button type="button" class="btnBackToLogin" style="background: #718096; color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">← もどる</button>
+                    <button type="button" class="btnBackToLogin" class="modal-submit-btn btn-gray" style="padding: 6px 16px; font-size: 13px;">← もどる</button>
                 </div>
             </div>
 
             <!-- 5. 新しいパスワード設定フォーム -->
             <form id="updatePasswordForm" style="display:none;">
                 <p style="font-size: 14px; color: #2b6cb0; font-weight: bold;">新規の パスワードを 入力してください。</p>
-                <input type="password" id="newPasswordInput" placeholder="あたらしい パスワード（6もし いじょう）" required minlength="6" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#e53e3e; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">パスワードを 変更</button>
+                <input type="password" id="newPasswordInput" class="modal-input" placeholder="あたらしい パスワード（6もし いじょう）" required minlength="6">
+                <button type="submit" class="modal-submit-btn btn-red">パスワードを 変更</button>
             </form>
 
             <!-- 6. 既存ユーザー向け ニックネーム強制登録フォーム -->
             <form id="forceNicknameForm" style="display:none;">
-                <div style="background: #fff5f5; border: 1px solid #feb2b2; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <div class="alert-notice-box">
                     <p style="font-size: 14px; color: #c53030; font-weight: bold; margin: 0 0 5px 0;">⚠️ ニックネームが とうろく されていません</p>
                     <p style="font-size: 12px; color: #742a2a; margin: 0;">Webプリントで つかう ニックネーム（よんでもらいたい なまえ）を 入力してね！</p>
                 </div>
-                <input type="text" id="forceNicknameInput" placeholder="ニックネーム（例: たろう）" required style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
-                <button type="submit" style="width:100%; padding:10px; background:#e53e3e; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">決定して つぎへ</button>
+                <input type="text" id="forceNicknameInput" class="modal-input" placeholder="ニックネーム（例: たろう）" required>
+                <button type="submit" class="modal-submit-btn btn-red">決定して つぎへ</button>
             </form>
 
             <p id="authMessage" style="margin-top:15px; font-size:14px; word-break: break-all;"></p>
