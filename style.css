@@ -74,12 +74,77 @@ h1 {
     margin-bottom: 15px;
 }
 
-/* 1. 計算問題レイアウト */
+/* ====================================================
+   📱/💻 計算問題エリアのポップなデザイン化
+   ==================================================== */
+
+/* 計算問題のグリッド全体（スマホ・PC共通で余裕を持たせる） */
 .calc-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 16px;           /* カード同士の間隔をゆったりに */
+    margin-bottom: 25px;
+}
+
+/* 問題1つひとつのカードデザイン */
+.calc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;            /* 角を丸くして優しく */
+    padding: 14px 18px;            /* 内側の余白をしっかり確保 */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04); /* ほんのり立体感 */
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+/* ホバー・タップ時の少し浮き上がる演出 */
+.calc-item:focus-within {
+    border-color: #319795;          /* 入力中は2年生カラー（エメラルドグリーン）に */
+    box-shadow: 0 4px 12px rgba(49, 151, 149, 0.15);
+    transform: translateY(-2px);
+}
+
+/* 式のテキスト部分（番号・数字・記号） */
+.calc-item > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;                        /* 数字や記号の間の詰まり感を解消 */
+    font-size: 1.45rem;              /* 数字を少し大きめで見やすく */
+    font-weight: bold;
+    color: #2d3748;
+    letter-spacing: 1px;             /* 文字間隔をほんのり開ける */
+}
+
+/* 問題番号 (1) (2) ... */
+.calc-item .problem-index {
+    color: #319795;                  /* アクセントカラー */
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+/* 回答用入力ボックス */
+.calc-item .input-answer-num {
+    width: 75px;                     /* 入力欄を少しワイドに */
+    height: 48px;                    /* タップ・入力しやすい高さ */
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-align: center;
+    color: #2d3748;
+    background-color: #f7fafc;
+    border: 2.5px solid #cbd5e0;
+    border-radius: 10px;             /* 入力欄の角も丸め */
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+/* 入力欄フォーカス時 */
+.calc-item .input-answer-num:focus {
+    background-color: #ffffff;
+    border-color: #319795;
+    box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.2);
 }
 
 .calc-box {
@@ -605,17 +670,6 @@ h1 {
 .btn-back {
     text-decoration: none;
     color: #4a5568;
-    font-weight: bold;
-}
-
-/* 計算問題・文章問題項目 */
-.calc-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 1.3rem;
     font-weight: bold;
 }
 
