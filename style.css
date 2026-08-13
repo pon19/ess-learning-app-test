@@ -1100,3 +1100,34 @@ h1 {
 .btn-check-word:hover {
     background-color: #dd6b20;
 }
+
+/* タイトル内のWebプリントが途中で改行されないように制御 */
+.title-nowrap {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* ログイン状態表示エリアをFlexbox化して縦中央＆1行に収める */
+.user-info-box {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap; /* 画面が超小型の場合はブロックごと綺麗に配置 */
+    gap: 8px;
+}
+
+/* 「ようこそ！」の文字メッセージの余白・改行防止 */
+.welcome-msg {
+    margin: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* 学年バッジが潰れたり改行されるのを防止 */
+.user-grade-badge {
+    display: inline-block;
+    flex-shrink: 0;        /* 画面が狭くても潰さない */
+    white-space: nowrap;   /* バッジ内テキストの改行禁止 */
+    margin-left: 4px;
+}
