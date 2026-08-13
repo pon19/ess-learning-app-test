@@ -157,21 +157,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 回答済みの場合の画面表示制御（強力版）
+     * 回答済みの場合の画面表示制御（強力・絶対適用版）
      */
     function showAlreadySubmittedView(scoreData) {
-        // 対象エレメントを style.display で直接隠す
-        if (loadingMsg) loadingMsg.style.display = 'none';
-        if (timerDisplay) timerDisplay.style.display = 'none';
-        if (challengeForm) challengeForm.style.display = 'none';
+        console.log('すでに回答済み画面を表示します:', scoreData);
 
+        // 1. ローディング、タイマー、フォーム、問題エリアを確実に非表示
+        const idsToHide = ['loading-msg', 'timer-display', 'challenge-form', 'problems-container'];
+        idsToHide.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+                el.style.setProperty('display', 'none', 'important');
+            }
+        });
+
+        // 2. セクションタイトル（「けいさん もんだいを しましょう」等）も強制非表示
         const sectionTitles = document.querySelectorAll('.section-title');
-        sectionTitles.forEach(el => el.style.display = 'none');
+        sectionTitles.forEach(el => {
+            el.style.setProperty('display', 'none', 'important');
+        });
 
-        // 結果エリアを表示
+        // 3. 結果エリアを表示
+        const resultContainer = document.getElementById('result-container');
+        const resultScore = document.getElementById('result-score');
+        const resultTime = document.getElementById('result-time');
+        const resultMessage = document.getElementById('result-message');
+
         if (resultContainer) {
             resultContainer.classList.remove('hidden');
-            resultContainer.style.display = 'block';
+            resultContainer.style.setProperty('display', 'block', 'important');
 
             if (resultScore) {
                 resultScore.textContent = `💮 きょうのスコア: ${scoreData.score} てん！`;
