@@ -16,42 +16,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     let timerInterval = null;
     let currentUser = null;
 
-    // 1. ユーザー情報の取得と表示
-    currentUser = await getCurrentUser();
-    if (currentUser) {
-        const nameBox = document.getElementById('userProfileName');
-        if (nameBox) {
-            const displayName = await getUserDisplayName(currentUser.id);
-            nameBox.textContent = `なまえ： ${displayName} さん`;
-        }
+    // Supabaseクライアントの取得
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
 
-        // 2. 本日すでに回答済みかチェック
-        const todayScore = await checkTodaySubmitted(currentUser.id, 2);
-        if (todayScore) {
-            if (loadingMsg) loadingMsg.classList.add('hidden');
-            showAlreadySubmittedView(todayScore);
-            return; // 提出済みの場合はここで処理を終了（問題を描画せずタイマーも動かさない）
+    // 1. ユーザー情報の取得と本日回答済みチェック（原因1対策）
+    if (supabaseClient) {
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                currentUser = user;
+                console.log('ログインユーザーID:', currentUser.id);
+
+                const nameBox = document.getElementById('userProfileName');
+                if (nameBox) {
+                    const displayName = await getUserDisplayName(currentUser.id);
+                    nameBox.textContent = `なまえ： ${displayName} さん`;
+                }
+
+                // 本日すでに回答済みかチェック
+                const todayScore = await checkTodaySubmitted(currentUser.id, 2);
+                if (todayScore) {
+                    console.log('本日提出済みのデータを発見:', todayScore);
+                    showAlreadySubmittedView(todayScore);
+                    return; // ★ 提出済みの場合はここで確実に処理を中断
+                }
+            } else {
+                console.log('ユーザーがログインしていません');
+            }
+        } catch (err) {
+            console.error('ユーザー認証・初期チェックエラー:', err);
         }
     }
 
-    // 3. 今日の問題を取得 (Grade = 2)
+    // 2. 今日の問題を取得 (Grade = 2)
     currentProblems = await fetchDailyProblems(2);
 
     if (!currentProblems || currentProblems.length === 0) {
         currentProblems = getFallbackProblems();
     }
 
-    // 4. 問題の描画とタイマー開始
+    // 3. 問題の描画とタイマー開始
     renderProblems(currentProblems);
     if (loadingMsg) loadingMsg.classList.add('hidden');
     if (challengeForm) challengeForm.classList.remove('hidden');
     if (timerDisplay) timerDisplay.classList.remove('hidden');
     startTimer(60);
 
-    // 5. 採点＆提出イベント設定
+    // 4. 採点＆提出イベント設定
     challengeForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (submitBtn) submitBtn.disabled = true; // ボタン連打対策
+        if (submitBtn) submitBtn.disabled = true;
         submitForm();
     });
 
@@ -107,10 +121,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 本日の送信履歴を取得（日本時間考慮）
+     * 本日の送信履歴を取得（日本時間考慮・デバッグログ付き）
      */
     async function checkTodaySubmitted(userId, grade) {
-        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
         if (!supabaseClient) return null;
 
         try {
@@ -120,7 +133,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const day = String(now.getDate()).padStart(2, '0');
             const todayStr = `${year}-${month}-${day}`;
 
-            // 生成列 created_date と比較して重複チェック
+            console.log(`履歴チェック実行 -> 日付: ${todayStr}, 学年: ${grade}, ユーザー: ${userId}`);
+
             const { data, error } = await supabaseClient
                 .from('learning_scores_test')
                 .select('*')
@@ -131,28 +145,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .maybeSingle();
 
             if (error) {
-                console.error('履歴チェックエラー:', error);
+                console.error('履歴取得DBエラー:', error);
                 return null;
             }
+
             return data;
         } catch (e) {
-            console.error('履歴チェック例外エラー:', e);
+            console.error('履歴チェック例外:', e);
             return null;
         }
     }
 
     /**
-     * すでに回答済みの場合の画面表示制御（パターンB適用強化）
+     * 回答済みの場合の画面表示制御（強力版）
      */
     function showAlreadySubmittedView(scoreData) {
-        // フォーム、タイマー、問題エリアを確実に非表示にする
-        if (challengeForm) challengeForm.classList.add('hidden');
-        if (timerDisplay) timerDisplay.classList.add('hidden');
-        if (problemsContainer) problemsContainer.classList.add('hidden');
+        // 対象エレメントを style.display で直接隠す
+        if (loadingMsg) loadingMsg.style.display = 'none';
+        if (timerDisplay) timerDisplay.style.display = 'none';
+        if (challengeForm) challengeForm.style.display = 'none';
+
+        const sectionTitles = document.querySelectorAll('.section-title');
+        sectionTitles.forEach(el => el.style.display = 'none');
 
         // 結果エリアを表示
         if (resultContainer) {
             resultContainer.classList.remove('hidden');
+            resultContainer.style.display = 'block';
+
             if (resultScore) {
                 resultScore.textContent = `💮 きょうのスコア: ${scoreData.score} てん！`;
             }
@@ -166,25 +186,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * タイマー開始関数
+     * タイマー関連関数
      */
     function startTimer(durationSeconds = 60) {
         stopTimer();
-
         startTimestamp = Date.now();
         const endTime = startTimestamp + durationSeconds * 1000;
 
-        if (timerSeconds) {
-            timerSeconds.textContent = durationSeconds;
-        }
+        if (timerSeconds) timerSeconds.textContent = durationSeconds;
 
         timerInterval = setInterval(() => {
             const now = Date.now();
             const timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
 
-            if (timerSeconds) {
-                timerSeconds.textContent = timeLeft;
-            }
+            if (timerSeconds) timerSeconds.textContent = timeLeft;
 
             if (timeLeft <= 0) {
                 stopTimer();
@@ -209,7 +224,6 @@ document.addEventListener('DOMContentLoaded', async () => {
      * DBから本日の問題を取得
      */
     async function fetchDailyProblems(grade) {
-        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
         if (!supabaseClient) return null;
 
         try {
@@ -235,9 +249,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    /**
-     * 予備問題（2年生用）
-     */
     function getFallbackProblems() {
         return [
             { text: '6 × 4 = ', answer: 24 },
@@ -253,9 +264,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         ];
     }
 
-    /**
-     * 問題描画
-     */
     function renderProblems(problems) {
         if (!problemsContainer) return;
         problemsContainer.innerHTML = '';
@@ -276,11 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    /**
-     * スコア保存処理
-     */
     async function saveLearningScore(grade, score, timeTaken) {
-        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
         if (!supabaseClient) return;
 
         try {
