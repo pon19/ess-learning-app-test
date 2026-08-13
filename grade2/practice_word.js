@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const countNum = getRandomInt(2, 9);
 
                 problems.push({
-                    text: `1つの ${item.dish} に ${item.name} が ${perNum}${item.unit} ずつ はいっています。${item.dish} が ${countNum}つ あります。ぜんぶで ${item.name} は なんにん（なん${item.unit}）ありますか。`,
+                    text: `1つの ${item.dish} に ${item.name} が ${perNum}${item.unit} ずつ はいっています。${item.dish} が ${countNum}つ あります。ぜんぶで ${item.name} は なん${item.unit} ありますか。`,
                     equation: `${perNum}*${countNum}`,
                     displayEq: `${perNum} × ${countNum}`,
                     answer: perNum * countNum,

@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cm = getRandomInt(1, 8);
                     const mm = getRandomInt(1, 9);
                     problems.push({
-                        text: `${cm}cm ${mm}mm は なんにりめーとる（mm）？ `,
+                        text: `${cm}cm ${mm}mm は なんミリメートル（mm）？ `,
                         answer: (cm * 10 + mm).toString(),
                         unit: 'mm'
                     });
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const l = getRandomInt(1, 5);
                     const dl = getRandomInt(1, 9);
                     problems.push({
-                        text: `${l}L ${dl}dL は なんでしりっとる（dL）？ `,
+                        text: `${l}L ${dl}dL は なんデシリットル（dL）？ `,
                         answer: (l * 10 + dl).toString(),
                         unit: 'dL'
                     });
