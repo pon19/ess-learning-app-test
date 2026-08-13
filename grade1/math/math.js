@@ -7,20 +7,29 @@ let currentUser = null;
 // 1. 初期化処理
 // ====================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // ユーザー情報の取得と表示
-    currentUser = await getCurrentUser();
-    if (currentUser) {
-        const nameBox = document.getElementById('userProfileName');
-        if (nameBox) {
-            const displayName = await getUserDisplayName(currentUser.id);
-            nameBox.textContent = `なまえ： ${displayName} さん`;
-        }
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
 
-        // ★ 本日すでに送信済みかチェック
-        const todayScore = await checkTodaySubmitted(currentUser.id, 1);
-        if (todayScore) {
-            showAlreadySubmittedView(todayScore);
-            return; // 提出済みの場合はこれ以降の読み込みを行わない
+    // ユーザー情報の取得と表示、および本日回答済みチェック
+    if (supabaseClient) {
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                currentUser = user;
+                const nameBox = document.getElementById('userProfileName');
+                if (nameBox) {
+                    const displayName = await getUserDisplayName(currentUser.id);
+                    nameBox.textContent = `なまえ： ${displayName} さん`;
+                }
+
+                // ★ 本日すでに送信済みかチェック
+                const todayScore = await checkTodaySubmitted(currentUser.id, 1);
+                if (todayScore) {
+                    showAlreadySubmittedView(todayScore);
+                    return; // 提出済みの場合はこれ以降の読み込みを行わない
+                }
+            }
+        } catch (err) {
+            console.error('ユーザー認証・初期チェックエラー:', err);
         }
     }
 
@@ -67,7 +76,7 @@ async function checkTodaySubmitted(userId, grade) {
 }
 
 // ====================================================
-// 3. 回答済みの場合の画面表示制御（パターンB適用）
+// 3. 回答済みの場合の画面表示制御（パターンB・強力適用版）
 // ====================================================
 function showAlreadySubmittedView(scoreData) {
     const calcGrid = document.getElementById('calcGrid');
@@ -75,20 +84,29 @@ function showAlreadySubmittedView(scoreData) {
     const checkBtn = document.getElementById('checkBtn');
     const scoreBox = document.getElementById('scoreBox');
 
-    // セクションタイトルも含めて非表示にする場合の設定
+    // セクションタイトルを強制非表示
     const sectionTitles = document.querySelectorAll('.section-title');
     sectionTitles.forEach(title => {
-        title.style.display = 'none';
+        title.style.setProperty('display', 'none', 'important');
     });
 
-    // 計算問題・文章問題のエリアおよびボタンを完全非表示
-    if (calcGrid) calcGrid.style.display = 'none';
-    if (wordProblemArea) wordProblemArea.style.display = 'none';
-    if (checkBtn) checkBtn.style.display = 'none';
+    // 計算問題・文章問題のエリアおよびボタンを強制非表示
+    if (calcGrid) {
+        calcGrid.classList.add('hidden');
+        calcGrid.style.setProperty('display', 'none', 'important');
+    }
+    if (wordProblemArea) {
+        wordProblemArea.classList.add('hidden');
+        wordProblemArea.style.setProperty('display', 'none', 'important');
+    }
+    if (checkBtn) {
+        checkBtn.style.setProperty('display', 'none', 'important');
+    }
 
     // 結果メッセージエリアのみを表示
     if (scoreBox) {
-        scoreBox.style.display = 'block';
+        scoreBox.classList.remove('hidden');
+        scoreBox.style.setProperty('display', 'block', 'important');
         scoreBox.innerHTML = `
             <h2>💮 きょうの チャレンジは すでに かんりょう しています！</h2>
             <p style="font-size: 1.25rem; font-weight: bold; margin: 15px 0; color: #2b6cb0;">
@@ -106,13 +124,16 @@ function showAlreadySubmittedView(scoreData) {
 // ====================================================
 async function loadTodayProblems() {
     try {
+        const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+        if (!supabaseClient) return;
+
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
         const todayStr = `${year}-${month}-${day}`;
 
-        const { data, error } = await clientSupabase
+        const { data, error } = await supabaseClient
             .from('daily_problems')
             .select('*')
             .eq('target_date', todayStr)
@@ -259,9 +280,10 @@ async function checkAnswersAndSave() {
         scoreBox.innerHTML = `💮 てんすう： ${score} てん (${totalCount}もんちゅう ${correctCount}もん せいかい) 💮`;
     }
 
-    if (currentUser) {
+    const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
+    if (currentUser && supabaseClient) {
         try {
-            await clientSupabase
+            await supabaseClient
                 .from('learning_scores_test')
                 .insert([{
                     user_id: currentUser.id,
