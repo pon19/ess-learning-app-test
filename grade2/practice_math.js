@@ -181,16 +181,21 @@ document.addEventListener('DOMContentLoaded', () => {
         problemsContainer.innerHTML = '';
         problems.forEach((problem, index) => {
             const div = document.createElement('div');
-            div.className = 'problem-item';
+            // クラス名を .calc-item に変更してカードデザインを適用
+            div.className = 'calc-item';
             
             const savedVal = userAnswers[index] || '';
 
             div.innerHTML = `
-                <span class="problem-num">(${index + 1})</span>
-                <label for="ans-${index}" class="problem-text">${problem.text}</label>
-                <input type="text" id="ans-${index}" class="answer-input" value="${escapeHTML(savedVal)}" placeholder="すうじ" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
-                <span class="unit-text">${problem.unit || ''}</span>
-                <span id="feedback-${index}" class="feedback-text"></span>
+                <div class="calc-expr-box">
+                    <span class="problem-index">(${index + 1})</span>
+                    <label for="ans-${index}" class="problem-text">${problem.text}</label>
+                </div>
+                <div class="calc-input-box">
+                    <input type="text" id="ans-${index}" class="input-answer-num" value="${escapeHTML(savedVal)}" placeholder="?" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                    <span class="unit-text">${problem.unit || ''}</span>
+                </div>
+                <div id="feedback-${index}" class="feedback-text"></div>
             `;
             problemsContainer.appendChild(div);
         });

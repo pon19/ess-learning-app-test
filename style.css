@@ -78,73 +78,83 @@ h1 {
    📱/💻 計算問題エリアのポップなデザイン化
    ==================================================== */
 
-/* 計算問題のグリッド全体（スマホ・PC共通で余裕を持たせる） */
-.calc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;           /* カード同士の間隔をゆったりに */
-    margin-bottom: 25px;
-}
+/* === 計算カードレイアウト調整 === */
 
-/* 問題1つひとつのカードデザイン */
+/* カード自体を縦並び・折り返しに対応できるように拡張 */
 .calc-item {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     background: #ffffff;
-    border: 2px solid #e2e8f0;
-    border-radius: 14px;            /* 角を丸くして優しく */
-    padding: 14px 18px;            /* 内側の余白をしっかり確保 */
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04); /* ほんのり立体感 */
-    transition: transform 0.15s ease, border-color 0.15s ease;
-}
-
-/* ホバー・タップ時の少し浮き上がる演出 */
-.calc-item:focus-within {
-    border-color: #319795;          /* 入力中は2年生カラー（エメラルドグリーン）に */
-    box-shadow: 0 4px 12px rgba(49, 151, 149, 0.15);
-    transform: translateY(-2px);
-}
-
-/* 式のテキスト部分（番号・数字・記号） */
-.calc-item > div {
-    display: flex;
-    align-items: center;
-    gap: 8px;                        /* 数字や記号の間の詰まり感を解消 */
-    font-size: 1.45rem;              /* 数字を少し大きめで見やすく */
-    font-weight: bold;
-    color: #2d3748;
-    letter-spacing: 1px;             /* 文字間隔をほんのり開ける */
-}
-
-/* 問題番号 (1) (2) ... */
-.calc-item .problem-index {
-    color: #319795;                  /* アクセントカラー */
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-right: 4px;
-}
-
-/* 回答用入力ボックス */
-.calc-item .input-answer-num {
-    width: 75px;                     /* 入力欄を少しワイドに */
-    height: 48px;                    /* タップ・入力しやすい高さ */
-    font-size: 1.4rem;
-    font-weight: bold;
-    text-align: center;
-    color: #2d3748;
-    background-color: #f7fafc;
-    border: 2.5px solid #cbd5e0;
-    border-radius: 10px;             /* 入力欄の角も丸め */
-    outline: none;
+    border: 2.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     transition: all 0.2s ease;
 }
 
-/* 入力欄フォーカス時 */
-.calc-item .input-answer-num:focus {
-    background-color: #ffffff;
-    border-color: #319795;
-    box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.2);
+/* 計算式テキストエリア */
+.calc-expr-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.35rem;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.calc-expr-box .problem-text {
+    letter-spacing: 1px;
+}
+
+/* 入力欄＋単位エリア */
+.calc-input-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 単位テキスト (mm, dLなど) */
+.unit-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #4a5568;
+}
+
+/* 正誤メッセージ表示位置（カードの下部に綺麗に収める） */
+.feedback-text {
+    width: 100%;
+    font-size: 0.95rem;
+    font-weight: bold;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.feedback-text .correct {
+    color: #38a169;
+}
+
+.feedback-text .incorrect {
+    color: #e53e3e;
+}
+
+/* スマホ用の微調整 */
+@media screen and (max-width: 600px) {
+    .calc-item {
+        padding: 12px 16px;
+    }
+    
+    .calc-expr-box {
+        font-size: 1.15rem;
+    }
+
+    .calc-item .input-answer-num {
+        width: 68px;
+        height: 44px;
+        font-size: 1.25rem;
+    }
 }
 
 .calc-box {
