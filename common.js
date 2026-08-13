@@ -1,3 +1,21 @@
+// ==========================================
+// 🚨 メンテナンスモード設定
+// メンテナンス開始時は true、終了時は false に変更
+// ==========================================
+const IS_MAINTENANCE = false; 
+
+if (IS_MAINTENANCE) {
+    // 現在のURLパスを取得
+    const path = window.location.pathname;
+
+    // maintenance.html 以外へのアクセス、かつ画像やCSSなどの素材ファイル以外をすべてリダイレクト
+    if (!path.endsWith('ment.html') && !path.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg)$/i)) {
+        // GitHub Pagesのドメイン直下にある maintenance.html へ強制的移動
+        window.location.href = '/ment.html';
+    }
+}
+
+
 // ====================================================
 // 共通設定 & Supabase 初期化
 // ====================================================
