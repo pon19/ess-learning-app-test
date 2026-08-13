@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', async () => {
  * 前日のランキングデータを Supabase から取得して表示する関数（2年生用）
  */
 async function loadYesterdayRanking() {
-    const rankingList = document.getElementById('ranking-list');
+    // ★ HTML側の id="rankingList" に合わせて修正
+    const rankingList = document.getElementById('rankingList');
     if (!rankingList) return;
 
     const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
@@ -35,13 +36,19 @@ async function loadYesterdayRanking() {
             return;
         }
 
-        // 順位ごとの王冠絵文字
-        const crowns = ['🥇', '🥈', '🥉', '4い', '5い'];
+        // 順位ごとの絵文字・表示
+        const crowns = ['🥇', '🥈', '🥉', '4位', '5位'];
 
-        rankingList.innerHTML = data.map((item, index) => {
-            const rankStr = crowns[index] || `${index + 1}い`;
-            // ニックネーム優先で表示
-            const name = item.nickname || item.display_name || 'ゲスト';
+        // ユーザー名表示の生成
+        const listItems = await Promise.all(data.map(async (item, index) => {
+            const rankStr = crowns[index] || `${index + 1}位`;
+            
+            // 名前の優先順位処理
+            let name = item.nickname || item.display_name;
+            if (!name && typeof getUserDisplayName === 'function' && item.user_id) {
+                name = await getUserDisplayName(item.user_id);
+            }
+            if (!name) name = 'ゲスト';
 
             return `
                 <div class="ranking-item">
@@ -51,11 +58,12 @@ async function loadYesterdayRanking() {
                     </div>
                     <div class="ranking-score-info">
                         <span class="ranking-score">${item.max_score}てん</span>
-                        <span class="ranking-attempts">(${item.total_attempts}かい チャレンジ)</span>
                     </div>
                 </div>
             `;
-        }).join('');
+        }));
+
+        rankingList.innerHTML = listItems.join('');
 
     } catch (err) {
         console.error('ランキング取得エラー:', err);
