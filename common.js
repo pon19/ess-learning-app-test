@@ -2,7 +2,7 @@
 // 🚨 メンテナンスモード設定
 // メンテナンス開始時は true、終了時は false に変更
 // ==========================================
-const IS_MAINTENANCE = true; 
+const IS_MAINTENANCE = false; 
 
 if (IS_MAINTENANCE) {
     // 現在のURLパスを取得
