@@ -1196,3 +1196,31 @@ h1 {
         margin-left: 4px;
     }
 }
+
+.equation-input-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.symbol-btn-group {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.btn-symbol {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2b6cb0;
+    background-color: #ebf8ff;
+    border: 2px solid #3182ce;
+    border-radius: 8px;
+    padding: 4px 12px;
+    cursor: pointer;
+    touch-action: manipulation; /* スマホでのダブルタップ拡大防止 */
+}
+
+.btn-symbol:active {
+    background-color: #bee3f8;
+}

@@ -200,6 +200,9 @@ function renderProblems(problems) {
 // ====================================================
 // 6. 文章問題の描画
 // ====================================================
+/**
+ * 文章問題の描画
+ */
 function renderWordProblems(wordProblems) {
     const wordProblemArea = document.getElementById('wordProblemArea');
     if (!wordProblemArea) return;
@@ -216,12 +219,38 @@ function renderWordProblems(wordProblems) {
                 ${wp.text}
             </div>
             <div class="word-formula-group">
-                しき：<input type="text" id="wp_eq_${index}" class="input-eq-text">
-                こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num">
+                <div class="equation-input-group">
+                    しき：<input type="text" id="wp_eq_${index}" class="input-eq-text" inputmode="numeric">
+                    <div class="symbol-btn-group">
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '+')">＋</button>
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '-')">－</button>
+                    </div>
+                </div>
+                <div>
+                    こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num">
+                </div>
             </div>
         `;
         wordProblemArea.appendChild(div);
     });
+}
+
+/**
+ * 入力欄のカーソル位置（または末尾）に指定の記号を挿入する
+ */
+function insertSymbol(inputId, symbol) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    const text = input.value;
+
+    input.value = text.slice(0, start) + symbol + text.slice(end);
+
+    const newPos = start + symbol.length;
+    input.setSelectionRange(newPos, newPos);
+    input.focus();
 }
 
 // ====================================================

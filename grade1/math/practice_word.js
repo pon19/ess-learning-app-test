@@ -115,8 +115,16 @@ function renderWordProblems(wordProblems) {
                 ${wp.text}
             </div>
             <div class="word-problem-inputs">
-                しき：<input type="text" id="wp_eq_${index}" class="wp-input input-equation" data-index="${index}" data-type="eq">
-                こたえ：<input type="number" id="wp_ans_${index}" class="wp-input input-answer-num" data-index="${index}" data-type="ans" inputmode="numeric">
+                <div class="equation-input-group">
+                    しき：<input type="text" id="wp_eq_${index}" class="wp-input input-equation" data-index="${index}" data-type="eq" inputmode="numeric">
+                    <div class="symbol-btn-group">
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '+')">＋</button>
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '-')">－</button>
+                    </div>
+                </div>
+                <div>
+                    こたえ：<input type="number" id="wp_ans_${index}" class="wp-input input-answer-num" data-index="${index}" data-type="ans" inputmode="numeric">
+                </div>
             </div>
         `;
         area.appendChild(div);
@@ -125,6 +133,28 @@ function renderWordProblems(wordProblems) {
     document.querySelectorAll('.wp-input').forEach(input => {
         input.addEventListener('input', saveInputState);
     });
+}
+
+/**
+ * 入力欄のカーソル位置（または末尾）に指定の記号を挿入する
+ */
+function insertSymbol(inputId, symbol) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    const text = input.value;
+
+    input.value = text.slice(0, start) + symbol + text.slice(end);
+
+    // カーソル位置を挿入した記号の後ろに設定
+    const newPos = start + symbol.length;
+    input.setSelectionRange(newPos, newPos);
+    input.focus();
+
+    // 入力変更イベントを発生させて状態を自動保存
+    input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 /**
