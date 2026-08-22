@@ -1,15 +1,17 @@
 let currentPracticeProblems = [];
 
-// 問題データベース（ランダム抽選用）
+// 問題データベース（拡張版）
 const PRACTICE_DB = {
+    // 1. くっつきの「は・を・へ」
     particle: [
         { text: "わたし（ ） がっこうへ いきます。", options: ["は", "を", "へ"], answer: "は", type: "radio" },
         { text: "ごはん（ ） たべます。", options: ["は", "を", "へ"], answer: "を", type: "radio" },
         { text: "こうえん（ ） あそびに いきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" },
         { text: "ほん（ ） よみます。", options: ["は", "を", "へ"], answer: "を", type: "radio" },
         { text: "ねこ（ ） かわいいです。", options: ["は", "を", "へ"], answer: "は", type: "radio" },
-        { text: "おともだち（ ） てがみを かきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" }
+        { text: "おともだち（{text: "おともだち（ ） てがみを かきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" }
     ],
+    // 2. かんじの よみ
     kanji: [
         { text: "「山」の よみかた", answer: "やま", type: "text" },
         { text: "「川」の よみかた", answer: "かわ", type: "text" },
@@ -17,14 +19,26 @@ const PRACTICE_DB = {
         { text: "「日」の よみかた", answer: "ひ", type: "text" },
         { text: "「月」の よみかた", answer: "つき", type: "text" },
         { text: "「水」の よみかた", answer: "みず", type: "text" },
-        { text: "「火」の よみかた", answer: "ひ", type: "text" }
+        { text: "「火」の よみかた", answer: "ひ", type: "text" },
+        { text: "「人」の よみかた", answer: "ひと", type: "text" },
+        { text: "「口」の よみかた", answer: "くち", type: "text" }
     ],
+    // 3. カタカナへの かきかえ
+    katakana: [
+        { text: "「ばなな」を カタカナで かこう", answer: "バナナ", type: "text" },
+        { text: "「ぱん」を カタカナで かこう", answer: "パン", type: "text" },
+        { text: "「てれび」を カタカナで かこう", answer: "テレビ", type: "text" },
+        { text: "「ばす」を カタカナで かこう", answer: "バス", type: "text" },
+        { text: "「けーき」を カタカナで かこう", answer: "ケーキ", type: "text" }
+    ],
+    // 4. はんたいの ことば
     opposite: [
         { text: "「おおきい」の はんたいの ことば", answer: "ちいさい", type: "text" },
         { text: "「うえ」の はんたいの ことば", answer: "した", type: "text" },
         { text: "「ながい」の はんたいの ことば", answer: "みじかい", type: "text" },
         { text: "「まえ」の はんたいの ことば", answer: "うしろ", type: "text" },
-        { text: "「たかい」の はんたいの ことば", answer: "ひくい", type: "text" }
+        { text: "「たかい」の はんたいの ことば", answer: "ひくい", type: "text" },
+        { text: "「あかるい」の はんたいの ことば", answer: "くらい", type: "text" }
     ]
 };
 
@@ -223,9 +237,22 @@ function resetScoreDisplay() {
     }
 }
 
+/**
+ * 文字列の正規化（全角英数変換・スペース除去・ひらがな/カタカナ相互許容）
+ */
 function normalizeText(str) {
     if (!str) return '';
-    return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/\s+/g, '').trim();
+    
+    // 全角英数を半角化し、スペースを除去
+    let normalized = str
+        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+        .replace(/\s+/g, '')
+        .trim();
+
+    // ひらがなをカタカナに統一して比較できるように変換（ひらがなで答えても正解扱いにする場合）
+    return normalized.replace(/[\u3041-\u3096]/g, (ch) => 
+        String.fromCharCode(ch.charCodeAt(0) + 0x60)
+    );
 }
 
 function escapeHTML(str) {
