@@ -53,7 +53,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // リロード判定
+    // ★ ボタンイベントを確実にバインド
+    const generateBtn = document.getElementById('generateBtn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            generateNewProblems();
+            resetScoreDisplay();
+        });
+    }
+
+    const checkBtn = document.getElementById('checkBtn');
+    if (checkBtn) {
+        checkBtn.addEventListener('click', checkAnswers);
+    }
+
+    // リロード判定と初回読み込み
     const navEntries = performance.getEntriesByType('navigation');
     const isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
 
@@ -65,32 +80,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         sessionStorage.removeItem('practice_jp_answers');
         generateNewProblems();
     }
-
-    // ボタンイベント
-    document.getElementById('generateBtn')?.addEventListener('click', () => {
-        generateNewProblems();
-        resetScoreDisplay();
-    });
-
-    document.getElementById('checkBtn')?.addEventListener('click', checkAnswers);
 });
 
 /**
  * 問題のランダム生成
  */
 function generateNewProblems() {
-    const typeSetting = document.getElementById('settingType').value;
-    const count = parseInt(document.getElementById('settingCount').value, 10);
+    const typeEl = document.getElementById('settingType');
+    const countEl = document.getElementById('settingCount');
+
+    const typeSetting = typeEl ? typeEl.value : 'all';
+    const count = countEl ? parseInt(countEl.value, 10) : 10;
 
     let pool = [];
     if (typeSetting === 'all') {
-        pool = [...PRACTICE_DB.particle, ...PRACTICE_DB.kanji, ...PRACTICE_DB.opposite];
-    } else {
+        pool = [
+            ...PRACTICE_DB.particle,
+            ...PRACTICE_DB.kanji,
+            ...PRACTICE_DB.katakana,
+            ...PRACTICE_DB.opposite
+        ];
+    } else if (PRACTICE_DB[typeSetting]) {
         pool = [...PRACTICE_DB[typeSetting]];
     }
 
-    // シャッフル
-    const shuffled = pool.sort(() => Math.random() - 0.5);
+    if (pool.length === 0) return;
+
+    // シャッフル処理
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
     currentPracticeProblems = shuffled.slice(0, Math.min(count, shuffled.length));
 
     sessionStorage.setItem('practice_jp_problems', JSON.stringify(currentPracticeProblems));
