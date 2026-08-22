@@ -1204,23 +1204,37 @@ h1 {
     flex-wrap: wrap;
 }
 
+/* 1年生向け 記号入力ボタン */
 .symbol-btn-group {
     display: inline-flex;
-    gap: 6px;
+    gap: 8px;
+    align-items: center;
 }
 
 .btn-symbol {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #2b6cb0;
-    background-color: #ebf8ff;
-    border: 2px solid #3182ce;
+    background-color: #4A5568; /* 見やすいダークグレー */
+    color: #FFFFFF;
+    border: 2px solid #2D3748;
     border-radius: 8px;
-    padding: 4px 12px;
+    font-size: 1.25rem;
+    font-weight: bold;
+    padding: 4px 14px;
     cursor: pointer;
-    touch-action: manipulation; /* スマホでのダブルタップ拡大防止 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: transform 0.1s, background-color 0.2s;
+    user-select: none; /* タップ時の青い選択枠を防止 */
+    -webkit-tap-highlight-color: transparent;
 }
 
 .btn-symbol:active {
-    background-color: #bee3f8;
+    transform: scale(0.92);
+    background-color: #2D3748;
+}
+
+/* スマホ表示時のサイズ調整 */
+@media (max-width: 600px) {
+    .btn-symbol {
+        font-size: 1.4rem;
+        padding: 6px 18px; /* タブレットやスマホで押しやすいよう大きめに */
+    }
 }

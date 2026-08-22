@@ -98,64 +98,67 @@ function generateNewProblems() {
 }
 
 /**
- * 画面描画
+ * 問題描画
  */
-function renderWordProblems(wordProblems) {
-    const area = document.getElementById('wordProblemArea');
-    if (!area) return;
-    area.innerHTML = '';
-
-    wordProblems.forEach((wp, index) => {
+function renderProblems(problems, userAnswers = []) {
+    problemsContainer.innerHTML = '';
+    problems.forEach((problem, index) => {
         const div = document.createElement('div');
-        div.className = 'word-problem-card';
+        div.className = 'problem-card';
+
+        const savedEq = userAnswers[index] ? userAnswers[index].eq : '';
+        const savedAns = userAnswers[index] ? userAnswers[index].ans : '';
 
         div.innerHTML = `
-            <div class="word-problem-text">
-                <span class="word-problem-index">(${index + 1})</span>
-                ${wp.text}
-            </div>
-            <div class="word-problem-inputs">
-                <div class="equation-input-group">
-                    しき：<input type="text" id="wp_eq_${index}" class="wp-input input-equation" data-index="${index}" data-type="eq" inputmode="numeric">
-                    <div class="symbol-btn-group">
-                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '+')">＋</button>
-                        <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '-')">－</button>
+            <p class="problem-statement"><strong>(${index + 1})</strong> ${escapeHTML(problem.text)}</p>
+            <div class="input-group-word">
+                <div class="field-row">
+                    <label for="eq-${index}">しき:</label>
+                    <input type="text" id="eq-${index}" class="form-control eq-input" value="${escapeHTML(savedEq)}" autocomplete="off" placeholder="れい: 5+3">
+                    <!-- ★ 1年生向け 記号入力ボタンを追加 ★ -->
+                    <div class="symbol-btn-group" style="display: inline-flex; gap: 6px; margin-left: 8px; vertical-align: middle;">
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('eq-${index}', '+')">＋</button>
+                        <button type="button" class="btn-symbol" onclick="insertSymbol('eq-${index}', '-')">−</button>
                     </div>
                 </div>
-                <div>
-                    こたえ：<input type="number" id="wp_ans_${index}" class="wp-input input-answer-num" data-index="${index}" data-type="ans" inputmode="numeric">
+                <div class="field-row" style="margin-top: 8px;">
+                    <label for="ans-${index}">こたえ:</label>
+                    <input type="text" id="ans-${index}" class="form-control ans-input" value="${escapeHTML(savedAns)}" autocomplete="off" inputmode="numeric">
+                    <span class="unit-label">${escapeHTML(problem.unit)}</span>
                 </div>
             </div>
+            <div id="feedback-${index}" class="feedback-text"></div>
         `;
-        area.appendChild(div);
-    });
-
-    document.querySelectorAll('.wp-input').forEach(input => {
-        input.addEventListener('input', saveInputState);
+        problemsContainer.appendChild(div);
     });
 }
 
 /**
- * 入力欄のカーソル位置（または末尾）に指定の記号を挿入する
+ * 指定された入力欄のカーソル位置（または末尾）に記号を挿入する関数
+ * @param {string} inputId - 対象インプット要素のID
+ * @param {string} symbol - 挿入する記号 ('+' や '-')
  */
 function insertSymbol(inputId, symbol) {
     const input = document.getElementById(inputId);
     if (!input) return;
 
-    const start = input.selectionStart ?? input.value.length;
-    const end = input.selectionEnd ?? input.value.length;
-    const text = input.value;
-
-    input.value = text.slice(0, start) + symbol + text.slice(end);
-
-    // カーソル位置を挿入した記号の後ろに設定
-    const newPos = start + symbol.length;
-    input.setSelectionRange(newPos, newPos);
+    // 入力欄にフォーカスをあてる
     input.focus();
 
-    // 入力変更イベントを発生させて状態を自動保存
-    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+
+    // 現在のテキストのカーソル位置に記号を挿入
+    const val = input.value;
+    input.value = val.substring(0, start) + symbol + val.substring(end);
+
+    // カーソル位置を挿入した記号の直後に移動
+    const newPos = start + symbol.length;
+    input.setSelectionRange(newPos, newPos);
 }
+
+// HTMLの onclick から呼び出せるように window に登録
+window.insertSymbol = insertSymbol;
 
 /**
  * 入力状態の自動保持
