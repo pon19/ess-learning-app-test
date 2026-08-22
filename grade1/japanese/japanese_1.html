@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>しょうがく1ねんせい こくごWebプリント</title>
+    <link rel="stylesheet" href="../../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../common.js"></script>
+    <script src="japanese_1.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div id="globalHeader"></div>
+
+        <div class="back-link-box">
+            <a href="menu.html" class="btn-back">⬅️ メニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge badge-grade-1">1ねんせい</span>
+                <h1>こくご プリント</h1>
+            </div>
+        </div>
+
+        <!-- 問題表示エリア -->
+        <div id="japaneseProblemArea"></div>
+
+        <!-- 答え合わせボタンと結果エリア -->
+        <button class="btn-check" id="checkBtn">こたえあわせをする 💮</button>
+        <div class="score-box-result" id="scoreBox" style="display: none;"></div>
+    </div>
+</body>
+</html>
