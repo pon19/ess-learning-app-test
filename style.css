@@ -81,18 +81,54 @@ h1 {
 /* === 計算カードレイアウト調整 === */
 
 /* カード自体を縦並び・折り返しに対応できるように拡張 */
+/* ----------------------------------------------------
+   計算問題（.calc-grid / .calc-item）のフォント・サイズ調整
+---------------------------------------------------- */
+.calc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
 .calc-item {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    background: #ffffff;
-    border: 2.5px solid #e2e8f0;
-    border-radius: 14px;
+    background-color: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
     padding: 16px 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* ★ 計算式全体のフォントサイズを大きく調整 (1.6rem = 約25px) ★ */
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+/* (1) などの問題番号 */
+.calc-item .problem-index {
+    color: #4a5568;
+    margin-right: 8px;
+    font-size: 1.3rem;
+}
+
+/* 計算問題の入力欄を大きく・押しやすく調整 */
+.calc-item .input-answer-num {
+    width: 90px;
+    height: 52px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.calc-item .input-answer-num:focus {
+    border-color: #3182ce;
+    background-color: #ebf8ff;
 }
 
 /* 計算式テキストエリア */
@@ -140,20 +176,17 @@ h1 {
     color: #e53e3e;
 }
 
-/* スマホ用の微調整 */
-@media screen and (max-width: 600px) {
+/* スマホ表示時の最適化 */
+@media (max-width: 600px) {
     .calc-item {
-        padding: 12px 16px;
+        font-size: 1.8rem; /* スマホではさらに大きく表示 */
+        padding: 14px 16px;
     }
     
-    .calc-expr-box {
-        font-size: 1.15rem;
-    }
-
     .calc-item .input-answer-num {
-        width: 68px;
-        height: 44px;
-        font-size: 1.25rem;
+        width: 100px;
+        height: 56px;
+        font-size: 1.8rem;
     }
 }
 
