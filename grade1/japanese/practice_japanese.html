@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>しょうがく1ねんせい こくごトレーニング</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+    
+    <link rel="stylesheet" href="../../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../common.js"></script>
+    <script src="practice_japanese.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div id="globalHeader"></div>
+
+        <div class="nav-bar">
+            <a href="menu.html" class="btn-back">⬅️ メニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge badge-grade-1">1ねんせい</span>
+                <h1>こくご トレーニング</h1>
+            </div>
+        </div>
+
+        <!-- 設定パネル -->
+        <div class="settings-panel" style="background-color: #f7fafc; padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+                <label style="font-weight: bold; font-size: 1.1rem;">
+                    しゅるい：
+                    <select id="settingType" style="padding: 6px 12px; font-size: 1rem; border-radius: 6px;">
+                        <option value="all">ぜんぶ</option>
+                        <option value="particle">は・を・へ</option>
+                        <option value="kanji">かんじの よみ</option>
+                        <option value="opposite">はんたいの ことば</option>
+                    </select>
+                </label>
+
+                <label style="font-weight: bold; font-size: 1.1rem;">
+                    もんすう：
+                    <select id="settingCount" style="padding: 6px 12px; font-size: 1rem; border-radius: 6px;">
+                        <option value="5">5もん</option>
+                        <option value="10" selected>10もん</option>
+                    </select>
+                </label>
+
+                <button id="generateBtn" class="btn-secondary" style="padding: 8px 16px; font-size: 1rem; cursor: pointer;">
+                    🔄 この せっていでおす
+                </button>
+            </div>
+        </div>
+
+        <!-- 問題描画エリア -->
+        <div id="japaneseProblemArea" class="word-card-container"></div>
+
+        <!-- 答え合わせボタンと結果エリア -->
+        <button class="btn-check" id="checkBtn" style="margin-top: 20px;">こたえあわせをする 💮</button>
+        <div class="score-box-result" id="scoreBox" style="display: none;"></div>
+    </div>
+</body>
+</html>
