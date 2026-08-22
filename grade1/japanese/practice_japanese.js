@@ -9,7 +9,7 @@ const PRACTICE_DB = {
         { text: "こうえん（ ） あそびに いきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" },
         { text: "ほん（ ） よみます。", options: ["は", "を", "へ"], answer: "を", type: "radio" },
         { text: "ねこ（ ） かわいいです。", options: ["は", "を", "へ"], answer: "は", type: "radio" },
-        { text: "おともだち（{text: "おともだち（ ） てがみを かきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" }
+        { text: "おともだち（ ） てがみを かきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" }
     ],
     // 2. かんじの よみ
     kanji: [
@@ -44,16 +44,22 @@ const PRACTICE_DB = {
 
 document.addEventListener('DOMContentLoaded', async () => {
     // ユーザー名表示
-    const currentUser = await getCurrentUser();
-    if (currentUser) {
-        const nameBox = document.getElementById('userProfileName');
-        if (nameBox) {
-            const displayName = await getUserDisplayName(currentUser.id);
-            nameBox.textContent = `なまえ： ${displayName} さん`;
+    if (typeof getCurrentUser === 'function') {
+        try {
+            const currentUser = await getCurrentUser();
+            if (currentUser) {
+                const nameBox = document.getElementById('userProfileName');
+                if (nameBox && typeof getUserDisplayName === 'function') {
+                    const displayName = await getUserDisplayName(currentUser.id);
+                    nameBox.textContent = `なまえ： ${displayName} さん`;
+                }
+            }
+        } catch (e) {
+            console.error('ユーザー情報取得エラー:', e);
         }
     }
 
-    // ★ ボタンイベントを確実にバインド
+    // ボタンイベントの設定
     const generateBtn = document.getElementById('generateBtn');
     if (generateBtn) {
         generateBtn.addEventListener('click', (e) => {
@@ -260,13 +266,11 @@ function resetScoreDisplay() {
 function normalizeText(str) {
     if (!str) return '';
     
-    // 全角英数を半角化し、スペースを除去
     let normalized = str
         .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
         .replace(/\s+/g, '')
         .trim();
 
-    // ひらがなをカタカナに統一して比較できるように変換（ひらがなで答えても正解扱いにする場合）
     return normalized.replace(/[\u3041-\u3096]/g, (ch) => 
         String.fromCharCode(ch.charCodeAt(0) + 0x60)
     );
