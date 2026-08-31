@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Supabaseクライアントの取得
     const supabaseClient = typeof clientSupabase !== 'undefined' ? clientSupabase : (typeof supabase !== 'undefined' ? supabase : null);
 
-    // 1. ユーザー情報の取得と本日回答済みチェック（原因1対策）
+    // 1. ユーザー情報の取得と本日回答済みチェック
     if (supabaseClient) {
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
@@ -68,6 +68,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (submitBtn) submitBtn.disabled = true;
         submitForm();
     });
+
+    /**
+     * 問題一覧を描画する関数（修正ポイント）
+     */
+    function renderProblems(problems) {
+        if (!problemsContainer) return;
+        problemsContainer.innerHTML = ''; // クリア
+
+        problems.forEach((problem, index) => {
+            // 問題文の取得（text, question, p1/p2 の各種キーに対応）
+            let questionText = '';
+            if (problem.text) {
+                questionText = problem.text;
+            } else if (problem.question) {
+                questionText = problem.question;
+            } else if (problem.p1 !== undefined && problem.p2 !== undefined) {
+                questionText = `${problem.p1} ${problem.operator || '＋'} ${problem.p2} =`;
+            }
+
+            // 問題要素の生成
+            const problemDiv = document.createElement('div');
+            problemDiv.className = 'problem-item';
+            problemDiv.innerHTML = `
+                <div class="problem-statement">
+                    <span class="problem-num">（${index + 1}）</span>
+                    <span class="question-text">${questionText}</span>
+                    <input type="number" id="ans-${index}" class="answer-input" autocomplete="off" inputmode="numeric" required>
+                </div>
+                <div id="feedback-${index}" class="feedback-area"></div>
+            `;
+            problemsContainer.appendChild(problemDiv);
+        });
+    }
 
     /**
      * 採点・保存実行関数
@@ -121,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 本日の送信履歴を取得（日本時間考慮・デバッグログ付き）
+     * 本日の送信履歴を取得
      */
     async function checkTodaySubmitted(userId, grade) {
         if (!supabaseClient) return null;
@@ -157,12 +190,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 回答済みの場合の画面表示制御（強力・絶対適用版）
+     * 回答済みの場合の画面表示制御
      */
     function showAlreadySubmittedView(scoreData) {
         console.log('すでに回答済み画面を表示します:', scoreData);
 
-        // 1. ローディング、タイマー、フォーム、問題エリアを確実に非表示
         const idsToHide = ['loading-msg', 'timer-display', 'challenge-form', 'problems-container'];
         idsToHide.forEach(id => {
             const el = document.getElementById(id);
@@ -172,13 +204,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // 2. セクションタイトル（「けいさん もんだいを しましょう」等）も強制非表示
         const sectionTitles = document.querySelectorAll('.section-title');
         sectionTitles.forEach(el => {
             el.style.setProperty('display', 'none', 'important');
         });
 
-        // 3. 結果エリアを表示
         const resultContainer = document.getElementById('result-container');
         const resultScore = document.getElementById('result-score');
         const resultTime = document.getElementById('result-time');
@@ -277,26 +307,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             { text: '38 + 44 = ', answer: 82 },
             { text: '91 - 48 = ', answer: 43 }
         ];
-    }
-
-    // DBから取得した問題の描画処理部分
-    function renderProblem(problem) {
-      // 問題文の取得（calc の場合は question または p1/operator/p2、word の場合は text または question）
-      let questionText = '';
-
-      if (problem.text) {
-        // 文章題の場合 (text キーが存在する場合)
-        questionText = problem.text;
-      } else if (problem.question) {
-        // 計算・単位問題の場合 (question キーが存在する場合)
-        questionText = problem.question;
-      } else if (problem.p1 !== undefined && problem.p2 !== undefined) {
-        // p1, operator, p2 から組み立てる場合
-        questionText = `${problem.p1} ${problem.operator} ${problem.p2} =`;
-      }
-
-      // 表示処理に questionText をセット
-      // 例: problemElement.textContent = questionText;
     }
 
     async function saveLearningScore(grade, score, timeTaken) {
