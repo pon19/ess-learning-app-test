@@ -279,24 +279,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         ];
     }
 
-    function renderProblems(problems) {
-        if (!problemsContainer) return;
-        problemsContainer.innerHTML = '';
-        
-        problems.forEach((p, index) => {
-            const div = document.createElement('div');
-            div.className = 'calc-item';
+    // DBから取得した問題の描画処理部分
+    function renderProblem(problem) {
+      // 問題文の取得（calc の場合は question または p1/operator/p2、word の場合は text または question）
+      let questionText = '';
 
-            div.innerHTML = `
-                <div>
-                    <span class="problem-index">(${index + 1})</span>
-                    <label for="ans-${index}" class="problem-text">${p.text}</label>
-                </div>
-                <input type="number" id="ans-${index}" class="input-answer-num" pattern="\\d*" autocomplete="off" inputmode="numeric">
-                <div id="feedback-${index}" class="feedback-text"></div>
-            `;
-            problemsContainer.appendChild(div);
-        });
+      if (problem.text) {
+        // 文章題の場合 (text キーが存在する場合)
+        questionText = problem.text;
+      } else if (problem.question) {
+        // 計算・単位問題の場合 (question キーが存在する場合)
+        questionText = problem.question;
+      } else if (problem.p1 !== undefined && problem.p2 !== undefined) {
+        // p1, operator, p2 から組み立てる場合
+        questionText = `${problem.p1} ${problem.operator} ${problem.p2} =`;
+      }
+
+      // 表示処理に questionText をセット
+      // 例: problemElement.textContent = questionText;
     }
 
     async function saveLearningScore(grade, score, timeTaken) {
