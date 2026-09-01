@@ -1,27 +1,29 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // ログイン状態チェック
-    const user = await getCurrentUser();
+    // ログイン状態チェック関数が存在する場合は呼び出し
+    if (typeof getCurrentUser === 'function') {
+        await getCurrentUser();
+    }
 
-    // 前日のランキングを取得して表示
+    // 前日の国語ランキングを取得して表示
     await loadYesterdayRanking();
 });
 
 /**
- * 前日のランキングデータを Supabase から取得して表示する関数
+ * 前日の国語ランキングデータを Supabase から取得して表示する関数
  */
 async function loadYesterdayRanking() {
     const rankingList = document.getElementById('rankingList');
     if (!rankingList) return;
 
     try {
-        // ビューから1年生（grade=1）の前日ランキングを取得
+        // ビューから1年生（grade=1）かつ国語（subject='japanese'）の前日ランキングを取得
         const { data, error } = await clientSupabase
             .from('daily_rankings_yesterday')
             .select('*')
             .eq('grade', 1)
-            .eq('subject', 'math')
+            .eq('subject', 'japanese') // ★ 国語のみに絞り込み
             .order('max_score', { ascending: false })
-            .limit(5); // 上位5名を表示
+            .limit(5);
 
         if (error) throw error;
 
@@ -39,7 +41,6 @@ async function loadYesterdayRanking() {
 
         rankingList.innerHTML = data.map((item, index) => {
             const rankStr = crowns[index] || `${index + 1}位`;
-            // ニックネーム優先で表示
             const name = item.nickname || item.display_name || 'ゲスト';
 
             return `
@@ -57,7 +58,7 @@ async function loadYesterdayRanking() {
         }).join('');
 
     } catch (err) {
-        console.error('ランキング取得エラー:', err);
+        console.error('国語ランキング取得エラー:', err);
         rankingList.innerHTML = `<p style="color: red; font-size: 13px;">ランキングの読み込みに失敗しました。</p>`;
     }
 }
