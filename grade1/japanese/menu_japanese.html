@@ -5,48 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>しょうがく1ねんせい こくご - メニュー</title>
     <link rel="stylesheet" href="../../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../common.js"></script>
+    <script src="menu_japanese.js" defer></script>
 </head>
 <body>
-    <div class="container top-container">
+    <div class="container">
+        <!-- 共通ヘッダー -->
         <div id="globalHeader"></div>
 
-        <div class="back-link-box" style="text-align: left;">
-            <a href="../menu_grade1.html" class="btn-back">⬅️ きょうか せんたくへ もどる</a>
+        <div class="back-link-box">
+            <a href="../menu_grade1.html" class="btn-back">⬅️ きょうかせんたくへもどる</a>
         </div>
 
         <div class="header">
             <div>
                 <span class="title-badge badge-grade-1">1ねんせい</span>
-                <h1>✏️ こくご メニュー</h1>
+                <h1>✏️ こくご なにに ちょうせん する？</h1>
             </div>
         </div>
 
-        <div class="grade-grid">
-            <!-- 本日のチャレンジへ -->
-            <a href="japanese.html" class="grade-card active g-1">
-                🌟 ほんじつの チャレンジ
-                <span class="grade-subtext">1にち1かい！ きょうの もんだいに ちょうせん</span>
-            </a>
-
-            <!-- Webトレーニングへ -->
-            <a href="practice_japanese.html" class="grade-card active g-1" style="background-color: #ed8936; box-shadow: 0 4px 6px rgba(237,137,54,0.2);">
-                🎮 とれーにんぐ
-                <span class="grade-subtext">なんかいでも れんしゅうできるよ</span>
-            </a>
+        <!-- 👑 前日のランキングエリア -->
+        <div class="ranking-card">
+            <h3 class="ranking-title">
+                👑 きのうの チャレンジ ランキング（こくご） 👑
+            </h3>
+            <div id="rankingList">
+                <p class="ranking-empty-msg">読み込み中...</p>
+            </div>
         </div>
 
-        <!-- ランキング表示エリア -->
-        <div class="ranking-section" style="margin-top: 30px;">
-            <h2>🏆 きのうの ランキング（こくご）</h2>
-            <div id="rankingList" class="ranking-list">
-                <p>読み込み中...</p>
+        <!-- 🎮 モード選択エリア -->
+        <div class="mode-section-container">
+            
+            <!-- 🔥 チャレンジ用（1日1回・ランキング対象） -->
+            <div class="card-challenge">
+                <div class="card-challenge-subtitle">
+                    🏆 ランキングに はんえい されるよ！（1にち 1かい）
+                </div>
+                <a href="japanese.html" class="btn-challenge">
+                    🌟 【きょうの チャレンジ】こくごプリント
+                </a>
+            </div>
+
+            <!-- 🏋️ トレーニング用（練習・何度でも挑戦可） -->
+            <div class="card-training">
+                <div class="card-training-title">
+                    🏋️ なんども れれんしゅう（トレーニング）
+                </div>
+                <div class="training-grid">
+                    <a href="practice_japanese.html" class="btn-training-word" style="grid-column: span 2;">
+                        🎮 こくご<br>トレーニング
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- 外部JSファイルの読み込み（Supabase設定 ➔ 画面用スクリプトの順） -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../../js/supabase-config.js"></script>
-    <script src="menu_japanese.js"></script>
 </body>
 </html>
