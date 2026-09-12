@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2ねんせい こくごトレーニング</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../common.js" defer></script>
+    <script src="practice_japanese.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
+
+        <div class="back-link-box">
+            <a href="menu_japanese.html" class="btn-back">⬅️ 2ねんせいメニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge badge-training">こくご</span>
+                <h1>こくご トレーニング</h1>
+            </div>
+        </div>
+
+        <!-- ⚙️ 設定フォーム -->
+        <section id="setup-section" class="settings-panel">
+            <h3 class="settings-title">⚙️ もんだいの 設定（せってい）</h3>
+            
+            <div class="settings-grid">
+                <div>
+                    <label for="japanese-type" class="setting-label">しゅるい</label>
+                    <select id="japanese-type" class="setting-select">
+                        <option value="kanji_read">2ねんせいの 漢字（よみ）</option>
+                        <option value="opposite">反対の いみの ことば</option>
+                        <option value="conjunction">つなぎことば（だから・しかし）</option>
+                        <option value="mix_jp">ぜんぶの しゅるい（ランダム）</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="problem-count" class="setting-label">もんだいすう</label>
+                    <select id="problem-count" class="setting-select">
+                        <option value="5" selected>5もん</option>
+                        <option value="10">10もん</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="start-btn" class="btn-generate">🔄 れんしゅうを はじめる！</button>
+        </section>
+
+        <!-- 問題表示エリア -->
+        <section id="quiz-section" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span id="progress-text">もんだい一覧</span>
+                <button id="reset-btn" class="btn-back">やりなおす</button>
+            </div>
+
+            <form id="quiz-form">
+                <div id="problems-container" class="calc-grid"></div>
+                <button type="submit" id="submit-btn" class="btn-check btn-check-training">こたえあわせをする 💮</button>
+            </form>
+
+            <div id="result-container" class="score-box-result hidden">
+                <h3 id="result-score"></h3>
+                <p id="result-message"></p>
+                <button id="retry-btn" class="btn-generate" style="margin-top: 1rem;">もう一度ちょうせん</button>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
