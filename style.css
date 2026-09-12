@@ -1328,3 +1328,78 @@ h1 {
     margin-top: 0.25rem !important;
     text-align: left !important;
 }
+
+/* ====================================================
+   問題表示エリア（.calc-grid / .problem-item）の修整
+   ==================================================== */
+
+/* 問題を並べるグリッドコンテナ */
+.calc-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+/* 1問ごとのカード */
+.problem-item {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 問題文と入力欄の横並び配置 */
+.problem-statement {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 0.5rem 0.75rem !important;
+    font-size: 1.25rem !important;
+    font-weight: bold;
+}
+
+/* 問題番号 (1) など */
+.problem-num {
+    white-space: nowrap !important;
+    color: #4a5568;
+    flex-shrink: 0 !important;
+}
+
+/* 問題テキスト */
+.question-text {
+    line-height: 1.5;
+}
+
+/* 回答入力欄 */
+.answer-input {
+    font-size: 1.25rem !important;
+    padding: 0.4rem 0.75rem !important;
+    border: 2px solid #cbd5e0 !important;
+    border-radius: 8px !important;
+    min-width: 100px !important;
+    max-width: 200px !important;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.answer-input:focus {
+    border-color: #4299e1 !important;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+/* 採点フィードバック表示エリア */
+.feedback-area {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.feedback-area .correct {
+    color: #38a169;
+}
+
+.feedback-area .incorrect {
+    color: #e53e3e;
+}
