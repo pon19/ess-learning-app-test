@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function getFallbackProblems() {
         return [
-            { text: '「新しん」の かんじの よみかた（ひらがな）：', answer: 'あたら' },
+            { text: '「新しい」の かんじの よみかた（ひらがな）：', answer: 'あたら' },
             { text: '「春」の かんじの よみかた（ひらがな）：', answer: 'はる' },
             { text: '「話す」の かんじの よみかた（ひらがな）：', answer: 'はな' },
             { text: '「犬」の 反対（はんたい）のことば：', answer: 'ねこ' },

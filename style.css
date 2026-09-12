@@ -1271,3 +1271,60 @@ h1 {
         padding: 6px 18px; /* タブレットやスマホで押しやすいよう大きめに */
     }
 }
+
+/* ====================================================
+   計算カードの縦くずれ防止・レイアウト修整
+   ==================================================== */
+
+/* カード全体の配置設定 */
+.calc-item {
+    display: flex !important;
+    flex-wrap: wrap !important; /* 要素があふれたら下段へ */
+    align-items: center !important;
+    justify-content: flex-start !important; /* 左詰めで配置 */
+    gap: 0.75rem 1rem !important; /* 要素同士の間隔 */
+    padding: 16px !important;
+}
+
+/* 式（6 × 5 =）エリア：絶対に途中で改行させない */
+.calc-expr-box {
+    display: flex !important;
+    align-items: center !important;
+    white-space: nowrap !important; /* テキストの勝手な折り返しを禁止 */
+    flex-shrink: 0 !important; /* 潰れないように保護 */
+}
+
+/* 問題番号 (1) など */
+.calc-item .problem-index {
+    margin-right: 0.25rem !important;
+    white-space: nowrap !important;
+}
+
+/* 数式テキスト（6 × 5 = など） */
+.calc-item .problem-text {
+    white-space: nowrap !important; /* 1文字ずつの改行を防止 */
+    letter-spacing: 1px;
+}
+
+/* 入力エリア（入力欄 ＋ 単位） */
+.calc-input-box {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    white-space: nowrap !important;
+}
+
+/* 数字入力欄の幅・高さ */
+.calc-item .input-answer-num {
+    width: 85px !important;
+    height: 48px !important;
+    font-size: 1.5rem !important;
+    text-align: center !important;
+}
+
+/* フィードバック（正誤メッセージ）は1行まるごと使って下に表示 */
+.calc-item .feedback-text {
+    width: 100% !important;
+    margin-top: 0.25rem !important;
+    text-align: left !important;
+}
