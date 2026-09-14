@@ -19,11 +19,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 【リロード時】保存された問題状態を復元する
         const isRestored = restoreSavedState();
         if (!isRestored) {
-            // 保存データがない場合の保険として新規生成
             generateNewProblems();
         }
     } else {
-        // 【メニューからのアクセスなど】セッションストレージをリセットして初期状態（新規問題生成）にする
+        // 【メニューからのアクセスなど】初期化して新規問題生成
         sessionStorage.removeItem('practice_math_problems');
         sessionStorage.removeItem('practice_math_answers');
         sessionStorage.removeItem('practice_math_settings');
@@ -41,49 +40,96 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
- * ユーザー設定値を取得して計算問題を自動生成
+ * チェックされた単元からランダムに問題を自動生成
  */
 function generateNewProblems() {
-    const opSetting = document.getElementById('settingOp').value;
-    const maxVal = parseInt(document.getElementById('settingRange').value, 10);
+    const checkedBoxes = Array.from(document.querySelectorAll('input[name="unit"]:checked'));
+    const checkedUnits = checkedBoxes.map(el => el.value);
     const count = parseInt(document.getElementById('settingCount').value, 10);
+
+    // 未選択エラーハンドリング
+    if (checkedUnits.length === 0) {
+        alert('たんげんを 1つ いじょう えらんでね！');
+        return;
+    }
 
     currentProblems = [];
 
     for (let i = 0; i < count; i++) {
-        let isAddition = true;
-        if (opSetting === 'add') {
-            isAddition = true;
-        } else if (opSetting === 'sub') {
-            isAddition = false;
-        } else {
-            isAddition = Math.random() > 0.5;
-        }
-
-        if (isAddition) {
-            // 足し算：答えが maxVal 以下になるように調整
-            const p1 = Math.floor(Math.random() * (maxVal - 1)) + 1;
-            const p2 = Math.floor(Math.random() * (maxVal - p1)) + 1;
-            currentProblems.push({ p1, p2, operator: '＋', answer: p1 + p2 });
-        } else {
-            // 引き算：答えが 0 以上かつ p1 <= maxVal になるように調整
-            const p1 = Math.floor(Math.random() * maxVal) + 1;
-            const p2 = Math.floor(Math.random() * p1) + 1;
-            currentProblems.push({ p1, p2, operator: '－', answer: p1 - p2 });
-        }
+        // チェックされた単元の中から1つをランダム選出
+        const selectedUnit = checkedUnits[Math.floor(Math.random() * checkedUnits.length)];
+        const problem = createProblemByUnit(selectedUnit);
+        currentProblems.push(problem);
     }
 
     // 問題データと設定値を sessionStorage に保存
     sessionStorage.setItem('practice_math_problems', JSON.stringify(currentProblems));
     sessionStorage.setItem('practice_math_settings', JSON.stringify({
-        opSetting,
-        maxVal,
+        units: checkedUnits,
         count
     }));
-    // 前回の入力内容・採点結果は消去
     sessionStorage.removeItem('practice_math_answers');
 
     renderProblems(currentProblems);
+}
+
+/**
+ * 単元別の計算問題生成ロジック（1年生通年）
+ */
+function createProblemByUnit(unit) {
+    let p1, p2, p3, answer, displayText;
+
+    switch (unit) {
+        case 'basic_add': // 10までのたしざん（くりあがりなし）
+            answer = Math.floor(Math.random() * 9) + 2; // 2〜10
+            p1 = Math.floor(Math.random() * (answer - 1)) + 1;
+            p2 = answer - p1;
+            return { displayText: `${p1} ＋ ${p2} ＝`, answer };
+
+        case 'basic_sub': // 10までのひきざん（くりさがりなし）
+            p1 = Math.floor(Math.random() * 9) + 2; // 2〜10
+            p2 = Math.floor(Math.random() * (p1 - 1)) + 1;
+            return { displayText: `${p1} － ${p2} ＝`, answer: p1 - p2 };
+
+        case 'advanced_add': // くりあがりのあるたしざん（答え 11〜18）
+            p1 = Math.floor(Math.random() * 8) + 2; // 2〜9
+            p2 = Math.floor(Math.random() * (9 - (10 - p1) + 1)) + (10 - p1);
+            return { displayText: `${p1} ＋ ${p2} ＝`, answer: p1 + p2 };
+
+        case 'advanced_sub': // くりさがりのあるひきざん（11〜18から引く）
+            answer = Math.floor(Math.random() * 8) + 2; // 答え 2〜9
+            p2 = Math.floor(Math.random() * 8) + 2;     // 引く数 2〜9
+            p1 = answer + p2;                           // 引かれる数 11〜18
+            return { displayText: `${p1} － ${p2} ＝`, answer };
+
+        case 'three_nums': // 3つの数の計算
+            const isAddFirst = Math.random() > 0.5;
+            p1 = Math.floor(Math.random() * 5) + 3;
+            p2 = Math.floor(Math.random() * 3) + 1;
+            p3 = Math.floor(Math.random() * 3) + 1;
+
+            if (isAddFirst) {
+                return { displayText: `${p1} ＋ ${p2} － ${p3} ＝`, answer: p1 + p2 - p3 };
+            } else {
+                return { displayText: `${p1} － ${p2} ＋ ${p3} ＝`, answer: p1 - p2 + p3 };
+            }
+
+        case 'large_nums': // 大きい数（100まで）
+            if (Math.random() < 0.5) {
+                // 何十 ＋ 何十 （例: 30 + 40）
+                p1 = (Math.floor(Math.random() * 6) + 1) * 10;
+                p2 = (Math.floor(Math.random() * (9 - p1 / 10)) + 1) * 10;
+                return { displayText: `${p1} ＋ ${p2} ＝`, answer: p1 + p2 };
+            } else {
+                // 何十 ＋ 何 （例: 40 + 6）
+                p1 = (Math.floor(Math.random() * 8) + 1) * 10;
+                p2 = Math.floor(Math.random() * 9) + 1;
+                return { displayText: `${p1} ＋ ${p2} ＝`, answer: p1 + p2 };
+            }
+
+        default:
+            return { displayText: `1 ＋ 1 ＝`, answer: 2 };
+    }
 }
 
 /**
@@ -100,21 +146,20 @@ function renderProblems(problems) {
         div.innerHTML = `
             <div>
                 <span class="problem-index">(${index + 1})</span>
-                <span>${p.p1} ${p.operator} ${p.p2} ＝</span>
+                <span>${p.displayText}</span>
             </div>
             <input type="number" id="answer_${index}" class="calc-input input-answer-num" data-index="${index}" pattern="\\d*" inputmode="numeric">
         `;
         calcGrid.appendChild(div);
     });
 
-    // 入力欄のイベント登録（入力されるたびに状態を自動保存）
     document.querySelectorAll('.calc-input').forEach(input => {
         input.addEventListener('input', saveInputState);
     });
 }
 
 /**
- * 現在の入力欄の状態を sessionStorage に一時保存する
+ * 現在の入力欄の状態を sessionStorage に一時保存
  */
 function saveInputState() {
     const answers = {};
@@ -126,7 +171,7 @@ function saveInputState() {
 }
 
 /**
- * リロード時に sessionStorage から問題・設定・入力欄を復元する
+ * リロード時に sessionStorage から復元
  */
 function restoreSavedState() {
     const savedProblems = sessionStorage.getItem('practice_math_problems');
@@ -134,12 +179,17 @@ function restoreSavedState() {
 
     if (!savedProblems) return false;
 
-    // 1. 設定値の復元
+    // 1. 設定値（チェックボックスと問題数）の復元
     if (savedSettings) {
-        const { opSetting, maxVal, count } = JSON.parse(savedSettings);
-        if (document.getElementById('settingOp')) document.getElementById('settingOp').value = opSetting;
-        if (document.getElementById('settingRange')) document.getElementById('settingRange').value = maxVal;
-        if (document.getElementById('settingCount')) document.getElementById('settingCount').value = count;
+        const { units, count } = JSON.parse(savedSettings);
+        if (units) {
+            document.querySelectorAll('input[name="unit"]').forEach(cb => {
+                cb.checked = units.includes(cb.value);
+            });
+        }
+        if (document.getElementById('settingCount')) {
+            document.getElementById('settingCount').value = count;
+        }
     }
 
     // 2. 問題の復元

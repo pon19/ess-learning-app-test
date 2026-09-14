@@ -29,30 +29,24 @@
         <!-- ⚙️ 設定パネル -->
         <div class="settings-panel">
             <h3 class="settings-title">⚙️ もんだいの 設定（せってい）</h3>
-            
-            <div class="settings-grid">
-                <!-- 計算の種類 -->
-                <div>
-                    <label class="setting-label">しゅるい</label>
-                    <select id="settingOp" class="setting-select">
-                        <option value="mix">ごちゃまぜ (＋/－)</option>
-                        <option value="add">たしざん (＋)</option>
-                        <option value="sub">ひきざん (－)</option>
-                    </select>
-                </div>
 
-                <!-- 数字の範囲 -->
-                <div>
-                    <label class="setting-label">かずの はんい</label>
-                    <select id="settingRange" class="setting-select">
-                        <option value="10">10まで (くりあがり なし)</option>
-                        <option value="20">20まで (くりあがり あり)</option>
-                    </select>
+            <div class="settings-grid">
+                <!-- 単元選択（複数選択可能） -->
+                <div style="grid-column: 1 / -1;">
+                    <label class="setting-label">学習した たんげん（複数えらべます）</label>
+                    <div class="unit-checkbox-group" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px;">
+                        <label><input type="checkbox" name="unit" value="basic_add" checked> 10までの たしざん</label>
+                        <label><input type="checkbox" name="unit" value="basic_sub" checked> 10までの ひきざん</label>
+                        <label><input type="checkbox" name="unit" value="advanced_add"> くりあがりの ある たしざん</label>
+                        <label><input type="checkbox" name="unit" value="advanced_sub"> くりさがりが ある ひきざん</label>
+                        <label><input type="checkbox" name="unit" value="three_nums"> 3つの かずの けいさん</label>
+                        <label><input type="checkbox" name="unit" value="large_nums"> おおきい かず（100まで）</label>
+                    </div>
                 </div>
 
                 <!-- 問題数 -->
                 <div>
-                    <label class="setting-label">もんだいくう</label>
+                    <label class="setting-label">もんだいすう</label>
                     <select id="settingCount" class="setting-select">
                         <option value="5">5もん</option>
                         <option value="10" selected>10もん</option>
