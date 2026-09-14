@@ -29,18 +29,26 @@
         <!-- ⚙️ 設定パネル -->
         <div class="settings-panel">
             <h3 class="settings-title">⚙️ もんだいの 設定（せってい）</h3>
-
+            
             <div class="settings-grid">
-                <!-- 単元選択（複数選択可能） -->
+                <!-- 習った単元の選択 -->
                 <div style="grid-column: 1 / -1;">
-                    <label class="setting-label">学習した たんげん（複数えらべます）</label>
-                    <div class="unit-checkbox-group" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px;">
-                        <label><input type="checkbox" name="unit" value="basic_add" checked> 10までの たしざん</label>
-                        <label><input type="checkbox" name="unit" value="basic_sub" checked> 10までの ひきざん</label>
-                        <label><input type="checkbox" name="unit" value="advanced_add"> くりあがりの ある たしざん</label>
-                        <label><input type="checkbox" name="unit" value="advanced_sub"> くりさがりが ある ひきざん</label>
-                        <label><input type="checkbox" name="unit" value="three_nums"> 3つの かずの けいさん</label>
-                        <label><input type="checkbox" name="unit" value="large_nums"> おおきい かず（100まで）</label>
+                    <div class="unit-header-box">
+                        <label class="setting-label">ならった たんげん（えらんでね）</label>
+                        <!-- 全選択・全解除ボタン -->
+                        <div class="btn-unit-action-group">
+                            <button type="button" id="selectAllBtn" class="action-btn">✅ ぜんぶ えらぶ</button>
+                            <button type="button" id="deselectAllBtn" class="action-btn">⬜ ぜんぶ はずす</button>
+                        </div>
+                    </div>
+
+                    <div class="unit-checkbox-group">
+                        <label class="unit-card"><input type="checkbox" name="unit" value="basic_add" checked> 10までの たしざん</label>
+                        <label class="unit-card"><input type="checkbox" name="unit" value="basic_sub" checked> 10までの ひきざん</label>
+                        <label class="unit-card"><input type="checkbox" name="unit" value="advanced_add"> くりあがりの ある たしざん</label>
+                        <label class="unit-card"><input type="checkbox" name="unit" value="advanced_sub"> くりさがりが ある ひきざん</label>
+                        <label class="unit-card"><input type="checkbox" name="unit" value="three_nums"> 3つの かずの けいさん</label>
+                        <label class="unit-card"><input type="checkbox" name="unit" value="large_nums"> おおきい かず（100まで）</label>
                     </div>
                 </div>
 

@@ -29,6 +29,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         generateNewProblems();
     }
 
+    // イベント設定：「全選択」「全解除」ボタン
+    document.getElementById('selectAllBtn')?.addEventListener('click', () => {
+        toggleAllCheckboxes(true);
+    });
+
+    document.getElementById('deselectAllBtn')?.addEventListener('click', () => {
+        toggleAllCheckboxes(false);
+    });
+
     // イベント設定：「問題を作る」ボタン
     document.getElementById('generateBtn')?.addEventListener('click', () => {
         generateNewProblems();
@@ -38,6 +47,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // イベント設定：「こたえあわせ」ボタン
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswers);
 });
+
+/**
+ * チェックボックスの一括切替
+ */
+function toggleAllCheckboxes(checked) {
+    document.querySelectorAll('input[name="unit"]').forEach(cb => {
+        cb.checked = checked;
+    });
+}
 
 /**
  * チェックされた単元からランダムに問題を自動生成
@@ -77,7 +95,7 @@ function generateNewProblems() {
  * 単元別の計算問題生成ロジック（1年生通年）
  */
 function createProblemByUnit(unit) {
-    let p1, p2, p3, answer, displayText;
+    let p1, p2, p3, answer;
 
     switch (unit) {
         case 'basic_add': // 10までのたしざん（くりあがりなし）

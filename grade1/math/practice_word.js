@@ -1,16 +1,39 @@
 let currentWordProblems = [];
 
-// 文章問題の生成テンプレート
+// 単元別の文章問題テンプレート
 const WORD_PROBLEM_TEMPLATES = {
-    add: [
-        { text: "{item}が {p1}こ あります。{item}を {p2}こ もらいました。あわせて いくつに なりますか。", items: ["りんご", "みかん", "キャンディー", "クッキー"], op: "+" },
-        { text: "{person}さんが {p1}にん いました。あとから {p2}にん きました。みんなで なんにんに なりましたか。", items: ["こども", "おともだち"], op: "+" },
-        { text: "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。ぜんぶで いくつ ありますか。", items: ["ボール", "おはじき", "つみき"], op: "+" }
+    // 10までの たしざん
+    basic_add: [
+        { text: "{item}が {p1}こ あります。{item}を {p2}こ もらいました。あわせて いくつに なりますか。", items: ["りんご", "みかん", "キャンディー", "クッキー"], type: "basic_add" },
+        { text: "{person}が {p1}にん いました。あとから {p2}にん きました。みんなで なんにんに なりましたか。", items: ["こども", "おともだち"], type: "basic_add" },
+        { text: "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。ぜんぶで いくつ ありますか。", items: ["ボール", "おはじき", "つみき"], type: "basic_add" }
     ],
-    sub: [
-        { text: "{item}が {p1}こ あります。{p2}こ たべました。のこりは いくつですか。", items: ["いちご", "パン", "チョコレート"], op: "-" },
-        { text: "こうえんに {person}が {p1}にん いました。{p2}にん かえりました。のこりは なんにんですか。", items: ["こども", "おともだち"], op: "-" },
-        { text: "折り紙を {p1}まい もっていました。{p2}まい つかいました。のこりは なんまいですか。", items: ["おりがみ"], op: "-" }
+    // 10までの ひきざん
+    basic_sub: [
+        { text: "{item}が {p1}こ あります。{p2}こ たべました。のこりは いくつですか。", items: ["いちご", "パン", "チョコレート"], type: "basic_sub" },
+        { text: "こうえんに {person}が {p1}にん いました。{p2}にん かえりました。のこりは なんにんですか。", items: ["こども", "おともだち"], type: "basic_sub" },
+        { text: "折り紙を {p1}まい もっていました。{p2}まい つかいました。のこりは なんまいですか。", items: ["おりがみ"], type: "basic_sub" }
+    ],
+    // くりあがりの ある たしざん
+    advanced_add: [
+        { text: "{item}が {p1}こ あります。{item}を {p2}こ もらいました。あわせて いくつに なりますか。", items: ["りんご", "みかん", "キャンディー"], type: "advanced_add" },
+        { text: "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。ぜんぶで いくつ ありますか。", items: ["ボール", "おはじき", "つみき"], type: "advanced_add" }
+    ],
+    // くりさがりが ある ひきざん
+    advanced_sub: [
+        { text: "{item}が {p1}こ あります。{p2}こ たべました。のこりは いくつですか。", items: ["ドーナツ", "キャンディー", "クッキー"], type: "advanced_sub" },
+        { text: "こうえんに {person}が {p1}にん いました。{p2}にん かえりました。のこりは なんにんですか。", items: ["こども", "おともだち"], type: "advanced_sub" }
+    ],
+    // 3つの かずの けいさん
+    three_nums: [
+        { text: "バスに {p1}にん のっていました。バスていで {p2}にん のって、さらに {p3}にん のってきました。みんなで なんにんになりましたか。", items: [], op: "+", type: "three_add" },
+        { text: "みかんが {p1}こ あります。あさに {p2}こ、ゆうがたに {p3}こ たべました。のこりは いくつですか。", items: [], op: "-", type: "three_sub" },
+        { text: "{item}が {p1}こ あります。{p2}こ もらって、そのあと {p3}こ たべました。いま いくつ ありますか。", items: ["あめ"], op: "+-", type: "three_mix" }
+    ],
+    // ちがいを くらべる（ひきざん）
+    compare: [
+        { text: "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。赤い {item}の ほうが なんこ おおいですか。", items: ["おはじき", "ブロック", "シール"], type: "compare" },
+        { text: "お兄さんは {item}を {p1}こ、弟は {p2}こ もっています。ちがいは なんこですか。", items: ["カード", "どんぐり"], type: "compare" }
     ]
 };
 
@@ -24,6 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             nameBox.textContent = `なまえ： ${displayName} さん`;
         }
     }
+
+    // 全選択・全解除ボタンのイベント設定
+    document.getElementById('selectAllBtn')?.addEventListener('click', () => setAllCheckboxes(true));
+    document.getElementById('deselectAllBtn')?.addEventListener('click', () => setAllCheckboxes(false));
 
     // リロード判定
     const navEntries = performance.getEntriesByType('navigation');
@@ -48,53 +75,125 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswers);
 });
 
+function setAllCheckboxes(checked) {
+    const checkboxes = document.querySelectorAll('input[name="unit"]');
+    checkboxes.forEach(cb => cb.checked = checked);
+}
+
+/**
+ * 選択されている単元の配列を取得
+ */
+function getSelectedUnits() {
+    const checkboxes = document.querySelectorAll('input[name="unit"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
 /**
  * ランダム文章問題の生成
  */
 function generateNewProblems() {
-    const opSetting = document.getElementById('settingOp').value;
+    const selectedUnits = getSelectedUnits();
+
+    // ⚠️ 単元が1つも選択されていない場合のガード処理
+    if (selectedUnits.length === 0) {
+        alert('たんげんを 1ついじょう えらんでね！');
+        return;
+    }
+
     const count = parseInt(document.getElementById('settingCount').value, 10);
 
     currentWordProblems = [];
 
     for (let i = 0; i < count; i++) {
-        let isAddition = opSetting === 'add' ? true : (opSetting === 'sub' ? false : Math.random() > 0.5);
-        let list = isAddition ? WORD_PROBLEM_TEMPLATES.add : WORD_PROBLEM_TEMPLATES.sub;
-        let tpl = list[Math.floor(Math.random() * list.length)];
+        const unit = selectedUnits[Math.floor(Math.random() * selectedUnits.length)];
+        const templates = WORD_PROBLEM_TEMPLATES[unit] || WORD_PROBLEM_TEMPLATES.basic_add;
+        const tpl = templates[Math.floor(Math.random() * templates.length)];
 
-        let p1, p2, answer, eqStr;
-        if (isAddition) {
-            p1 = Math.floor(Math.random() * 8) + 1;
-            p2 = Math.floor(Math.random() * (10 - p1)) + 1; // 合計10以下
-            answer = p1 + p2;
-            eqStr = `${p1}+${p2}`;
-        } else {
-            p1 = Math.floor(Math.random() * 9) + 2;
-            p2 = Math.floor(Math.random() * (p1 - 1)) + 1; // 答えが1以上
-            answer = p1 - p2;
-            eqStr = `${p1}-${p2}`;
-        }
-
-        let item = tpl.items[Math.floor(Math.random() * tpl.items.length)];
-        let text = tpl.text
-            .replace('{p1}', p1)
-            .replace('{p2}', p2)
-            .replace(/{item}/g, item)
-            .replace(/{person}/g, item);
-
-        currentWordProblems.push({
-            id: i + 1,
-            text,
-            equation: eqStr,
-            answer
-        });
+        let problemData = buildProblemFromTemplate(unit, tpl);
+        problemData.id = i + 1;
+        currentWordProblems.push(problemData);
     }
 
     sessionStorage.setItem('practice_word_problems', JSON.stringify(currentWordProblems));
-    sessionStorage.setItem('practice_word_settings', JSON.stringify({ opSetting, count }));
+    sessionStorage.setItem('practice_word_settings', JSON.stringify({ selectedUnits, count }));
     sessionStorage.removeItem('practice_word_answers');
 
     renderWordProblems(currentWordProblems);
+}
+/**
+ * テンプレートと単元から具体的な数値・文章・解法を生成
+ */
+function buildProblemFromTemplate(unit, tpl) {
+    let p1, p2, p3, answer, eqStr, text;
+    let item = tpl.items.length > 0 ? tpl.items[Math.floor(Math.random() * tpl.items.length)] : '';
+
+    switch (unit) {
+        case 'basic_add':
+            p1 = Math.floor(Math.random() * 8) + 1;
+            p2 = Math.floor(Math.random() * (10 - p1)) + 1;
+            answer = p1 + p2;
+            eqStr = `${p1}+${p2}`;
+            break;
+
+        case 'basic_sub':
+            p1 = Math.floor(Math.random() * 9) + 2;
+            p2 = Math.floor(Math.random() * (p1 - 1)) + 1;
+            answer = p1 - p2;
+            eqStr = `${p1}-${p2}`;
+            break;
+
+        case 'advanced_add':
+            p1 = Math.floor(Math.random() * 8) + 3; // 3〜10
+            p2 = Math.floor(Math.random() * 8) + (11 - p1); // 合計11〜18
+            answer = p1 + p2;
+            eqStr = `${p1}+${p2}`;
+            break;
+
+        case 'advanced_sub':
+            answer = Math.floor(Math.random() * 8) + 2; // 2〜9
+            p2 = Math.floor(Math.random() * 8) + (11 - answer); // 繰り下がりが発生する引き去り数
+            p1 = answer + p2; // 11〜18
+            eqStr = `${p1}-${p2}`;
+            break;
+
+        case 'three_nums':
+            if (tpl.type === 'three_add') {
+                p1 = Math.floor(Math.random() * 4) + 1;
+                p2 = Math.floor(Math.random() * 4) + 1;
+                p3 = Math.floor(Math.random() * 4) + 1;
+                answer = p1 + p2 + p3;
+                eqStr = `${p1}+${p2}+${p3}`;
+            } else if (tpl.type === 'three_sub') {
+                p1 = Math.floor(Math.random() * 5) + 6; // 6〜10
+                p2 = Math.floor(Math.random() * 3) + 1;
+                p3 = Math.floor(Math.random() * (p1 - p2 - 1)) + 1;
+                answer = p1 - p2 - p3;
+                eqStr = `${p1}-${p2}-${p3}`;
+            } else {
+                p1 = Math.floor(Math.random() * 5) + 3;
+                p2 = Math.floor(Math.random() * 4) + 1;
+                p3 = Math.floor(Math.random() * (p1 + p2 - 1)) + 1;
+                answer = p1 + p2 - p3;
+                eqStr = `${p1}+${p2}-${p3}`;
+            }
+            break;
+
+        case 'compare':
+            p1 = Math.floor(Math.random() * 5) + 5; // 大きい方
+            p2 = Math.floor(Math.random() * (p1 - 1)) + 1; // 小さい方
+            answer = p1 - p2;
+            eqStr = `${p1}-${p2}`;
+            break;
+    }
+
+    text = tpl.text
+        .replace('{p1}', p1)
+        .replace('{p2}', p2)
+        .replace('{p3}', p3)
+        .replace(/{item}/g, item)
+        .replace(/{person}/g, item);
+
+    return { text, equation: eqStr, answer };
 }
 
 /**
@@ -116,29 +215,28 @@ function renderWordProblems(wordProblems) {
                 ${escapeHTML(wp.text)}
             </div>
             <div class="word-formula-group">
-                <div class="equation-input-group" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    しき：<input type="text" id="wp_eq_${index}" class="input-eq-text wp-input" data-index="${index}" data-type="eq" inputmode="text" autocomplete="off" style="width: 120px;">
-                    <div class="symbol-btn-group" style="display: inline-flex; gap: 6px;">
+                <div class="equation-input-group">
+                    しき：<input type="text" id="wp_eq_${index}" class="input-eq-text wp-input" data-index="${index}" data-type="eq" inputmode="text" autocomplete="off">
+                    <div class="symbol-btn-group">
                         <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '+')">＋</button>
                         <button type="button" class="btn-symbol" onclick="insertSymbol('wp_eq_${index}', '-')">－</button>
                     </div>
                 </div>
-                <div style="margin-top: 8px;">
-                    こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num wp-input" data-index="${index}" data-type="ans" inputmode="numeric" style="width: 80px;">
+                <div class="answer-input-group">
+                    こたえ：<input type="number" id="wp_ans_${index}" class="input-answer-num wp-input" data-index="${index}" data-type="ans" inputmode="numeric">
                 </div>
             </div>
         `;
         wordProblemArea.appendChild(div);
     });
 
-    // 入力監視イベント追加（入力時にセッション保存）
     document.querySelectorAll('.wp-input').forEach(input => {
         input.addEventListener('input', saveInputState);
     });
 }
 
 /**
- * 指定された入力欄のカーソル位置（または末尾）に記号を挿入する関数
+ * 指定された入力欄のカーソル位置に記号を挿入
  */
 function insertSymbol(inputId, symbol) {
     const input = document.getElementById(inputId);
@@ -155,7 +253,6 @@ function insertSymbol(inputId, symbol) {
     const newPos = start + symbol.length;
     input.setSelectionRange(newPos, newPos);
 
-    // 記号ボタンを押した時も入力を一時保存
     saveInputState();
 }
 
@@ -185,9 +282,16 @@ function restoreSavedState() {
     if (!savedProblems) return false;
 
     if (savedSettings) {
-        const { opSetting, count } = JSON.parse(savedSettings);
-        if (document.getElementById('settingOp')) document.getElementById('settingOp').value = opSetting;
-        if (document.getElementById('settingCount')) document.getElementById('settingCount').value = count;
+        const { selectedUnits, count } = JSON.parse(savedSettings);
+        if (selectedUnits) {
+            const checkboxes = document.querySelectorAll('input[name="unit"]');
+            checkboxes.forEach(cb => {
+                cb.checked = selectedUnits.includes(cb.value);
+            });
+        }
+        if (document.getElementById('settingCount') && count) {
+            document.getElementById('settingCount').value = count;
+        }
     }
 
     currentWordProblems = JSON.parse(savedProblems);
@@ -261,7 +365,7 @@ function resetScoreDisplay() {
 }
 
 /**
- * 入力された文字列の全角英数・記号を半角に変換し、スペースを除去する関数
+ * 入力された文字列の全角英数・記号を半角に変換し、スペースを除去
  */
 function normalizeEquation(str) {
     if (!str) return '';

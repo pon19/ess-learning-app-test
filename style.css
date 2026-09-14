@@ -1403,3 +1403,119 @@ h1 {
 .feedback-area .incorrect {
     color: #e53e3e;
 }
+
+/* ====================================================
+   📱/💻 単元選択・タッチパネル用追加スタイル (practice_math)
+   ==================================================== */
+
+/* 単元選択カードのグリッドコンテナ */
+.unit-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+/* タブレット・スマホ向けの大型タッチカード */
+.unit-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 2px solid #cbd5e0;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    font-size: 15px;
+    font-weight: bold;
+    color: #4a5568;
+    transition: all 0.15s ease-in-out;
+}
+
+/* チェックボックス自体の大型化 */
+.unit-card input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: #3182ce;
+}
+
+/* 選択時のハイライト表示 */
+.unit-card:has(input[type="checkbox"]:checked) {
+    background-color: #ebf8ff;
+    border-color: #3182ce;
+    color: #2b6cb0;
+}
+
+/* タップ・押し込み時の視覚フィードバック */
+.unit-card:active {
+    transform: scale(0.98);
+}
+
+/* 全選択・全解除ボタン */
+.btn-unit-action-group {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    background: #ffffff;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #4a5568;
+    transition: background 0.1s;
+}
+
+.action-btn:active {
+    background: #edf2f7;
+}
+
+/* 単元ヘッダーレイアウト */
+.unit-header-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* ====================================================
+   📱/💻 文章問題用追加スタイル (practice_word)
+   ==================================================== */
+
+/* 式入力グループ */
+.word-card .equation-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* 式の入力欄 */
+.word-card .input-eq-text {
+    width: 120px;
+}
+
+/* 記号ボタン（＋ / －）のグループ */
+.word-card .symbol-btn-group {
+    display: inline-flex;
+    gap: 6px;
+}
+
+/* 答え入力エリアのラッパー */
+.word-card .answer-input-group {
+    margin-top: 8px;
+}
+
+/* 答えの入力欄 */
+.word-card .input-answer-num {
+    width: 80px;
+}
