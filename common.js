@@ -40,6 +40,22 @@ try {
 // （再宣言を避けるため let / const はつけずに割り当てます）
 var supabase = clientSupabase;
 
+// ==========================================
+// 🗄️ DBテーブル切り替え設定（環境自動判定）
+// ==========================================
+// パスに 'math-app' (本番環境) が含まれるか判定（テスト環境は 'math-app-test'）
+const isProduction = window.location.pathname.includes('/math-app/') && 
+                    !window.location.pathname.includes('/math-app-test/');
+
+const DB_TABLES = {
+    // 成績・チャレンジ結果保存用テーブル
+    LEARNING_SCORES: isProduction ? 'learning_scores_pb' : 'learning_scores_test',
+    
+    // 前日ランキング表示用ビュー（またはテーブル）
+    RANKINGS_YESTERDAY: isProduction ? 'daily_rankings_yesterday_pb' : 'daily_rankings_yesterday'
+};
+
+console.log(`[環境判定] ${isProduction ? '本番環境' : 'テスト/ローカル環境'} で実行中`);
 
 const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;         // 12時間
 const FIVE_DAYS_MS    = 5 * 24 * 60 * 60 * 1000;     // 5日間

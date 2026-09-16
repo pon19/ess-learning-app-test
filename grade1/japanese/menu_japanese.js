@@ -18,7 +18,7 @@ async function loadYesterdayRanking() {
     try {
         // ビューから1年生（grade=1）かつ国語（subject='japanese'）の前日ランキングを取得
         const { data, error } = await clientSupabase
-            .from('daily_rankings_yesterday')
+            .from(DB_TABLES.RANKINGS_YESTERDAY)
             .select('*')
             .eq('grade', 1)
             .eq('subject', 'japanese') // ★ 国語のみに絞り込み

@@ -14,7 +14,7 @@ async function loadYesterdayRanking() {
 
     try {
         const { data, error } = await supabaseClient
-            .from('daily_rankings_yesterday')
+            .from(DB_TABLES.RANKINGS_YESTERDAY)
             .select('*')
             .eq('grade', 2)
             .eq('subject', 'japanese')

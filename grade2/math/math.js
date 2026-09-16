@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log(`履歴チェック実行 -> 日付: ${todayStr}, 学年: ${grade}, ユーザー: ${userId}`);
 
             const { data, error } = await supabaseClient
-                .from('learning_scores_test')
+                .from(DB_TABLES.LEARNING_SCORES)
                 .select('*')
                 .eq('user_id', userId)
                 .eq('grade', grade)
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const totalQuestions = currentProblems.length;
 
             const { data, error } = await supabaseClient
-                .from('learning_scores_test')
+                .from(DB_TABLES.LEARNING_SCORES)
                 .insert([
                     {
                         user_id: userId,

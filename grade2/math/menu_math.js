@@ -19,7 +19,7 @@ async function loadYesterdayRanking() {
     try {
         // ビューから2年生（grade=2）の前日ランキングを取得
         const { data, error } = await supabaseClient
-            .from('daily_rankings_yesterday')
+            .from(DB_TABLES.RANKINGS_YESTERDAY)
             .select('*')
             .eq('grade', 2)
             .order('max_score', { ascending: false })

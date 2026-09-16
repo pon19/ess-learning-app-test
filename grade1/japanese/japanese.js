@@ -55,7 +55,7 @@ async function checkTodaySubmitted(userId, grade) {
         const todayStr = `${year}-${month}-${day}`;
 
         const { data, error } = await supabaseClient
-            .from('learning_scores_test')
+            .from(DB_TABLES.LEARNING_SCORES)
             .select('*')
             .eq('user_id', userId)
             .eq('grade', grade)
@@ -213,7 +213,7 @@ async function checkAnswersAndSave() {
     if (currentUser && supabaseClient) {
         try {
             await supabaseClient
-                .from('learning_scores_test')
+                .from(DB_TABLES.LEARNING_SCORES)
                 .insert([{
                     user_id: currentUser.id,
                     grade: 1,

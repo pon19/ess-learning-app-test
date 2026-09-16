@@ -56,7 +56,7 @@ async function checkTodaySubmitted(userId, grade) {
 
         // 生成列 created_date と比較して重複チェック
         const { data, error } = await supabaseClient
-            .from('learning_scores_test')
+            .from(DB_TABLES.LEARNING_SCORES)
             .select('*')
             .eq('user_id', userId)
             .eq('grade', grade)
@@ -335,7 +335,7 @@ async function checkAnswersAndSave() {
     if (currentUser && supabaseClient) {
         try {
             await supabaseClient
-                .from('learning_scores_test')
+                .from(DB_TABLES.LEARNING_SCORES)
                 .insert([{
                     user_id: currentUser.id,
                     grade: 1,

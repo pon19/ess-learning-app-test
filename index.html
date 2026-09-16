@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>しょうがくせい Webプリント</title>
     
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="icon_web_top.png">
     <link rel="stylesheet" href="style.css">
     <script> window.IS_TOP_PAGE = true; </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -45,21 +45,115 @@
     <div class="update-info-container">
       <div class="version-header">
         <span class="app-title">学習プリント</span>
-        <span class="version-badge">v1.0.3</span>
+        <span class="version-badge">v1.1.5</span>
       </div>
 
       <div class="news-box">
         <h3 class="news-title">📢 お知らせ・更新情報</h3>
         <ul class="news-list">
+          <!-- 👇 最新のお知らせ -->
+          <li>
+            <span class="news-date">2026/09/17</span>
+            <span class="news-tag new">NEW</span>
+            <span class="news-text">
+              <strong>【機能追加・システム改善のお知らせ】</strong><br>
+              1年生の算数において学習したい単元を選んで練習できる機能を追加し、あわせてシステム全体の安定性を向上させました！<br><br>
+              <strong>【主なアップデート内容】</strong>
+              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                <li><strong>1年生の算数で、すべての単元を自分で選んで自由に学習できるようになりました！</strong></li>
+                <li><strong>データベース通信処理の最適化を行い、学習記録の読み込みや保存の安定性を向上させました</strong></li>
+              </ul>
+            </span>
+          </li>
+
+          <!-- 過去のお知らせ -->
+          <li>
+            <span class="news-date">2026/09/12</span>
+            <span class="news-text">
+              <strong>【機能改善・アップデートのお知らせ】</strong><br>
+              「本日のチャレンジ」における国語（1年生・2年生）の自動問題作成および問題表示レイアウトの改善を行いました！<br><br>
+              <strong>【主なアップデート内容】</strong>
+              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                <li><strong>1年生・2年生の国語「本日のチャレンジ」で毎日新しい自動作成問題が遊べるようになりました！</strong></li>
+                <li><strong>問題表示のレイアウトを調整し、画面サイズに合わせて見やすく崩れにくいデザインに修正しました</strong></li>
+              </ul>
+            </span>
+          </li>
+
+          <li>
+            <span class="news-date">2026/09/05</span>
+            <span class="news-text">
+              <strong>【機能改善・アップデートのお知らせ】</strong><br>
+              1年生の国語メニューおよびランキング表示の改善を行いました！<br><br>
+              <strong>【主なアップデート内容】</strong>
+              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                <li><strong>1年生向けの国語メニューページのレイアウトを刷新しました！</strong></li>
+                <li><strong>算数と国語のランキング表示を教科ごとに分離・修正しました</strong></li>
+              </ul>
+            </span>
+          </li>
+
+          <li>
+            <span class="news-date">2026/08/28</span>
+            <span class="news-text">
+              <strong>【機能追加・アップデートのお知らせ】</strong><br>
+              1年生向けの新しい機能と操作性の向上を行いました！<br><br>
+              <strong>【主なアップデート内容】</strong>
+              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                <li><strong>1年生向けの国語（本日のチャレンジ・トレーニング）を公開しました！</strong></li>
+                <li><strong>1年生の算数（文章問題）で、式の入力がより簡単に行えるようになりました！</strong></li>
+                <li>全体的なレイアウトおよび文字サイズ等の軽微な修正を行いました</li>
+              </ul>
+            </span>
+          </li>
+
+          <li>
+            <span class="news-date">2026/08/14</span>
+            <span class="news-text">
+              <strong>【アップデート・システムメンテナンス完了のお知らせ】</strong><br>
+              本日実施しておりましたシステムメンテナンスは無事に終了いたしました。<br>
+              ご協力いただき、誠にありがとうございました。<br><br>
+              <strong>【主なアップデート内容】</strong>
+              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                <li><strong>「今日のチャレンジ」の挑戦回数を1日1回に変更しました</strong></li>
+                <li><strong>2年生向けの算数問題を追加・公開しました！</strong></li>
+                <li>ヘッダー等にログイン中の「自分の学年」が表示されるようになりました</li>
+                <li>画面全体のレイアウト・デザインの微調整を行いました</li>
+              </ul>
+            </span>
+          </li>
+
+          <li>
+            <span class="news-date">2026/08/10</span>
+            <span class="news-text">
+              新規登録時の「学年選択」および「自動進級機能」を追加しました！<br>
+              毎年の4月1日に自動で学年が1つ上がる仕組みになりました。現在の学年はマイページからご確認いただけます。
+            </span>
+          </li>
+
+          <li>
+            <span class="news-date">2026/08/05</span>
+            <span class="news-text">
+              webページ全体の大幅改修を行いました。以前登録していただいていた利用者様には大変申し訳ございませんが、新規登録からお願いいたします。（以前のログイン情報は削除されております。）
+              <br><br>
+              <strong>【改修内容】</strong>
+              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                <li>ニックネーム機能の追加</li>
+                <li>学年ごとの機能追加（現在は1年生のみ、順次公開予定）</li>
+                <li>前日の問題を解答した方のランキング表示</li>
+                <li>マイページ機能の追加（詳細はログイン後マイページからチェック）</li>
+              </ul>
+            </span>
+          </li>
+
           <li>
             <span class="news-date">2026/07/29</span>
-            <span class="news-tag new">NEW</span>
-            <span class="news-text">webページ全面改修を行いました。 ユーザー登録機能の追加・点数の記録機能を追加しました。</span>
+            <span class="news-text">webページ全面改修を行いました。ユーザー登録機能の追加・点数の記録機能を追加しました。</span>
           </li>
         </ul>
       </div>
     </div>
-
+    
     <!-- ログイン / 新規登録 / サポート / ニックネーム登録 モーダル -->
     <div id="authModal" class="modal-overlay">
         <div class="modal-content">

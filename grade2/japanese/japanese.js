@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const todayStr = new Date().toISOString().split('T')[0];
             const { data } = await supabaseClient
-                .from('learning_scores_test')
+                .from(DB_TABLES.LEARNING_SCORES)
                 .select('*')
                 .eq('user_id', userId)
                 .eq('grade', grade)
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!supabaseClient) return;
         const userResp = await supabaseClient.auth.getUser();
         const userId = userResp?.data?.user?.id;
-        await supabaseClient.from('learning_scores_test').insert([{
+        await supabaseClient.from(DB_TABLES.LEARNING_SCORES).insert([{
             user_id: userId,
             grade: Number(grade),
             subject: 'japanese',
