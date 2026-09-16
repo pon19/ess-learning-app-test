@@ -54,11 +54,40 @@ function escapeHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
+/**
+ * 現在のページのURL階層から、トップ（ルート）ディレクトリへの相対パスを取得する関数
+ */
 function getBasePath() {
-    const fileName = window.location.pathname.split('/').pop();
-    if (fileName === '' || fileName === 'index.html' || fileName === 'mypage.html') {
-        return './';
+    const path = window.location.pathname.toLowerCase();
+    const pathSegments = path.split('/').filter(Boolean);
+    const fileName = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : '';
+
+    // ① すでにルートのトップページ(index.html)にいる場合
+    if (fileName === '' || fileName === 'index.html' || fileName === 'index.htm') {
+        // ただし grade1/index.html のようなサブフォルダ内のindexは除外してルート判定
+        const isRoot = !pathSegments.some(seg => /^grade\d+$/i.test(seg));
+        if (isRoot) return './';
     }
+
+    // ② GitHub Pages環境（リポジトリ名: math-app-test または ess-learning-app-test）
+    const repoMatch = path.match(/\/(math-app-test|ess-learning-app-test)\/(.*)/);
+    if (repoMatch && repoMatch[2]) {
+        // リポジトリ名以降にある '/' の数 ＝ 上るべき階層数
+        const depth = (repoMatch[2].match(/\//g) || []).length;
+        return depth > 0 ? '../'.repeat(depth) : './';
+    }
+
+    // ③ ローカル環境（file:/// または local server）
+    // grade1, grade2 などの学年フォルダの位置を基準に計算
+    const gradeIndex = pathSegments.findIndex(seg => /^grade\d+$/i.test(seg));
+    if (gradeIndex !== -1) {
+        // 例: math-app-test/grade1/math/practice_word.html の場合
+        // grade1 (index) から末尾までの距離を計算して正確な ../ の数を生成
+        const depth = pathSegments.length - gradeIndex;
+        return '../'.repeat(depth);
+    }
+
+    // ④ フォールバック
     return '../';
 }
 
@@ -85,8 +114,11 @@ function formatLastAccessTime(timestampStr) {
     return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
 }
 
+// リダイレクト重複実行を防止するフラグ
+let isRedirecting = false;
+
 async function getCurrentUser() {
-    if (!clientSupabase) return null;
+    if (!clientSupabase || isRedirecting) return null;
 
     const { data: { session } } = await clientSupabase.auth.getSession();
     if (!session) {
@@ -105,6 +137,7 @@ async function getCurrentUser() {
 
         // 5日以上経過 -> ログアウト
         if (elapsed > FIVE_DAYS_MS) {
+            isRedirecting = true; // 重複ガード
             localStorage.removeItem('last_access_time');
             await clientSupabase.auth.signOut();
             alert('前回のアクセスから5日以上経過したためログアウトしました。');
@@ -116,9 +149,11 @@ async function getCurrentUser() {
 
         // 12時間以上経過 -> トップページ以外ならリダイレクト
         if (elapsed > TWELVE_HOURS_MS && !topCheck) {
+            isRedirecting = true; // 重複ガード
             alert('前回のアクセスから12時間以上経過したため、トップページに戻ります。');
             window.location.href = `${basePath}index.html`;
-            return session.user;
+            // リダイレクト中は後続の処理を一切実行させない
+            return new Promise(() => {}); 
         }
     }
 
