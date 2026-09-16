@@ -43,9 +43,9 @@ var supabase = clientSupabase;
 // ==========================================
 // 🗄️ DBテーブル切り替え設定（環境自動判定）
 // ==========================================
-// パスに 'math-app' (本番環境) が含まれるか判定（テスト環境は 'math-app-test'）
-const isProduction = window.location.pathname.includes('/math-app/') && 
-                    !window.location.pathname.includes('/math-app-test/');
+// パスに '/ess-learning-app/' (本番環境) が含まれるか判定（テスト環境は '/ess-learning-app-test/'）
+const isProduction = window.location.pathname.includes('/ess-learning-app/') && 
+                    !window.location.pathname.includes('/ess-learning-app-test/');
 
 const DB_TABLES = {
     // 成績・チャレンジ結果保存用テーブル
