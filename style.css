@@ -574,6 +574,7 @@ h1 {
 
 .grade-card.g-1 { background: #48bb78; box-shadow: 0 4px 6px rgba(72,187,120,0.2); }
 .grade-card.g-2 { background: #319795; box-shadow: 0 4px 6px rgba(49,151,149,0.2); }
+.grade-card.g-3 { background: #3182ce; box-shadow: 0 4px 6px rgba(49,130,206,0.2); }
 
 .grade-card.disabled {
     background: #e2e8f0;
@@ -1518,4 +1519,392 @@ h1 {
 /* 答えの入力欄 */
 .word-card .input-answer-num {
     width: 80px;
+}
+
+/* タッチ・ドラッグ時の不要なテキスト選択を防止（ボタン・カード類） */
+.btn-check,
+.btn-reset,
+.btn-symbol,
+.unit-card,
+.grade-card {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 数字入力欄でiOS等のズームが発生しないようフォントサイズを16px以上に保ちつつ、
+   ブラウザの上下矢印（スピンボタン）を非表示にしてスッキリ見せる */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* 正解・不正解時のアニメーション効果 */
+@keyframes popSuccess {
+    0% { transform: scale(0.95); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shakeError {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+.is-correct {
+    animation: popSuccess 0.3s ease-out;
+    border-color: #38a169 !important;
+    background-color: #f0fff4 !important;
+}
+
+.is-incorrect {
+    animation: shakeError 0.4s ease-in-out;
+    border-color: #e53e3e !important;
+    background-color: #fff5f5 !important;
+}
+
+/* 3年生用バッジスタイル */
+.badge-grade-3 {
+    background-color: #3182ce;
+}
+
+/* メニュー画面共通 */
+.ranking-error-msg {
+    color: #e53e3e;
+    text-align: center;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
+
+/* きょうのチャレンジ・結果表示 */
+.result-time-text {
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+.result-action-box {
+    margin-top: 1.5rem;
+}
+
+/* トレーニング画面 ヘッダーレイアウト */
+.quiz-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* 再挑戦ボタン */
+.btn-retry {
+    margin-top: 1rem;
+}
+
+/* あまりのある計算用グループ */
+.calc-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: nowrap; /* 折れ曲がり防止 */
+}
+
+/* 入力欄（商・あまり共通） */
+.input-answer-short {
+    width: 76px; /* 枠内に「商」「あまり」が収まるよう幅を拡張 */
+    text-align: center;
+    padding: 0.4rem 0.2rem;
+    font-size: 1.05rem;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.input-answer-short:focus {
+    border-color: #3182ce;
+    outline: none;
+}
+
+/* 入力欄のプレースホルダー（薄い文字）の調整 */
+.input-answer-short::placeholder {
+    color: #a0aec0;
+    font-size: 0.95rem;
+}
+
+/* 「あまり」テキスト（サイズ小・余白調整） */
+.unit-text-sm {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #4a5568;
+    white-space: nowrap; /* 改行防止 */
+    flex-shrink: 0;
+}
+
+/* 「あまり」テキスト（小さめのフォント設定） */
+.unit-text-sm {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #4a5568;
+    margin: 0 0.1rem;
+}
+
+/* 文章題用スタイル */
+.word-problem-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.word-problem-text {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.word-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background-color: #f7fafc;
+    padding: 1rem;
+    border-radius: 6px;
+}
+
+.word-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.word-input-label {
+    font-weight: bold;
+    color: #4a5568;
+    min-width: 3.5rem;
+}
+
+.input-formula {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+}
+
+.input-formula:focus {
+    border-color: #3182ce;
+    outline: none;
+}
+
+/* 時刻問題用（「時」「分」セパレート表示） */
+.input-answer-time {
+    width: 65px;
+    text-align: center;
+    padding: 0.4rem 0.2rem;
+    font-size: 1.05rem;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.input-answer-time:focus {
+    border-color: #3182ce;
+    outline: none;
+}
+
+/* 図形問題用スタイル */
+.shape-problem-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.shape-display-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.shape-svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.shape-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.shape-option-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #edf2f7;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.shape-option-label:hover {
+    background-color: #e2e8f0;
+}
+
+/* 図形トレーニングボタンのスタイル例（紫・ネイビー系など） */
+.btn-training-shape {
+  /* btn-training-math や btn-training-word と同じ共通スタイルを継承、または指定 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 2px solid #6b46c1; /* 枠線の色 */
+  border-radius: 12px;
+  background-color: #ffffff;
+  color: #553c9a; /* 文字色 */
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-training-shape:hover {
+  background-color: #faf5ff;
+}
+
+/* 3つのボタンを綺麗に3列（スマホ等では折り返し）で並べる場合 */
+.training-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* ========================================
+   図形問題ページ用スタイル（追記分）
+   ======================================== */
+
+/* 問題表示エリア */
+.question-card {
+  background-color: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.question-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.svg-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+}
+
+/* 解答エリア */
+.answer-area {
+  margin-bottom: 20px;
+}
+
+/* 数字入力 */
+.number-input-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.number-input {
+  width: 80px;
+  height: 48px;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 2px solid #cbd5e0;
+  border-radius: 10px;
+  outline: none;
+}
+
+.number-input:focus {
+  border-color: #3182ce;
+}
+
+/* 選択肢ボタン */
+.choice-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice-btn {
+  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  background-color: #ffffff;
+  border: 2px solid #cbd5e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #2d3748;
+}
+
+.choice-btn:hover {
+  background-color: #ebf8ff;
+  border-color: #3182ce;
+}
+
+.choice-btn.selected {
+  background-color: #3182ce;
+  color: #ffffff;
+  border-color: #3182ce;
+}
+
+/* 正誤フィードバック */
+.feedback {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: none;
+}
+
+.feedback.correct {
+  display: block;
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.feedback.incorrect {
+  display: block;
+  background-color: #fed7d7;
+  color: #742a2a;
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1ねんせい ずけいトレーニング</title>
+  <!-- 共通スタイルシートを読み込み -->
+  <link rel="stylesheet" href="../../style.css">
+  <!-- Supabase SDKを読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- defer 属性を付与してHTMLの読み込み完了後に実行させる -->
+  <script src="../../common.js" defer></script>
+</head>
+<body>
+
+  <div class="container">
+    <!-- 共通ヘッダー -->
+    <div id="globalHeader"></div>
+
+    <div class="back-link-box">
+      <a href="menu_math.html" class="btn-back">⬅️ さんすうメニューへもどる</a>
+    </div>
+
+    <!-- ヘッダー -->
+    <div class="header">
+      <div>
+        <span class="title-badge badge-grade-1">1ねんせい</span>
+        <h1>📐 ずけい トレーニング</h1>
+      </div>
+    </div>
+
+    <!-- 問題表示カード -->
+    <div class="question-card">
+      <div id="question-text" class="question-text">もんだいを よみこんでいます...</div>
+      <div id="svg-container" class="svg-container"></div>
+    </div>
+
+    <!-- 解答エリア -->
+    <div id="answer-area" class="answer-area">
+      <!-- JavaScriptで動的に生成 -->
+    </div>
+
+    <!-- 決定/つぎへ ボタン -->
+    <button id="action-btn" class="action-btn" onclick="checkAnswer()">こたえあわせ</button>
+
+    <!-- 正誤フィードバック -->
+    <div id="feedback" class="feedback"></div>
+  </div>
+
+  <script src="practice_shape.js" defer></script>
+</body>
+</html>

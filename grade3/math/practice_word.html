@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3年生 文章題トレーニング</title>
+    <link rel="stylesheet" href="../../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../common.js" defer></script>
+    <script src="practice_word.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 共通ヘッダー -->
+        <div id="globalHeader"></div>
+
+        <div class="back-link-box">
+            <a href="menu_math.html" class="btn-back">⬅️ 3年生メニューへもどる</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <span class="title-badge badge-training">文章題</span>
+                <h1>文章題 トレーニング</h1>
+            </div>
+        </div>
+
+        <!-- ⚙️ 設定フォーム -->
+        <section id="setup-section" class="settings-panel">
+            <h3 class="settings-title">⚙️ 問題の設定</h3>
+            
+            <div class="settings-grid">
+                <div>
+                    <label for="word-type" class="setting-label">単元</label>
+                    <select id="word-type" class="setting-select">
+                        <option value="all">すべての文章題（ランダム）</option>
+                        <option value="div">割り算・あまりの文章題</option>
+                        <option value="mul">かけ算の文章題</option>
+                        <option value="decimal">小数・分数の文章題</option>
+                        <option value="time">時間と時刻の文章題</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="problem-count" class="setting-label">問題数</label>
+                    <select id="problem-count" class="setting-select">
+                        <option value="3">3問</option>
+                        <option value="5" selected>5問</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="start-btn" class="btn-generate">🔄 練習をはじめる！</button>
+        </section>
+
+        <!-- 問題表示エリア -->
+        <section id="quiz-section" class="hidden">
+            <div class="quiz-header-bar">
+                <span id="progress-text">問題一覧</span>
+                <button id="reset-btn" class="btn-back">やり直す</button>
+            </div>
+
+            <form id="quiz-form">
+                <div id="problems-container"></div>
+                <button type="submit" id="submit-btn" class="btn-check btn-check-training">答え合わせをする 💮</button>
+            </form>
+
+            <div id="result-container" class="score-box-result hidden">
+                <h3 id="result-score"></h3>
+                <p id="result-message"></p>
+                <button id="retry-btn" class="btn-generate btn-retry">もう一度挑戦</button>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
