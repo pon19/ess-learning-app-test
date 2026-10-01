@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     checkAuthState();
+    loadNews(); // ★お知らせの読み込み
 
     const modal = document.getElementById('authModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -77,11 +78,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ----------------------------------------------------
     // 1. ログイン処理
     // ----------------------------------------------------
-    // ログインフォームの送信処理例
     loginForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 変数が正しく取得できているか確認
         if (!emailInput || !passwordInput) {
             console.error('入力要素が見つかりません。HTMLのIDを確認してください。');
             return;
@@ -100,10 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // ログイン成功時のアクセス時刻初期化
         localStorage.setItem('last_access_time', Date.now().toString());
-
-        // 画面の更新またはリダイレクト
         window.location.reload();
     });
 
@@ -118,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = document.getElementById('signupName')?.value.trim() || 'ななしさん';
         const nickname = document.getElementById('signupNickname')?.value.trim() || name;
         
-        // ★学年と現在年度の取得
         const rawGrade = document.getElementById('signupGrade')?.value;
         const selectedGrade = rawGrade ? parseInt(rawGrade, 10) : 1;
         const currentAcademicYear = getCurrentAcademicYear();
@@ -156,7 +151,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (data?.user) {
-                // ★profilesテーブルに grade と grade_updated_at を保存
                 await clientSupabase.from('profiles').insert([{
                     id: data.user.id,
                     display_name: name,
@@ -303,6 +297,49 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ====================================================
+// お知らせデータの取得と描画
+// ====================================================
+async function loadNews() {
+    const newsListEl = document.getElementById('newsList');
+    if (!newsListEl) return;
+
+    try {
+        const response = await fetch('news.json');
+        if (!response.ok) throw new Error('お知らせの取得に失敗しました');
+        
+        const newsData = await response.json();
+
+        newsListEl.innerHTML = newsData.map(item => {
+            const newBadge = item.isNew ? '<span class="news-tag new">NEW</span>' : '';
+            const titleHtml = item.title ? `<strong>${item.title}</strong><br>` : '';
+            
+            let detailsHtml = '';
+            if (item.details && item.details.length > 0) {
+                const detailsTitleHtml = item.detailsTitle ? `<strong>${item.detailsTitle}</strong>` : '';
+                const listItems = item.details.map(d => `<li>${d}</li>`).join('');
+                detailsHtml = `<br><br>${detailsTitleHtml}<ul class="list-disc-indent">${listItems}</ul>`;
+            }
+
+            return `
+              <li>
+                <span class="news-date">${item.date}</span>
+                ${newBadge}
+                <span class="news-text">
+                  ${titleHtml}
+                  ${item.lead}
+                  ${detailsHtml}
+                </span>
+              </li>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.error('お知らせ読み込みエラー:', err);
+        newsListEl.innerHTML = '<li><span class="news-text">お知らせの読み込みに失敗しました。</span></li>';
+    }
+}
+
+// ====================================================
 // ログイン状態判定・学年バッジ付きメッセージ表示
 // ====================================================
 async function checkAuthState() {
@@ -317,10 +354,8 @@ async function checkAuthState() {
         if (userInfoArea) userInfoArea.style.display = 'block';
         if (authBtnArea) authBtnArea.style.display = 'none';
 
-        // ★ common.js の getUserProfileInfo で学年情報含め自動進級チェック
         const { displayName, gradeLabel } = await getUserProfileInfo(session.user.id);
 
-        // ニックネーム未設定チェック
         const { data: profile } = await clientSupabase
             .from('profiles')
             .select('nickname')
@@ -340,7 +375,6 @@ async function checkAuthState() {
             }
         } else {
             if (modal) modal.style.display = 'none';
-            // ★ 学年バッジをつけてメッセージを表示
             const gradeBadge = gradeLabel ? `<span class="user-grade-badge">${gradeLabel}</span>` : '';
             if (welcomeMessage) {
                 welcomeMessage.innerHTML = `ようこそ、${escapeHtml(displayName)} さん！ ${gradeBadge}`;

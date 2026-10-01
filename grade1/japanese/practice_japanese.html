@@ -27,11 +27,11 @@
         </div>
 
         <!-- 設定パネル -->
-        <div class="settings-panel" style="background-color: #f7fafc; padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
-            <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
-                <label style="font-weight: bold; font-size: 1.1rem;">
+        <div class="settings-panel-jp">
+            <div class="settings-row">
+                <label class="setting-label-bold">
                     しゅるい：
-                    <select id="settingType" style="padding: 6px 12px; font-size: 1rem; border-radius: 6px;">
+                    <select id="settingType" class="setting-select-inline">
                         <option value="all">ぜんぶ</option>
                         <option value="particle">は・を・へ</option>
                         <option value="kanji">かんじの よみ</option>
@@ -40,15 +40,15 @@
                     </select>
                 </label>
 
-                <label style="font-weight: bold; font-size: 1.1rem;">
+                <label class="setting-label-bold">
                     もんすう：
-                    <select id="settingCount" style="padding: 6px 12px; font-size: 1rem; border-radius: 6px;">
+                    <select id="settingCount" class="setting-select-inline">
                         <option value="5">5もん</option>
                         <option value="10" selected>10もん</option>
                     </select>
                 </label>
 
-                <button id="generateBtn" class="btn-secondary" style="padding: 8px 16px; font-size: 1rem; cursor: pointer;">
+                <button id="generateBtn" class="btn-secondary btn-generate-jp">
                     🔄 この せっていで さくせい
                 </button>
             </div>
@@ -58,8 +58,8 @@
         <div id="japaneseProblemArea" class="word-card-container"></div>
 
         <!-- 答え合わせボタンと結果エリア -->
-        <button class="btn-check" id="checkBtn" style="margin-top: 20px;">こたえあわせをする 💮</button>
-        <div class="score-box-result" id="scoreBox" style="display: none;"></div>
+        <button class="btn-check mt-20" id="checkBtn">こたえあわせをする 💮</button>
+        <div class="score-box-result display-none" id="scoreBox"></div>
     </div>
 </body>
 </html>

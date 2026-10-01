@@ -24,7 +24,7 @@
         </div>
 
         <!-- 未ログイン時に表示するボタン -->
-        <div id="authBtnArea" style="margin-bottom: 20px;">
+        <div id="authBtnArea" class="mb-20">
             <button id="openAuthModalBtn" class="btn-auth-open">🔐 ログイン / しんきとうろく</button>
         </div>
 
@@ -34,8 +34,8 @@
         <div class="grade-grid">
             <a href="grade1/menu_grade1.html" class="grade-card active g-1">🎒 1ねんせい</a>
             <a href="grade2/menu_grade2.html" class="grade-card active g-2">🐥 2ねんせい</a>
-            <!-- 3年生をデバッグ中のためグレーアウト（disabled）に変更 -->
-            <div class="grade-card disabled">🐥 3ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
+            <!-- 3年生をアクティベート -->
+            <a href="grade3/menu_grade3.html" class="grade-card active g-3">🐥 3ねんせい</a>
             <div class="grade-card disabled">🐥 4ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
             <div class="grade-card disabled">🐥 5ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
             <div class="grade-card disabled">🎓 6ねんせい <span class="grade-subtext">(じゅんびちゅう)</span></div>
@@ -51,119 +51,8 @@
 
       <div class="news-box">
         <h3 class="news-title">📢 お知らせ・更新情報</h3>
-        <ul class="news-list">
-          <!-- 👇 最新のお知らせ -->
-          <li>
-            <span class="news-date">2026/09/28</span>
-            <span class="news-tag new">NEW</span>
-            <span class="news-text">
-              <strong>【新機能追加・お知らせ】</strong><br>
-              1年生の算数メニューに「図形トレーニング」を追加しました！何度も繰り返し練習できます。<br><br>
-              <strong>【主なアップデート内容】</strong>
-              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
-                <li><strong>1年生向け算数に「ずけい トレーニング」モードを新設しました！</strong></li>
-                <li><strong>正誤判定およびやり直し機能を追加し、間違えても納得いくまで解き直せるようになりました！</strong></li>
-              </ul>
-            </span>
-          </li>
-
-          <!-- 過去のお知らせ -->
-          <li>
-            <span class="news-date">2026/09/17</span>
-            <span class="news-text">
-              <strong>【機能追加・システム改善のお知らせ】</strong><br>
-              1年生の算数において学習したい単元を選んで練習できる機能を追加し、あわせてシステム全体の安定性を向上させました！<br><br>
-              <strong>【主なアップデート内容】</strong>
-              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
-                <li><strong>1年生の算数で、すべての単元を自分で選んで自由に学習できるようになりました！</strong></li>
-                <li><strong>データベース通信処理の最適化を行い、学習記録の読み込みや保存の安定性を向上させました</strong></li>
-              </ul>
-            </span>
-          </li>
-
-          <li>
-            <span class="news-date">2026/09/12</span>
-            <span class="news-text">
-              <strong>【機能改善・アップデートのお知らせ】</strong><br>
-              「本日のチャレンジ」における国語（1年生・2年生）の自動問題作成および問題表示レイアウトの改善を行いました！<br><br>
-              <strong>【主なアップデート内容】</strong>
-              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
-                <li><strong>1年生・2年生の国語「本日のチャレンジ」で毎日新しい自動作成問題が遊べるようになりました！</strong></li>
-                <li><strong>問題表示のレイアウトを調整し、画面サイズに合わせて見やすく崩れにくいデザインに修正しました</strong></li>
-              </ul>
-            </span>
-          </li>
-
-          <li>
-            <span class="news-date">2026/09/05</span>
-            <span class="news-text">
-              <strong>【機能改善・アップデートのお知らせ】</strong><br>
-              1年生の国語メニューおよびランキング表示の改善を行いました！<br><br>
-              <strong>【主なアップデート内容】</strong>
-              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
-                <li><strong>1年生向けの国語メニューページのレイアウトを刷新しました！</strong></li>
-                <li><strong>算数と国語のランキング表示を教科ごとに分離・修正しました</strong></li>
-              </ul>
-            </span>
-          </li>
-
-          <li>
-            <span class="news-date">2026/08/28</span>
-            <span class="news-text">
-              <strong>【機能追加・アップデートのお知らせ】</strong><br>
-              1年生向けの新しい機能と操作性の向上を行いました！<br><br>
-              <strong>【主なアップデート内容】</strong>
-              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
-                <li><strong>1年生向けの国語（本日のチャレンジ・トレーニング）を公開しました！</strong></li>
-                <li><strong>1年生の算数（文章問題）で、式の入力がより簡単に行えるようになりました！</strong></li>
-                <li>全体的なレイアウトおよび文字サイズ等の軽微な修正を行いました</li>
-              </ul>
-            </span>
-          </li>
-
-          <li>
-            <span class="news-date">2026/08/14</span>
-            <span class="news-text">
-              <strong>【アップデート・システムメンテナンス完了のお知らせ】</strong><br>
-              本日実施しておりましたシステムメンテナンスは無事に終了いたしました。<br>
-              ご協力いただき、誠にありがとうございました。<br><br>
-              <strong>【主なアップデート内容】</strong>
-              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
-                <li><strong>「今日のチャレンジ」の挑戦回数を1日1回に変更しました</strong></li>
-                <li><strong>2年生向けの算数問題を追加・公開しました！</strong></li>
-                <li>ヘッダー等にログイン中の「自分の学年」が表示されるようになりました</li>
-                <li>画面全体のレイアウト・デザインの微調整を行いました</li>
-              </ul>
-            </span>
-          </li>
-
-          <li>
-            <span class="news-date">2026/08/10</span>
-            <span class="news-text">
-              新規登録時の「学年選択」および「自動進級機能」を追加しました！<br>
-              毎年の4月1日に自動で学年が1つ上がる仕組みになりました。現在の学年はマイページからご確認いただけます。
-            </span>
-          </li>
-
-          <li>
-            <span class="news-date">2026/08/05</span>
-            <span class="news-text">
-              webページ全体の大幅改修を行いました。以前登録していただいていた利用者様には大変申し訳ございませんが、新規登録からお願いいたします。（以前のログイン情報は削除されております。）
-              <br><br>
-              <strong>【改修内容】</strong>
-              <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
-                <li>ニックネーム機能の追加</li>
-                <li>学年ごとの機能追加（現在は1年生のみ、順次公開予定）</li>
-                <li>前日の問題を解答した方のランキング表示</li>
-                <li>マイページ機能の追加（詳細はログイン後マイページからチェック）</li>
-              </ul>
-            </span>
-          </li>
-
-          <li>
-            <span class="news-date">2026/07/29</span>
-            <span class="news-text">webページ全面改修を行いました。ユーザー登録機能の追加・点数の記録機能を追加しました。</span>
-          </li>
+        <ul id="newsList" class="news-list">
+          <!-- JSで news.json から取得して動的に描画されます -->
         </ul>
       </div>
     </div>
@@ -192,11 +81,11 @@
             </form>
 
             <!-- 2. 新規登録フォーム -->
-            <form id="signupForm" style="display:none;">
+            <form id="signupForm" class="display-none">
                 <input type="text" id="signupName" class="modal-input" placeholder="お名前（例: 山田 太郎）" required>
                 <input type="text" id="signupNickname" class="modal-input" placeholder="ニックネーム（例: たろう）" required>
 
-                <select id="signupGrade" class="modal-select" required style="font-weight:bold; color:#2d3748;">
+                <select id="signupGrade" class="modal-select font-bold-dark" required>
                     <option value="" disabled selected>学年（がくねん）を えらんでね</option>
                     <option value="1">小学1年生</option>
                     <option value="2">小学2年生</option>
@@ -213,41 +102,41 @@
             </form>
             
             <!-- 3. パスワード再設定メール送信フォーム -->
-            <form id="resetRequestForm" style="display:none;">
-                <p style="font-size: 14px; color: #4a5568;">登録したメールアドレスに パスワード 再設定メールを 送ります。</p>
+            <form id="resetRequestForm" class="display-none">
+                <p class="text-gray-sub">登録したメールアドレスに パスワード 再設定メールを 送ります。</p>
                 <input type="email" id="resetEmail" class="modal-input" placeholder="メールアドレス" required>
                 <button type="submit" class="modal-submit-btn btn-orange">メールの送信</button>
-                <button type="button" class="btnBackToLogin" style="margin-top:10px; background:none; border:none; color:#718096; cursor:pointer; font-size:13px;">← もどる</button>
+                <button type="button" class="btnBackToLogin btn-back-link mt-10">← もどる</button>
             </form>
 
             <!-- 4. メールアドレスお問い合わせ案内表示 -->
-            <div id="findEmailNotice" class="notice-info-box" style="display:none;">
-                <p style="font-size: 14px; color: #2d3748; margin-top: 0; line-height: 1.6;">
+            <div id="findEmailNotice" class="notice-info-box display-none">
+                <p class="notice-text-p">
                     メールアドレスを わすれてしまった ばあいは、かんりしゃ（おうちの ひと）に きいてね。
                 </p>
-                <div style="text-align: center; margin-top: 15px;">
-                    <button type="button" class="btnBackToLogin" class="modal-submit-btn btn-gray" style="padding: 6px 16px; font-size: 13px;">← もどる</button>
+                <div class="text-center mt-15">
+                    <button type="button" class="btnBackToLogin modal-submit-btn btn-gray btn-padding-sm">← もどる</button>
                 </div>
             </div>
 
             <!-- 5. 新しいパスワード設定フォーム -->
-            <form id="updatePasswordForm" style="display:none;">
-                <p style="font-size: 14px; color: #2b6cb0; font-weight: bold;">新規の パスワードを 入力してください。</p>
+            <form id="updatePasswordForm" class="display-none">
+                <p class="text-blue-bold">新規の パスワードを 入力してください。</p>
                 <input type="password" id="newPasswordInput" class="modal-input" placeholder="あたらしい パスワード（6もし いじょう）" required minlength="6">
                 <button type="submit" class="modal-submit-btn btn-red">パスワードを 変更</button>
             </form>
 
             <!-- 6. 既存ユーザー向け ニックネーム強制登録フォーム -->
-            <form id="forceNicknameForm" style="display:none;">
+            <form id="forceNicknameForm" class="display-none">
                 <div class="alert-notice-box">
-                    <p style="font-size: 14px; color: #c53030; font-weight: bold; margin: 0 0 5px 0;">⚠️ ニックネームが とうろく されていません</p>
-                    <p style="font-size: 12px; color: #742a2a; margin: 0;">Webプリントで つかう ニックネーム（よんでもらいたい なまえ）を 入力してね！</p>
+                    <p class="alert-title">⚠️ ニックネームが とうろく されていません</p>
+                    <p class="alert-desc">Webプリントで つかう ニックネーム（よんでもらいたい なまえ）を 入力してね！</p>
                 </div>
                 <input type="text" id="forceNicknameInput" class="modal-input" placeholder="ニックネーム（例: たろう）" required>
                 <button type="submit" class="modal-submit-btn btn-red">決定して つぎへ</button>
             </form>
 
-            <p id="authMessage" style="margin-top:15px; font-size:14px; word-break: break-all;"></p>
+            <p id="authMessage" class="auth-message-text"></p>
         </div>
     </div>
 </body>
