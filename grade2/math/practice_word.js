@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const setupSection = document.getElementById('setup-section');
     const quizSection = document.getElementById('quiz-section');
     const wordTypeSelect = document.getElementById('word-type');
@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtn = document.getElementById('reset-btn');
 
     let currentProblems = [];
+    let wordTemplates = {};
+
+    // JSONテンプレートの読み込み
+    await loadTemplatesFromJSON();
 
     // セッション復元
     restoreSessionState();
@@ -107,6 +111,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /**
+     * JSONデータの読み込み
+     */
+    async function loadTemplatesFromJSON() {
+        try {
+            const response = await fetch('../../problems_template.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.math?.grade2?.word_templates) {
+                wordTemplates = data.math.grade2.word_templates;
+            } else {
+                console.warn('JSON内に2年生の文章題テンプレートが見つかりません。');
+            }
+        } catch (error) {
+            console.error('テンプレートJSONの読み込みに失敗しました:', error);
+        }
+    }
+
+    /**
      * 文章題生成機能
      */
     function generateWordProblems(type, count) {
@@ -119,19 +144,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedType = availableTypes[getRandomInt(0, availableTypes.length - 1)];
             }
 
+            const templates = wordTemplates[selectedType];
+            if (!templates || templates.length === 0) continue;
+
             if (selectedType === 'kuku_word') {
-                const items = [
-                    { name: 'りんご', unit: 'こ', dish: 'お皿' },
-                    { name: 'クッキー', unit: 'こ', dish: 'ふくろ' },
-                    { name: 'キャンディー', unit: 'こ', dish: 'はこ' },
-                    { name: '鉛筆', unit: 'ほん', dish: 'ケース' }
-                ];
-                const item = items[getRandomInt(0, items.length - 1)];
+                const tpl = templates[getRandomInt(0, templates.length - 1)];
+                const item = tpl.items[getRandomInt(0, tpl.items.length - 1)];
                 const perNum = getRandomInt(2, 9);
                 const countNum = getRandomInt(2, 9);
 
+                const text = tpl.text
+                    .replace(/{dish}/g, item.dish)
+                    .replace(/{name}/g, item.name)
+                    .replace(/{unit}/g, item.unit)
+                    .replace('{perNum}', perNum)
+                    .replace('{countNum}', countNum);
+
                 problems.push({
-                    text: `1つの ${item.dish} に ${item.name} が ${perNum}${item.unit} ずつ はいっています。${item.dish} が ${countNum}つ あります。ぜんぶで ${item.name} は なん${item.unit} ありますか。`,
+                    text,
                     equation: `${perNum}*${countNum}`,
                     displayEq: `${perNum} × ${countNum}`,
                     answer: perNum * countNum,
@@ -139,52 +169,76 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
             } else if (selectedType === 'step2_word') {
-                const isAddThenSub = Math.random() < 0.5;
-                if (isAddThenSub) {
+                const tpl = templates[getRandomInt(0, templates.length - 1)];
+
+                if (tpl.pattern === 'add_then_sub') {
                     const start = getRandomInt(10, 30);
                     const add = getRandomInt(5, 20);
                     const sub = getRandomInt(3, start + add - 5);
+
+                    const text = tpl.text
+                        .replace('{start}', start)
+                        .replace('{add}', add)
+                        .replace('{sub}', sub);
+
                     problems.push({
-                        text: `公園に 子どもが ${start}人 いました。あとから ${add}人 やってきました。そのあと ${sub}人 かえりました。いま 公園には 子どもが 何人 いますか。`,
+                        text,
                         equation: `${start}+${add}-${sub}`,
                         displayEq: `${start} + ${add} - ${sub}`,
                         answer: start + add - sub,
-                        unit: '人'
+                        unit: tpl.unit
                     });
                 } else {
                     const start = getRandomInt(20, 40);
                     const sub = getRandomInt(5, 15);
                     const add = getRandomInt(5, 20);
+
+                    const text = tpl.text
+                        .replace('{start}', start)
+                        .replace('{sub}', sub)
+                        .replace('{add}', add);
+
                     problems.push({
-                        text: `バスに ${start}人 のっています。バス停で ${sub}人 おりて、${add}人 のってきました。いま バスには 何人 のっていますか。`,
+                        text,
                         equation: `${start}-${sub}+${add}`,
                         displayEq: `${start} - ${sub} + ${add}`,
                         answer: start - sub + add,
-                        unit: '人'
+                        unit: tpl.unit
                     });
                 }
 
             } else if (selectedType === 'unit_word') {
-                const isLength = Math.random() < 0.5;
-                if (isLength) {
+                const tpl = templates[getRandomInt(0, templates.length - 1)];
+
+                if (tpl.pattern === 'length') {
                     const l1 = getRandomInt(10, 40);
                     const l2 = getRandomInt(10, 40);
+
+                    const text = tpl.text
+                        .replace('{l1}', l1)
+                        .replace('{l2}', l2);
+
                     problems.push({
-                        text: `あかい テープの ながさは ${l1}cm、あおい テープの ながさは ${l2}cm です。2つの テープを あわせると ながさは 何cm になりますか。`,
+                        text,
                         equation: `${l1}+${l2}`,
                         displayEq: `${l1} + ${l2}`,
                         answer: l1 + l2,
-                        unit: 'cm'
+                        unit: tpl.unit
                     });
                 } else {
                     const v1 = getRandomInt(2, 6);
                     const v2 = getRandomInt(1, 3);
+
+                    const text = tpl.text
+                        .replace('{v1}', v1)
+                        .replace('{v2}', v2);
+
                     problems.push({
-                        text: `水そうに 水が ${v1}L はいっています。そこに ${v2}L の 水を くわえました。水そうの 水は ぜんぶで 何L になりましたか。`,
+                        text,
                         equation: `${v1}+${v2}`,
                         displayEq: `${v1} + ${v2}`,
                         answer: v1 + v2,
-                        unit: 'L'
+                        unit: tpl.unit
                     });
                 }
             }

@@ -1,46 +1,5 @@
 let currentPracticeProblems = [];
-
-// 問題データベース（拡張版）
-const PRACTICE_DB = {
-    // 1. くっつきの「は・を・へ」
-    particle: [
-        { text: "わたし（ ） がっこうへ いきます。", options: ["は", "を", "へ"], answer: "は", type: "radio" },
-        { text: "ごはん（ ） たべます。", options: ["は", "を", "へ"], answer: "を", type: "radio" },
-        { text: "こうえん（ ） あそびに いきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" },
-        { text: "ほん（ ） よみます。", options: ["は", "を", "へ"], answer: "を", type: "radio" },
-        { text: "ねこ（ ） かわいいです。", options: ["は", "を", "へ"], answer: "は", type: "radio" },
-        { text: "おともだち（ ） てがみを かきます。", options: ["は", "を", "へ"], answer: "へ", type: "radio" }
-    ],
-    // 2. かんじの よみ
-    kanji: [
-        { text: "「山」の よみかた", answer: "やま", type: "text" },
-        { text: "「川」の よみかた", answer: "かわ", type: "text" },
-        { text: "「木」の よみかた", answer: "き", type: "text" },
-        { text: "「日」の よみかた", answer: "ひ", type: "text" },
-        { text: "「月」の よみかた", answer: "つき", type: "text" },
-        { text: "「水」の よみかた", answer: "みず", type: "text" },
-        { text: "「火」の よみかた", answer: "ひ", type: "text" },
-        { text: "「人」の よみかた", answer: "ひと", type: "text" },
-        { text: "「口」の よみかた", answer: "くち", type: "text" }
-    ],
-    // 3. カタカナへの かきかえ
-    katakana: [
-        { text: "「ばなな」を カタカナで かこう", answer: "バナナ", type: "text" },
-        { text: "「ぱん」を カタカナで かこう", answer: "パン", type: "text" },
-        { text: "「てれび」を カタカナで かこう", answer: "テレビ", type: "text" },
-        { text: "「ばす」を カタカナで かこう", answer: "バス", type: "text" },
-        { text: "「けーき」を カタカナで かこう", answer: "ケーキ", type: "text" }
-    ],
-    // 4. はんたいの ことば
-    opposite: [
-        { text: "「おおきい」の はんたいの ことば", answer: "ちいさい", type: "text" },
-        { text: "「うえ」の はんたいの ことば", answer: "した", type: "text" },
-        { text: "「ながい」の はんたいの ことば", answer: "みじかい", type: "text" },
-        { text: "「まえ」の はんたいの ことば", answer: "うしろ", type: "text" },
-        { text: "「たかい」の はんたいの ことば", answer: "ひくい", type: "text" },
-        { text: "「あかるい」の はんたいの ことば", answer: "くらい", type: "text" }
-    ]
-};
+let practiceDb = {}; // JSONから読み込んだ国語問題を格納
 
 document.addEventListener('DOMContentLoaded', async () => {
     // ユーザー名表示
@@ -58,6 +17,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('ユーザー情報取得エラー:', e);
         }
     }
+
+    // JSONテンプレートの読み込み
+    await loadTemplatesFromJSON();
 
     // ボタンイベントの設定
     const generateBtn = document.getElementById('generateBtn');
@@ -89,6 +51,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
+ * problems_template.json から国語データを読み込む
+ */
+async function loadTemplatesFromJSON() {
+    try {
+        const response = await fetch('../../problems_template.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.japanese?.grade1?.practice_db) {
+            practiceDb = data.japanese.grade1.practice_db;
+        } else {
+            console.warn('JSON内に国語問題のデータ構造が見つかりません。');
+        }
+    } catch (error) {
+        console.error('テンプレートJSONの読み込みに失敗しました:', error);
+    }
+}
+
+/**
  * 問題のランダム生成
  */
 function generateNewProblems() {
@@ -100,14 +83,13 @@ function generateNewProblems() {
 
     let pool = [];
     if (typeSetting === 'all') {
-        pool = [
-            ...PRACTICE_DB.particle,
-            ...PRACTICE_DB.kanji,
-            ...PRACTICE_DB.katakana,
-            ...PRACTICE_DB.opposite
-        ];
-    } else if (PRACTICE_DB[typeSetting]) {
-        pool = [...PRACTICE_DB[typeSetting]];
+        Object.values(practiceDb).forEach(group => {
+            if (Array.isArray(group)) {
+                pool.push(...group);
+            }
+        });
+    } else if (practiceDb[typeSetting]) {
+        pool = [...practiceDb[typeSetting]];
     }
 
     if (pool.length === 0) return;

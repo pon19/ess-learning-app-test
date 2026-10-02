@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const setupSection = document.getElementById('setup-section');
     const quizSection = document.getElementById('quiz-section');
     const japaneseTypeSelect = document.getElementById('japanese-type');
@@ -13,30 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtn = document.getElementById('reset-btn');
 
     let currentProblems = [];
+    let practiceDb = {};
 
-    const kanjiList = [
-        { text: '「風」の よみかた：', answer: 'かぜ' },
-        { text: '「家」の よみかた：', answer: 'いえ' },
-        { text: '「海」の よみかた：', answer: 'うみ' },
-        { text: '「谷」の よみかた：', answer: 'たに' },
-        { text: '「野」の よみかた：', answer: 'の' },
-        { text: '「原」の よみかた：', answer: 'はら' }
-    ];
-
-    const oppositeList = [
-        { text: '「ひろい」の 反対：', answer: 'せまい' },
-        { text: '「おもい」の 反対：', answer: 'かるい' },
-        { text: '「あかるい」の 反対：', answer: 'くらい' },
-        { text: '「とおい」の 反対：', answer: 'ちかい' },
-        { text: '「つよい」の 反対：', answer: 'よわい' }
-    ];
-
-    const conjunctionList = [
-        { text: 'あめが ふってきた。（  ）、かさを さす。', answer: 'だから' },
-        { text: 'はしった。（  ）、まにおわなかった。', answer: 'しかし' },
-        { text: 'べんきょうした。（  ）、100てんが とれた。', answer: 'だから' },
-        { text: 'さがした。（  ）、みつからなかった。', answer: 'けれど' }
-    ];
+    // JSONテンプレートの読み込み
+    await loadTemplatesFromJSON();
 
     startBtn.addEventListener('click', () => {
         const type = japaneseTypeSelect.value;
@@ -83,12 +63,42 @@ document.addEventListener('DOMContentLoaded', () => {
         resultContainer.classList.remove('hidden');
     });
 
+    /**
+     * JSONデータの読み込み
+     */
+    async function loadTemplatesFromJSON() {
+        try {
+            const response = await fetch('../../problems_template.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.japanese?.grade2?.practice_db) {
+                practiceDb = data.japanese.grade2.practice_db;
+            } else {
+                console.warn('JSON内に2年生用国語のデータが見つかりません。');
+            }
+        } catch (error) {
+            console.error('テンプレートJSONの読み込みに失敗しました:', error);
+        }
+    }
+
     function generateProblems(type, count) {
         let pool = [];
-        if (type === 'kanji_read') pool = kanjiList;
-        else if (type === 'opposite') pool = oppositeList;
-        else if (type === 'conjunction') pool = conjunctionList;
-        else pool = [...kanjiList, ...oppositeList, ...conjunctionList];
+        const kanjiList = practiceDb.kanji || [];
+        const oppositeList = practiceDb.opposite || [];
+        const conjunctionList = practiceDb.conjunction || [];
+
+        if (type === 'kanji_read') {
+            pool = kanjiList;
+        } else if (type === 'opposite') {
+            pool = oppositeList;
+        } else if (type === 'conjunction') {
+            pool = conjunctionList;
+        } else {
+            pool = [...kanjiList, ...oppositeList, ...conjunctionList];
+        }
 
         const shuffled = [...pool].sort(() => 0.5 - Math.random());
         return shuffled.slice(0, Math.min(count, shuffled.length));

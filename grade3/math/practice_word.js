@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const setupSection = document.getElementById('setup-section');
     const quizSection = document.getElementById('quiz-section');
     const wordTypeSelect = document.getElementById('word-type');
@@ -13,161 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtn = document.getElementById('reset-btn');
 
     let currentProblems = [];
+    let wordTemplates = [];
 
-    // -------------------------------------------------------------
-    // 文章題テンプレート（無理な計算にならないよう数字を生成する関数付き）
-    // -------------------------------------------------------------
-    const wordProblemTemplates = [
-        // --- 1. 割り算（あまりあり） ---
-        {
-            category: 'div',
-            generate: () => {
-                const item = getRandomElement(['あめ', 'クッキー', 'チョコ', 'シール', '折り紙']);
-                const unit = item === '折り紙' ? '枚' : '個';
-                const countPerPerson = getRandomInt(3, 8); // 1人分の数
-                const people = getRandomInt(3, 7); // 配れる人数（商）
-                const remainder = getRandomInt(1, countPerPerson - 1); // あまり（割る数より必ず小さい）
-                const total = countPerPerson * people + remainder; // 全体の数
-
-                return {
-                    category: 'div',
-                    text: `${total}${unit}の${item}を、1人に${countPerPerson}${unit}ずつくばります。何人にくばれて、何${unit}あまりますか。`,
-                    formula: `${total}÷${countPerPerson}=${people}あまり${remainder}`,
-                    ansSho: people.toString(),
-                    ansAmari: remainder.toString(),
-                    unitSho: '人',
-                    unitAmari: unit,
-                    hasRemainder: true
-                };
-            }
-        },
-        // --- 2. 割り算（あまりなし） ---
-        {
-            category: 'div',
-            generate: () => {
-                const perGroup = getRandomInt(3, 9);
-                const groups = getRandomInt(4, 9);
-                const total = perGroup * groups;
-
-                return {
-                    category: 'div',
-                    text: `${total}人の児童を、1グループ${perGroup}人ずつに分けると、何グループできますか。`,
-                    formula: `${total}÷${perGroup}=${groups}`,
-                    answer: groups.toString(),
-                    unit: 'グループ',
-                    hasRemainder: false
-                };
-            }
-        },
-        // --- 3. かけ算（2桁×1桁） ---
-        {
-            category: 'mul',
-            generate: () => {
-                const item = getRandomElement(['チョコボール', 'キャラメル', '消しゴム', '鉛筆']);
-                const unit = item === '鉛筆' ? '本' : '個';
-                const perBox = getRandomInt(12, 35);
-                const boxes = getRandomInt(3, 6);
-                const total = perBox * boxes;
-
-                return {
-                    category: 'mul',
-                    text: `1箱に${perBox}${unit}入った${item}が${boxes}箱あります。${item}はぜんぶで何${unit}ありますか。`,
-                    formula: `${perBox}×${boxes}=${total}`,
-                    answer: total.toString(),
-                    unit: unit,
-                    hasRemainder: false
-                };
-            }
-        },
-        // --- 4. かけ算（何十×1桁） ---
-        {
-            category: 'mul',
-            generate: () => {
-                const item = getRandomElement(['ノート', 'ペン', 'ファイル', '消しゴム']);
-                const price = getRandomInt(4, 9) * 10; // 40円〜90円
-                const count = getRandomInt(4, 8);
-                const total = price * count;
-
-                return {
-                    category: 'mul',
-                    text: `1さつ${price}円の${item}を${count}さつ買いました。代金はいくらになりますか。`,
-                    formula: `${price}×${count}=${total}`,
-                    answer: total.toString(),
-                    unit: '円',
-                    hasRemainder: false
-                };
-            }
-        },
-        // --- 5. 小数（引き算） ---
-        {
-            category: 'decimal',
-            generate: () => {
-                const total10 = getRandomInt(6, 18); // 例: 0.6L 〜 1.8L
-                const drink10 = getRandomInt(2, total10 - 1); // 必ず全体より小さい値
-                const remain10 = total10 - drink10;
-
-                const total = (total10 / 10).toFixed(1);
-                const drink = (drink10 / 10).toFixed(1);
-                const remain = (remain10 / 10).toFixed(1);
-
-                return {
-                    category: 'decimal',
-                    text: `水とうに水が${total}L入っています。${drink}L飲むと、のこりは何Lになりますか。`,
-                    formula: `${total}-${drink}=${remain}`,
-                    answer: remain,
-                    unit: 'L',
-                    hasRemainder: false
-                };
-            }
-        },
-        // --- 6. 小数（足し算） ---
-        {
-            category: 'decimal',
-            generate: () => {
-                const a10 = getRandomInt(3, 9);
-                const b10 = getRandomInt(4, 9);
-                const sum10 = a10 + b10;
-
-                const a = (a10 / 10).toFixed(1);
-                const b = (b10 / 10).toFixed(1);
-                const sum = (sum10 / 10).toFixed(1);
-
-                return {
-                    category: 'decimal',
-                    text: `昨日テープを${a}m、今日テープを${b}m使いました。あわせて何m使いましたか。`,
-                    formula: `${a}+${b}=${sum}`,
-                    answer: sum,
-                    unit: 'm',
-                    hasRemainder: false
-                };
-            }
-        },
-        // --- 7. 時間と時刻 ---
-        {
-            category: 'time',
-            generate: () => {
-                const startHour = getRandomInt(1, 4); // 午後1時〜4時
-                const startMin = getRandomElement([0, 10, 15, 20]);
-                const duration = getRandomElement([20, 25, 30, 35, 40]);
-                
-                const endMinTotal = startMin + duration;
-                const endHour = startHour + Math.floor(endMinTotal / 60);
-                const endMin = endMinTotal % 60;
-
-                const startMinStr = startMin === 0 ? '' : `${startMin}分`;
-                const textMin = startMin === 0 ? '0分' : `${startMin}分`;
-
-                return {
-                    category: 'time',
-                    text: `午後${startHour}時${textMin}から${duration}分間、図書館で勉強をしました。勉強が終わったのは午後何時何分ですか。`,
-                    formula: `${startMin}+${duration}=${endMinTotal}`,
-                    ansHour: endHour.toString(),
-                    ansMin: endMin.toString(),
-                    isTime: true
-                };
-            }
-        }
-    ];
+    // JSONテンプレートの読み込み
+    await loadTemplatesFromJSON();
 
     restoreSessionState();
 
@@ -286,26 +135,207 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /**
+     * JSONデータの読み込み
+     */
+    async function loadTemplatesFromJSON() {
+        try {
+            const response = await fetch('../../problems_template.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.math?.grade3?.word_templates) {
+                wordTemplates = data.math.grade3.word_templates;
+            } else {
+                console.warn('JSON内に3年生の文章題テンプレートが見つかりません。');
+            }
+        } catch (error) {
+            console.error('テンプレートJSONの読み込みに失敗しました:', error);
+        }
+    }
+
+    /**
+     * テンプレートから具体問題を生成するヘルパー関数
+     */
+    function instantiateProblem(template) {
+        const { category, pattern, text, items } = template;
+
+        if (category === 'div' && pattern === 'remainder') {
+            const item = getRandomElement(items || ['あめ', 'クッキー', 'チョコ']);
+            const unit = item === '折り紙' ? '枚' : '個';
+            const countPerPerson = getRandomInt(3, 8);
+            const people = getRandomInt(3, 7);
+            const remainder = getRandomInt(1, countPerPerson - 1);
+            const total = countPerPerson * people + remainder;
+
+            const problemText = text
+                .replace(/{total}/g, total)
+                .replace(/{countPerPerson}/g, countPerPerson)
+                .replace(/{item}/g, item)
+                .replace(/{unit}/g, unit);
+
+            return {
+                category: 'div',
+                text: problemText,
+                formula: `${total}÷${countPerPerson}=${people}あまり${remainder}`,
+                ansSho: people.toString(),
+                ansAmari: remainder.toString(),
+                unitSho: '人',
+                unitAmari: unit,
+                hasRemainder: true
+            };
+        } else if (category === 'div' && pattern === 'exact') {
+            const perGroup = getRandomInt(3, 9);
+            const groups = getRandomInt(4, 9);
+            const total = perGroup * groups;
+
+            const problemText = text
+                .replace('{total}', total)
+                .replace('{perGroup}', perGroup);
+
+            return {
+                category: 'div',
+                text: problemText,
+                formula: `${total}÷${perGroup}=${groups}`,
+                answer: groups.toString(),
+                unit: 'グループ',
+                hasRemainder: false
+            };
+        } else if (category === 'mul' && pattern === 'two_digit') {
+            const item = getRandomElement(items || ['チョコボール', '消しゴム']);
+            const unit = item === '鉛筆' ? '本' : '個';
+            const perBox = getRandomInt(12, 35);
+            const boxes = getRandomInt(3, 6);
+            const total = perBox * boxes;
+
+            const problemText = text
+                .replace('{perBox}', perBox)
+                .replace(/{item}/g, item)
+                .replace(/{unit}/g, unit)
+                .replace('{boxes}', boxes);
+
+            return {
+                category: 'mul',
+                text: problemText,
+                formula: `${perBox}×${boxes}=${total}`,
+                answer: total.toString(),
+                unit: unit,
+                hasRemainder: false
+            };
+        } else if (category === 'mul' && pattern === 'tens') {
+            const item = getRandomElement(items || ['ノート', 'ペン']);
+            const price = getRandomInt(4, 9) * 10;
+            const count = getRandomInt(4, 8);
+            const total = price * count;
+
+            const problemText = text
+                .replace('{price}', price)
+                .replace('{item}', item)
+                .replace('{count}', count);
+
+            return {
+                category: 'mul',
+                text: problemText,
+                formula: `${price}×${count}=${total}`,
+                answer: total.toString(),
+                unit: '円',
+                hasRemainder: false
+            };
+        } else if (category === 'decimal' && pattern === 'sub') {
+            const total10 = getRandomInt(6, 18);
+            const drink10 = getRandomInt(2, total10 - 1);
+            const remain10 = total10 - drink10;
+
+            const total = (total10 / 10).toFixed(1);
+            const drink = (drink10 / 10).toFixed(1);
+            const remain = (remain10 / 10).toFixed(1);
+
+            const problemText = text
+                .replace('{total}', total)
+                .replace('{drink}', drink);
+
+            return {
+                category: 'decimal',
+                text: problemText,
+                formula: `${total}-${drink}=${remain}`,
+                answer: remain,
+                unit: 'L',
+                hasRemainder: false
+            };
+        } else if (category === 'decimal' && pattern === 'add') {
+            const a10 = getRandomInt(3, 9);
+            const b10 = getRandomInt(4, 9);
+            const sum10 = a10 + b10;
+
+            const a = (a10 / 10).toFixed(1);
+            const b = (b10 / 10).toFixed(1);
+            const sum = (sum10 / 10).toFixed(1);
+
+            const problemText = text
+                .replace('{a}', a)
+                .replace('{b}', b);
+
+            return {
+                category: 'decimal',
+                text: problemText,
+                formula: `${a}+${b}=${sum}`,
+                answer: sum,
+                unit: 'm',
+                hasRemainder: false
+            };
+        } else if (category === 'time' && pattern === 'duration') {
+            const startHour = getRandomInt(1, 4);
+            const startMin = getRandomElement([0, 10, 15, 20]);
+            const duration = getRandomElement([20, 25, 30, 35, 40]);
+
+            const endMinTotal = startMin + duration;
+            const endHour = startHour + Math.floor(endMinTotal / 60);
+            const endMin = endMinTotal % 60;
+
+            const textMin = startMin === 0 ? '0分' : `${startMin}分`;
+
+            const problemText = text
+                .replace('{startHour}', startHour)
+                .replace('{textMin}', textMin)
+                .replace('{duration}', duration);
+
+            return {
+                category: 'time',
+                text: problemText,
+                formula: `${startMin}+${duration}=${endMinTotal}`,
+                ansHour: endHour.toString(),
+                ansMin: endMin.toString(),
+                isTime: true
+            };
+        }
+        return null;
+    }
+
+    /**
      * ランダム問題生成関数
      */
     function generateRandomProblems(category, count) {
-        let availableTemplates = wordProblemTemplates;
+        let availableTemplates = wordTemplates;
         if (category !== 'all') {
-            availableTemplates = wordProblemTemplates.filter(t => t.category === category);
+            availableTemplates = wordTemplates.filter(t => t.category === category);
         }
 
         const problems = [];
         for (let i = 0; i < count; i++) {
-            // カテゴリに合うテンプレートからランダムに選出し、数値を生成
+            if (availableTemplates.length === 0) break;
             const template = getRandomElement(availableTemplates);
-            problems.push(template.generate());
+            const problem = instantiateProblem(template);
+            if (problem) {
+                problems.push(problem);
+            }
         }
 
         return problems;
     }
 
     /**
-     * 問題描画（プレースホルダーをすべて「答え」に統一）
+     * 問題描画
      */
     function renderProblems(problems, userAnswers = []) {
         problemsContainer.innerHTML = '';
@@ -317,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let answerInputHtml = '';
 
             if (problem.isTime) {
-                // 時刻用入力欄（プレースホルダー：「答え」）
                 const savedHour = (typeof savedVal === 'object' && savedVal !== null) ? savedVal.hour : '';
                 const savedMin = (typeof savedVal === 'object' && savedVal !== null) ? savedVal.min : '';
 
@@ -330,7 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             } else if (problem.hasRemainder) {
-                // あまりのある計算用入力欄（プレースホルダー：「答え」）
                 const savedSho = (typeof savedVal === 'object' && savedVal !== null) ? savedVal.sho : '';
                 const savedAmari = (typeof savedVal === 'object' && savedVal !== null) ? savedVal.amari : '';
 
@@ -344,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             } else {
-                // 通常計算用入力欄（プレースホルダー：「答え」）
                 const singleVal = (typeof savedVal === 'string') ? savedVal : '';
                 answerInputHtml = `
                     <input type="text" id="ans-${index}" class="input-answer-num" value="${escapeHTML(singleVal)}" placeholder="答え" autocomplete="off">

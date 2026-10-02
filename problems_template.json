@@ -1,0 +1,244 @@
+{
+  "math": {
+    "grade1": {
+      "word_templates": {
+        "basic_add": [
+          {
+            "text": "{item}が {p1}こ あります。{item}を {p2}こ もらいました。あわせて いくつに なりますか。",
+            "items": ["りんご", "みかん", "キャンディー", "クッキー"],
+            "type": "basic_add"
+          },
+          {
+            "text": "{person}が {p1}にん いました。あとから {p2}にん きました。みんなで なんにんに なりましたか。",
+            "items": ["こども", "おともだち"],
+            "type": "basic_add"
+          },
+          {
+            "text": "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。ぜんぶで いくつ ありますか。",
+            "items": ["ボール", "おはじき", "つみき"],
+            "type": "basic_add"
+          }
+        ],
+        "basic_sub": [
+          {
+            "text": "{item}が {p1}こ あります。{p2}こ たべました。のこりは いくつですか。",
+            "items": ["いちご", "パン", "チョコレート"],
+            "type": "basic_sub"
+          },
+          {
+            "text": "こうえんに {person}が {p1}にん いました。{p2}にん かえりました。のこりは なんにんですか。",
+            "items": ["こども", "おともだち"],
+            "type": "basic_sub"
+          },
+          {
+            "text": "折り紙を {p1}まい もっていました。{p2}まい つかいました。のこりは なんまいですか。",
+            "items": ["おりがみ"],
+            "type": "basic_sub"
+          }
+        ],
+        "advanced_add": [
+          {
+            "text": "{item}が {p1}こ あります。{item}を {p2}こ もらいました。あわせて いくつに なりますか。",
+            "items": ["りんご", "みかん", "キャンディー"],
+            "type": "advanced_add"
+          },
+          {
+            "text": "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。ぜんぶで いくつ ありますか。",
+            "items": ["ボール", "おはじき", "つみき"],
+            "type": "advanced_add"
+          }
+        ],
+        "advanced_sub": [
+          {
+            "text": "{item}が {p1}こ あります。{p2}こ たべました。のこりは いくつですか。",
+            "items": ["ドーナツ", "キャンディー", "クッキー"],
+            "type": "advanced_sub"
+          },
+          {
+            "text": "こうえんに {person}が {p1}にん いました。{p2}にん かえりました。のこりは なんにんですか。",
+            "items": ["こども", "おともだち"],
+            "type": "advanced_sub"
+          }
+        ],
+        "three_nums": [
+          {
+            "text": "バスに {p1}にん のっていました。バスていで {p2}にん のって、さらに {p3}にん のってきました。みんなで なんにんになりましたか。",
+            "items": [],
+            "op": "+",
+            "type": "three_add"
+          },
+          {
+            "text": "みかんが {p1}こ あります。あさに {p2}こ、ゆうがたに {p3}こ たべました。のこりは いくつですか。",
+            "items": [],
+            "op": "-",
+            "type": "three_sub"
+          },
+          {
+            "text": "{item}が {p1}こ あります。{p2}こ もらって、そのあと {p3}こ たべました。いま いくつ ありますか。",
+            "items": ["あめ"],
+            "op": "+-",
+            "type": "three_mix"
+          }
+        ],
+        "compare": [
+          {
+            "text": "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。赤い {item}の ほうが なんこ おおいですか。",
+            "items": ["おはじき", "ブロック", "シール"],
+            "type": "compare"
+          },
+          {
+            "text": "お兄さんは {item}を {p1}こ、弟は {p2}こ もっています。ちがいは なんこですか。",
+            "items": ["カード", "どんぐり"],
+            "type": "compare"
+          }
+        ]
+      }
+    },
+    "grade2": {
+      "word_templates": {
+        "kuku_word": [
+          {
+            "text": "1つの {dish} に {name} が {perNum}{unit} ずつ はいっています。{dish} が {countNum}つ あります。ぜんぶで {name} は なん{unit} ありますか。",
+            "items": [
+              { "name": "りんご", "unit": "こ", "dish": "お皿" },
+              { "name": "クッキー", "unit": "こ", "dish": "ふくろ" },
+              { "name": "キャンディー", "unit": "こ", "dish": "はこ" },
+              { "name": "鉛筆", "unit": "ほん", "dish": "ケース" }
+            ]
+          }
+        ],
+        "step2_word": [
+          {
+            "pattern": "add_then_sub",
+            "text": "公園に 子どもが {start}人 いました。あとから {add}人 やってきました。そのあと {sub}人 かえりました。いま 公園には 子どもが 何人 いますか。",
+            "unit": "人"
+          },
+          {
+            "pattern": "sub_then_add",
+            "text": "バスに {start}人 のっています。バス停で {sub}人 おりて、{add}人 のってきました。いま バスには 何人 のっていますか。",
+            "unit": "人"
+          }
+        ],
+        "unit_word": [
+          {
+            "pattern": "length",
+            "text": "あかい テープの ながさは {l1}cm、あおい テープの ながさは {l2}cm です。2つの テープを あわせると ながさは 何cm になりますか。",
+            "unit": "cm"
+          },
+          {
+            "pattern": "volume",
+            "text": "水そうに 水が {v1}L はいっています。そこに {v2}L の 水を くわえました。水そうの 水は ぜんぶで 何L になりましたか。",
+            "unit": "L"
+          }
+        ]
+      }
+    },
+    "grade3": {
+      "word_templates": [
+        {
+          "category": "div",
+          "pattern": "remainder",
+          "text": "{total}{unit}の{item}を、1人に{countPerPerson}{unit}ずつくばります。何人にくばれて、何{unit}あまりますか。",
+          "items": ["あめ", "クッキー", "チョコ", "シール", "折り紙"]
+        },
+        {
+          "category": "div",
+          "pattern": "exact",
+          "text": "{total}人の児童を、1グループ{perGroup}人ずつに分けると、何グループできますか。"
+        },
+        {
+          "category": "mul",
+          "pattern": "two_digit",
+          "text": "1箱に{perBox}{unit}入った{item}が{boxes}箱あります。{item}はぜんぶで何{unit}ありますか。",
+          "items": ["チョコボール", "キャラメル", "消しゴム", "鉛筆"]
+        },
+        {
+          "category": "mul",
+          "pattern": "tens",
+          "text": "1さつ{price}円の{item}を{count}さつ買いました。代金はいくらになりますか。",
+          "items": ["ノート", "ペン", "ファイル", "消しゴム"]
+        },
+        {
+          "category": "decimal",
+          "pattern": "sub",
+          "text": "水とうに水が{total}L入っています。{drink}L飲むと、のこりは何Lになりますか。"
+        },
+        {
+          "category": "decimal",
+          "pattern": "add",
+          "text": "昨日テープを{a}m、今日テープを{b}m使いました。あわせて何m使いましたか。"
+        },
+        {
+          "category": "time",
+          "pattern": "duration",
+          "text": "午後{startHour}時{textMin}から{duration}分間、図書館で勉強をしました。勉強が終わったのは午後何時何分ですか。"
+        }
+      ]
+    }
+  },
+  "japanese": {
+    "grade1": {
+      "practice_db": {
+        "particle": [
+          { "text": "わたし（ ） がっこうへ いきます。", "options": ["は", "を", "へ"], "answer": "は", "type": "radio" },
+          { "text": "ごはん（ ） たべます。", "options": ["は", "を", "へ"], "answer": "を", "type": "radio" },
+          { "text": "こうえん（ ） あそびに いきます。", "options": ["は", "を", "へ"], "answer": "へ", "type": "radio" },
+          { "text": "ほん（ ） よみます。", "options": ["は", "を", "へ"], "answer": "を", "type": "radio" },
+          { "text": "ねこ（ ） かわいいです。", "options": ["は", "を", "へ"], "answer": "は", "type": "radio" },
+          { "text": "おともだち（ ） てがみを かきます。", "options": ["は", "を", "へ"], "answer": "へ", "type": "radio" }
+        ],
+        "kanji": [
+          { "text": "「山」の よみかた", "answer": "やま", "type": "text" },
+          { "text": "「川」の よみかた", "answer": "かわ", "type": "text" },
+          { "text": "「木」の よみかた", "answer": "き", "type": "text" },
+          { "text": "「日」の よみかた", "answer": "ひ", "type": "text" },
+          { "text": "「月」の よみかた", "answer": "つき", "type": "text" },
+          { "text": "「水」の よみかた", "answer": "みず", "type": "text" },
+          { "text": "「火」の よみかた", "answer": "ひ", "type": "text" },
+          { "text": "「人」の よみかた", "answer": "ひと", "type": "text" },
+          { "text": "「口」の よみかた", "answer": "くち", "type": "text" }
+        ],
+        "katakana": [
+          { "text": "「ばなな」を カタカナで かこう", "answer": "バナナ", "type": "text" },
+          { "text": "「ぱん」を カタカナで かこう", "answer": "パン", "type": "text" },
+          { "text": "「てれび」を カタカナで かこう", "answer": "テレビ", "type": "text" },
+          { "text": "「ばす」を カタカナで かこう", "answer": "バス", "type": "text" },
+          { "text": "「けーき」を カタカナで かこう", "answer": "ケーキ", "type": "text" }
+        ],
+        "opposite": [
+          { "text": "「おおきい」の はんたいの ことば", "answer": "ちいさい", "type": "text" },
+          { "text": "「うえ」の はんたいの ことば", "answer": "した", "type": "text" },
+          { "text": "「ながい」の はんたいの ことば", "answer": "みじかい", "type": "text" },
+          { "text": "「まえ」の はんたいの ことば", "answer": "うしろ", "type": "text" },
+          { "text": "「たかい」の はんたいの ことば", "answer": "ひくい", "type": "text" },
+          { "text": "「あかるい」の はんたいの ことば", "answer": "くらい", "type": "text" }
+        ]
+      }
+    },
+    "grade2": {
+      "practice_db": {
+        "kanji": [
+          { "text": "「風」の よみかた：", "answer": "かぜ" },
+          { "text": "「家」の よみかた：", "answer": "いえ" },
+          { "text": "「海」の よみかた：", "answer": "うみ" },
+          { "text": "「谷」の よみかた：", "answer": "たに" },
+          { "text": "「野」の よみかた：", "answer": "の" },
+          { "text": "「原」の よみかた：", "answer": "はら" }
+        ],
+        "opposite": [
+          { "text": "「ひろい」の 反対：", "answer": "せまい" },
+          { "text": "「おもい」の 反対：", "answer": "かるい" },
+          { "text": "「あかるい」の 反対：", "answer": "くらい" },
+          { "text": "「とおい」の 反対：", "answer": "ちかい" },
+          { "text": "「つよい」の 反対：", "answer": "よわい" }
+        ],
+        "conjunction": [
+          { "text": "あめが ふってきた。（  ）、かさを さす。", "answer": "だから" },
+          { "text": "はしった。（  ）、まにおわなかった。", "answer": "しかし" },
+          { "text": "べんきょうした。（  ）、100てんが とれた。", "answer": "だから" },
+          { "text": "さがした。（  ）、みつからなかった。", "answer": "けれど" }
+        ]
+      }
+    }
+  }
+}

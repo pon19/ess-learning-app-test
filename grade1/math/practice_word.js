@@ -1,41 +1,5 @@
 let currentWordProblems = [];
-
-// 単元別の文章問題テンプレート
-const WORD_PROBLEM_TEMPLATES = {
-    // 10までの たしざん
-    basic_add: [
-        { text: "{item}が {p1}こ あります。{item}を {p2}こ もらいました。あわせて いくつに なりますか。", items: ["りんご", "みかん", "キャンディー", "クッキー"], type: "basic_add" },
-        { text: "{person}が {p1}にん いました。あとから {p2}にん きました。みんなで なんにんに なりましたか。", items: ["こども", "おともだち"], type: "basic_add" },
-        { text: "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。ぜんぶで いくつ ありますか。", items: ["ボール", "おはじき", "つみき"], type: "basic_add" }
-    ],
-    // 10までの ひきざん
-    basic_sub: [
-        { text: "{item}が {p1}こ あります。{p2}こ たべました。のこりは いくつですか。", items: ["いちご", "パン", "チョコレート"], type: "basic_sub" },
-        { text: "こうえんに {person}が {p1}にん いました。{p2}にん かえりました。のこりは なんにんですか。", items: ["こども", "おともだち"], type: "basic_sub" },
-        { text: "折り紙を {p1}まい もっていました。{p2}まい つかいました。のこりは なんまいですか。", items: ["おりがみ"], type: "basic_sub" }
-    ],
-    // くりあがりの ある たしざん
-    advanced_add: [
-        { text: "{item}が {p1}こ あります。{item}を {p2}こ もらいました。あわせて いくつに なりますか。", items: ["りんご", "みかん", "キャンディー"], type: "advanced_add" },
-        { text: "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。ぜんぶで いくつ ありますか。", items: ["ボール", "おはじき", "つみき"], type: "advanced_add" }
-    ],
-    // くりさがりが ある ひきざん
-    advanced_sub: [
-        { text: "{item}が {p1}こ あります。{p2}こ たべました。のこりは いくつですか。", items: ["ドーナツ", "キャンディー", "クッキー"], type: "advanced_sub" },
-        { text: "こうえんに {person}が {p1}にん いました。{p2}にん かえりました。のこりは なんにんですか。", items: ["こども", "おともだち"], type: "advanced_sub" }
-    ],
-    // 3つの かずの けいさん
-    three_nums: [
-        { text: "バスに {p1}にん のっていました。バスていで {p2}にん のって、さらに {p3}にん のってきました。みんなで なんにんになりましたか。", items: [], op: "+", type: "three_add" },
-        { text: "みかんが {p1}こ あります。あさに {p2}こ、ゆうがたに {p3}こ たべました。のこりは いくつですか。", items: [], op: "-", type: "three_sub" },
-        { text: "{item}が {p1}こ あります。{p2}こ もらって、そのあと {p3}こ たべました。いま いくつ ありますか。", items: ["あめ"], op: "+-", type: "three_mix" }
-    ],
-    // ちがいを くらべる（ひきざん）
-    compare: [
-        { text: "赤い {item}が {p1}こ、青い {item}が {p2}こ あります。赤い {item}の ほうが なんこ おおいですか。", items: ["おはじき", "ブロック", "シール"], type: "compare" },
-        { text: "お兄さんは {item}を {p1}こ、弟は {p2}こ もっています。ちがいは なんこですか。", items: ["カード", "どんぐり"], type: "compare" }
-    ]
-};
+let wordProblemTemplates = {}; // JSONから読み込んだテンプレートを格納
 
 document.addEventListener('DOMContentLoaded', async () => {
     // ユーザー情報の表示
@@ -51,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 全選択・全解除ボタンのイベント設定
     document.getElementById('selectAllBtn')?.addEventListener('click', () => setAllCheckboxes(true));
     document.getElementById('deselectAllBtn')?.addEventListener('click', () => setAllCheckboxes(false));
+
+    // 外部JSONテンプレートの読み込み
+    await loadTemplatesFromJSON();
 
     // リロード判定
     const navEntries = performance.getEntriesByType('navigation');
@@ -75,6 +42,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('checkBtn')?.addEventListener('click', checkAnswers);
 });
 
+/**
+ * problems_template.json からテンプレートを読み込む
+ */
+async function loadTemplatesFromJSON() {
+    try {
+        // パスはファイル位置に合わせて調整してください
+        const response = await fetch('../../problems_template.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.math?.grade1?.word_templates) {
+            wordProblemTemplates = data.math.grade1.word_templates;
+        } else {
+            console.warn('JSON内に指定のテンプレート構造が見つかりません。');
+        }
+    } catch (error) {
+        console.error('テンプレートJSONの読み込みに失敗しました:', error);
+    }
+}
+
 function setAllCheckboxes(checked) {
     const checkboxes = document.querySelectorAll('input[name="unit"]');
     checkboxes.forEach(cb => cb.checked = checked);
@@ -96,7 +85,7 @@ function generateNewProblems() {
 
     // ⚠️ 単元が1つも選択されていない場合のガード処理
     if (selectedUnits.length === 0) {
-        alert('たんげんを 1ついじょう えらんでね！');
+        alert('たんげんを 1ツイジョウ えらんでね！');
         return;
     }
 
@@ -106,7 +95,10 @@ function generateNewProblems() {
 
     for (let i = 0; i < count; i++) {
         const unit = selectedUnits[Math.floor(Math.random() * selectedUnits.length)];
-        const templates = WORD_PROBLEM_TEMPLATES[unit] || WORD_PROBLEM_TEMPLATES.basic_add;
+        const templates = wordProblemTemplates[unit] || wordProblemTemplates['basic_add'];
+
+        if (!templates || templates.length === 0) continue;
+
         const tpl = templates[Math.floor(Math.random() * templates.length)];
 
         let problemData = buildProblemFromTemplate(unit, tpl);
@@ -120,12 +112,14 @@ function generateNewProblems() {
 
     renderWordProblems(currentWordProblems);
 }
+
 /**
  * テンプレートと単元から具体的な数値・文章・解法を生成
  */
 function buildProblemFromTemplate(unit, tpl) {
     let p1, p2, p3, answer, eqStr, text;
-    let item = tpl.items.length > 0 ? tpl.items[Math.floor(Math.random() * tpl.items.length)] : '';
+    let items = tpl.items || [];
+    let item = items.length > 0 ? items[Math.floor(Math.random() * items.length)] : '';
 
     switch (unit) {
         case 'basic_add':
